@@ -1,0 +1,15 @@
+.idea
+
+cmake-build-debug/*
+cmake-build-release/*
+build/*
+
+data/
+
+extern/KaHIP/*
+extern/ProcessMappingVerifier/*
+extern/mt-kahypar/*
+
+extern/mt_kahypar_local/*
+
+external_tools/googletest/*
