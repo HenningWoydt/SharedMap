@@ -11,7 +11,7 @@
 #include "src/utility/macros.h"
 #include "src/datastructures/graph.h"
 #include "src/datastructures/translation_table.h"
-#include "src/utility/algorthm_configuration.h"
+#include "src/utility/algorithm_configuration.h"
 
 #include "interface/kaHIP_interface.h"
 #include <libmtkahypar.h>

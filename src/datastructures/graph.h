@@ -10,7 +10,6 @@
 #include "src/utility/macros.h"
 
 namespace SharedMap {
-
     struct Edge {
         u64 v;
         u64 w;
@@ -20,7 +19,7 @@ namespace SharedMap {
             this->w = w;
         }
 
-        bool operator<(const Edge &y) const {
+        bool operator<(const Edge& y) const {
             return v < y.v;
         }
     };
@@ -29,7 +28,6 @@ namespace SharedMap {
     * Standard undirected Graph that can hold vertex and edge weights.
     */
     class Graph {
-
     private:
         u64 m_n; // number of vertices
         u64 m_m; // number of edges
@@ -50,7 +48,7 @@ namespace SharedMap {
          *
          * @param file_path Path to the file.
          */
-        explicit Graph(const std::string &file_path) {
+        explicit Graph(const std::string& file_path) {
             if (!file_exists(file_path)) {
                 std::cerr << "File " << file_path << " does not exist!" << std::endl;
                 exit(EXIT_FAILURE);
@@ -114,7 +112,8 @@ namespace SharedMap {
 
                             u += 1;
                         }
-                    } else {
+                    }
+                    else {
                         // v_weights and no e_weights
                         while (std::getline(file, line)) {
                             if (line[0] == '%') { continue; }
@@ -131,7 +130,8 @@ namespace SharedMap {
                             u += 1;
                         }
                     }
-                } else {
+                }
+                else {
                     if (has_e_weights) {
                         // no v_weights and e_weights
                         while (std::getline(file, line)) {
@@ -147,7 +147,8 @@ namespace SharedMap {
 
                             u += 1;
                         }
-                    } else {
+                    }
+                    else {
                         // no v_weights and no e_weights
                         while (std::getline(file, line)) {
                             if (line[0] == '%') { continue; }
@@ -168,8 +169,8 @@ namespace SharedMap {
                     std::cerr << "Number of expected edges " << expected_edges << " not equal to number edges " << m_m << " found!" << std::endl;
                     exit(EXIT_FAILURE);
                 }
-
-            } else {
+            }
+            else {
                 std::cerr << "Could not open file " << file_path << "!" << std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -292,7 +293,7 @@ namespace SharedMap {
             u64 min = std::min(u, v);
             u64 max = std::max(u, v);
 
-            for (const Edge &e: m_adj[min]) {
+            for (const Edge& e : m_adj[min]) {
                 if (e.v == max) {
                     return true;
                 }
@@ -350,7 +351,7 @@ namespace SharedMap {
             u64 min = std::min(u, v);
             u64 max = std::max(u, v);
 
-            for (auto &e: m_adj[min]) {
+            for (auto& e : m_adj[min]) {
                 if (e.v == max) {
                     return e.w;
                 }
@@ -367,7 +368,7 @@ namespace SharedMap {
         u64 get_sum_edge_weights() const {
             u64 edge_weights = 0;
             for (u64 u = 0; u < m_n; ++u) {
-                for (const Edge &e: m_adj[u]) {
+                for (const Edge& e : m_adj[u]) {
                     edge_weights += e.w;
                 }
             }
@@ -380,7 +381,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @return Reference to the adjacency.
          */
-        std::vector<Edge> &operator[](u64 u) {
+        std::vector<Edge>& operator[](u64 u) {
             ASSERT(u < m_n);
 
             return m_adj[u];
@@ -392,7 +393,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @return Reference to the adjacency.
          */
-        const std::vector<Edge> &operator[](u64 u) const {
+        const std::vector<Edge>& operator[](u64 u) const {
             ASSERT(u < m_n);
 
             return m_adj[u];
@@ -422,12 +423,12 @@ namespace SharedMap {
 #endif
         }
 
-        void write_metis_graph(const std::string &file_path) const {
+        void write_metis_graph(const std::string& file_path) const {
             std::stringstream ss;
             ss << m_n << " " << m_m << " 011" << std::endl;
             for (u64 u = 0; u < m_n; ++u) {
                 ss << m_v_weights[u] << " ";
-                for (auto &e: m_adj[u]) {
+                for (auto& e : m_adj[u]) {
                     ss << e.v + 1 << " " << e.w << " ";
                 }
                 ss << std::endl;
@@ -438,7 +439,6 @@ namespace SharedMap {
             file.close();
         };
     };
-
 }
 
 #endif //SHAREDMAP_GRAPH_H

@@ -184,100 +184,12 @@ namespace SharedMap {
         free(kaffpa_partition);
     }
 
-    void mt_kahypar_partition_via_filesystem(const Graph &g,
-                                             const u64 k,
-                                             const f64 imbalance,
-                                             std::vector<u64> &partition,
-                                             const u64 mt_kahypar_config,
-                                             const u64 n_threads) {
-        ASSERT(imbalance >= 0.0);
-        ASSERT(k > 0);
-        g.assert_graph();
-
-        const u64 id = ((u64) std::rand() << 32) | std::rand();
-
-
-        // make temp directory
-        std::string dir = "temp_" + std::to_string(id);
-        if (!std::filesystem::is_directory(dir)) {
-            std::filesystem::create_directory(dir);
-        }
-
-        // write the graph to a file
-        std::string filename = "subgraph.graph";
-        g.write_metis_graph(dir + "/" + filename);
-
-        // let Mt-KaHyPar solve the graph
-        std::string exe = "../extern/mt-kahypar/build/mt-kahypar/application/MtKaHyPar";
-        std::string graph = " -h " + dir + "/" + filename + " --instance-type=graph --input-file-format=metis";
-        std::string preset = " --preset-type=";
-        if (mt_kahypar_config == MTKAHYPAR_DEFAULT) {
-            preset += "default";
-        } else if (mt_kahypar_config == MTKAHYPAR_QUALITY) {
-            preset += "quality";
-        } else if (mt_kahypar_config == MTKAHYPAR_HIGHEST_QUALITY) {
-            preset += "highest_quality";
-        } else {
-            std::cerr << "Mt-KaHyPar Config " << mt_kahypar_config << " not known!" << std::endl;
-            abort();
-        }
-        std::string threads = " -t " + std::to_string(n_threads);
-        std::string k_str = " -k " + std::to_string(k);
-        std::string e = " -e " + std::to_string(imbalance);
-        std::string metric = " -o cut --seed=0";
-        std::string partition_str = " --write-partition-file=true --partition-output-folder=" + dir;
-
-        std::string cmd = exe + graph + preset + threads + k_str + e + metric + partition_str + " > /dev/null 2>&1";
-        system(cmd.c_str());
-
-        // enough space
-        partition.resize(g.get_n());
-
-        // read the partition
-        std::string partition_file_name_start = dir + "/" + filename + ".part" + std::to_string(k) + ".epsilon";
-        std::string partition_file_name_end = ".seed0.KaHyPar";
-        std::string partition_file;
-
-        // Iterate over the directory
-        for (const auto &entry: std::filesystem::directory_iterator(dir)) {
-            // Check if the entry is a file and matches the pattern
-            if (entry.is_regular_file() && startsWith(entry.path(), partition_file_name_start) && endsWith(entry.path(), partition_file_name_end)) {
-                partition_file = entry.path();
-                break;
-            }
-        }
-
-        std::ifstream file(partition_file);
-        if (!file.is_open()) {
-            std::cerr << "Unable to open file: " << partition_file << std::endl;
-            exit(EXIT_FAILURE);
-        }
-
-        std::string line;
-        u64 i = 0;
-        while (std::getline(file, line)) {
-            if (line.back() == '\n') {
-                line.pop_back();
-            }
-            partition[i] = std::stoi(line);
-            i += 1;
-        }
-
-        file.close();
-
-        // remove folder
-        std::filesystem::remove_all(dir);
-    }
-
     void mt_kahypar_partition(const Graph &g,
                               const u64 k,
                               const f64 imbalance,
                               std::vector<u64> &partition,
                               const u64 mt_kahypar_config,
                               const u64 n_threads) {
-        // mt_kahypar_partition_via_filesystem(g, k, imbalance, partition, mt_kahypar_config, n_threads);
-        // return;
-
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
         g.assert_graph();

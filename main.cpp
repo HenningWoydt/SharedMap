@@ -1,16 +1,17 @@
 #include <iostream>
 
-#include "src/utility/algorthm_configuration.h"
+#include "src/utility/algorithm_configuration.h"
 #include "src/utility/command_line_parser.h"
+#include "src/datastructures/solver.h"
 
 using namespace SharedMap;
 
 int main(int argc, char *argv[]) {
-    // std::string graph_in = "../data/mapping/cop20k_A.mtx.graph";
+    std::string graph_in = "../data/mapping/cop20k_A.mtx.graph";
     // std::string graph_in = "../data/mapping/afshell9.graph";
     // std::string graph_in = "../data/mapping/2cubes_sphere.mtx.graph";
     // std::string graph_in = "../data/mapping/eur.graph";
-    std::string graph_in = "../data/mapping/deu.graph";
+    // std::string graph_in = "../data/mapping/deu.graph";
     // std::string graph_in = "../data/mapping/PGPgiantcompo.graph";
     // std::string graph_in = "../data/test/manual_graphs/0.graph";
     std::string mapping_out = "mapping.txt";
@@ -62,6 +63,9 @@ int main(int argc, char *argv[]) {
                               serial_alg_string,
                               n_threads,
                               parallel_strategy_string);
+
+    Solver solver(ac);
+    solver.solve();
 
     return 0;
 }

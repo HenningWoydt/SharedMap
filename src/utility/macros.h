@@ -6,6 +6,8 @@
 
 namespace SharedMap {
 
+#define GTEST_ASSERT_ENABLED true
+
 #ifndef ASSERT_ENABLED
 #define ASSERT_ENABLED false
 #endif

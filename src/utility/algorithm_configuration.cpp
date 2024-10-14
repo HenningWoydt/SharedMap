@@ -1,4 +1,4 @@
-#include "algorthm_configuration.h"
+#include "algorithm_configuration.h"
 
 namespace SharedMap {
     u64 parse_partitioning_algorithm(const std::string &alg) {
@@ -59,23 +59,6 @@ namespace SharedMap {
         }
         alg.pop_back();
         return alg;
-    }
-
-    u64 parse_parallel_library(const std::string &lib) {
-        std::vector<std::pair<std::string, u64>> libs = {
-                {"cpp_threads", CPP_THREADS},
-                {"openmp",      OPENMP},
-                {"intel_tbb",   INTEL_TBB}
-        };
-
-        for (auto &pair: libs) {
-            if (pair.first == lib) {
-                return pair.second;
-            }
-        }
-
-        std::cerr << "Library " << lib << " not recognized" << std::endl;
-        exit(EXIT_FAILURE);
     }
 
     u64 parse_parallel_strategy(const std::string &strategy) {

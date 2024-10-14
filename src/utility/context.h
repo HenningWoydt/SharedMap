@@ -8,7 +8,7 @@
 #include "src/utility/utils.h"
 #include "src/utility/JSON_utils.h"
 #include "src/profiling/stat_collector.h"
-#include "algorthm_configuration.h"
+#include "algorithm_configuration.h"
 
 namespace SharedMap {
 

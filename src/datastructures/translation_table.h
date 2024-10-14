@@ -8,7 +8,6 @@
 #include "src/utility/macros.h"
 
 namespace SharedMap {
-
     class TranslationTable {
     private:
         // std::map<u64, u64> m_translation_o_to_n;
@@ -76,23 +75,22 @@ namespace SharedMap {
             m_translation_n_to_o.clear();
         }
 
-        void merge(TranslationTable &tt) {
+        void merge(TranslationTable& tt) {
             m_translation_n_to_o.merge(tt.m_translation_n_to_o);
             m_translation_o_to_n.merge(tt.m_translation_o_to_n);
         }
 
         void print() {
             std::cout << "Old to New" << std::endl;
-            for (const auto &[key, value]: m_translation_o_to_n) {
+            for (const auto& [key, value] : m_translation_o_to_n) {
                 std::cout << key << " : " << value << std::endl;
             }
             std::cout << "New to old" << std::endl;
-            for (const auto &[key, value]: m_translation_n_to_o) {
+            for (const auto& [key, value] : m_translation_n_to_o) {
                 std::cout << key << " : " << value << std::endl;
             }
         }
     };
-
 }
 
 #endif //SHAREDMAP_TRANSLATION_TABLE_H

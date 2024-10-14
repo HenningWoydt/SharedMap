@@ -74,15 +74,23 @@ file(GLOB_RECURSE SHAREDMAP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE SHAREDMAP_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
 # create executable
-add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
+add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS}
+        src/datastructures/item.h
+        src/partitioning/serial.cpp
+        src/partitioning/serial.h
+        src/partitioning/partition_util.cpp
+        src/partitioning/partition_util.h)
 
 # Link KaHIP library
 target_link_libraries(SharedMap kahip)
 
 # Link TBB library
-target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy)
+target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
+
+# without this TBB wont link properly
+target_link_libraries(SharedMap "-Wl,--disable-new-dtags")
 
 # Link Mt-KaHyPar library
 target_include_directories(SharedMap PRIVATE ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/include)
 target_link_libraries(SharedMap ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib/libmtkahypar.so)
-# target_link_libraries(recpromap ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64/libmtkahypar.so)
+# target_link_libraries(SharedMap ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64/libmtkahypar.so)

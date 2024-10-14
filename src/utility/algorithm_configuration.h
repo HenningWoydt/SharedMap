@@ -1,5 +1,5 @@
-#ifndef SHAREDMAP_ALGORTHM_CONFIGURATION_H
-#define SHAREDMAP_ALGORTHM_CONFIGURATION_H
+#ifndef SHAREDMAP_ALGORITHM_CONFIGURATION_H
+#define SHAREDMAP_ALGORITHM_CONFIGURATION_H
 
 #include <string>
 
@@ -9,7 +9,6 @@
 #include "src/utility/JSON_utils.h"
 
 namespace SharedMap {
-
     // partitioning algorithms
     enum PartitioningAlgorithms {
         GREEDY,
@@ -28,35 +27,18 @@ namespace SharedMap {
      * @param alg The Algorithm.
      * @return The algorithm id.
      */
-    u64 parse_partitioning_algorithm(const std::string &alg);
+    u64 parse_partitioning_algorithm(const std::string& alg);
 
-    std::string parse_config_to_serial(const std::string &config, size_t n_layers);
-    std::string parse_config_to_parallel(const std::string &config, size_t n_layers);
-
-    // libraries to parallelize
-    enum ParallelLibrary {
-        CPP_THREADS,    // Default c++ threads
-        OPENMP,         // OpenMP library
-        INTEL_TBB       // Intel TBB library
-    };
-
-    /**
-     * Parses the parallel library given in the command line to the
-     * correct id.
-     *
-     * @param alg The Library.
-     * @return The algorithm id.
-     */
-    u64 parse_parallel_library(const std::string &lib);
+    std::string parse_config_to_serial(const std::string& config, size_t n_layers);
+    std::string parse_config_to_parallel(const std::string& config, size_t n_layers);
 
     // strategy
     enum ParallelStrategy {
-        SERIAL,         // no parallelization for comparison
+        SERIAL, // no parallelization for comparison
         GRAPH_PARALLEL, // subgraphs are processed with all threads one by one
-        LAYER,          // threads are distributed to all subgraphs in a layer
-        QUEUE,          // subgraphs are put in a queue and processed if threads are available
-        LAYER_NB        // layer approach, but threads do not wait until one layer is completed
-
+        LAYER, // threads are distributed to all subgraphs in a layer
+        QUEUE, // subgraphs are put in a queue and processed if threads are available
+        LAYER_NB // layer approach, but threads do not wait until one layer is completed
     };
 
     /**
@@ -66,7 +48,7 @@ namespace SharedMap {
      * @param strategy The Strategy.
      * @return The strategy id.
      */
-    u64 parse_parallel_strategy(const std::string &strategy);
+    u64 parse_parallel_strategy(const std::string& strategy);
 
     /**
     * Class to store the configuration of the algorithm.
@@ -87,6 +69,10 @@ namespace SharedMap {
         std::string distance_string;
         std::vector<u64> distance;
 
+        // info for correctly identifying subgraphs
+        std::vector<u64> index_vec; // index vector to correctly offset all resulting graphs
+        std::vector<u64> k_rem_vec; // remaining k vector
+
         // balancing information
         f64 imbalance;
 
@@ -103,58 +89,70 @@ namespace SharedMap {
         std::string parallel_strategy_string;
         u64 parallel_strategy_id;
 
-        AlgorithmConfiguration(const std::string &graph_in,
-                               const std::string &mapping_out,
-                               const std::string &statistics_out,
-                               const std::string &hierarchy_string,
-                               const std::string &distance_string,
+        AlgorithmConfiguration(const std::string& graph_in,
+                               const std::string& mapping_out,
+                               const std::string& statistics_out,
+                               const std::string& hierarchy_string,
+                               const std::string& distance_string,
                                const f64 imbalance,
-                               const std::string &parallel_alg_string,
-                               const std::string &serial_alg_string,
+                               const std::string& parallel_alg_string,
+                               const std::string& serial_alg_string,
                                const u64 n_threads,
-                               const std::string &parallel_strategy_string) {
-
+                               const std::string& parallel_strategy_string) {
             // graph information
-            this->graph_in = graph_in;
-            this->mapping_out = mapping_out;
+            this->graph_in       = graph_in;
+            this->mapping_out    = mapping_out;
             this->statistics_out = statistics_out;
 
             // hierarchy information
             this->hierarchy_string = hierarchy_string;
-            this->hierarchy = convert<u64>(split(hierarchy_string, ':'));
-            this->k = prod<u64, u64>(hierarchy);
+            this->hierarchy        = convert<u64>(split(hierarchy_string, ':'));
+            this->k                = prod<u64, u64>(hierarchy);
 
             // distance information
             this->distance_string = distance_string;
-            this->distance = convert<u64>(split(distance_string, ':'));
+            this->distance        = convert<u64>(split(distance_string, ':'));
+
+            // info for correctly identifying subgraphs
+            index_vec = {1};
+            for (u64 i = 0; i < hierarchy.size() - 1; ++i) {
+                index_vec.push_back(index_vec[i] * hierarchy[i]);
+            }
+
+            k_rem_vec.resize(hierarchy.size());
+            u64 p = 1;
+            for (u64 i = 0; i < hierarchy.size(); ++i) {
+                k_rem_vec[i] = p * hierarchy[i];
+                p *= hierarchy[i];
+            }
 
             // balancing information
             this->imbalance = imbalance;
 
             // partitioning algorithm
-            this->parallel_alg_string = parallel_alg_string;
+            this->parallel_alg_string              = parallel_alg_string;
             std::vector<std::string> temp_parallel = split(parallel_alg_string, ':');
-            for (auto &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
-            this->serial_alg_string = serial_alg_string;
+            for (auto& s : temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            this->serial_alg_string              = serial_alg_string;
             std::vector<std::string> temp_serial = split(serial_alg_string, ':');
-            for (auto &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto& s : temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
 
             // number of threads
             this->n_threads = n_threads;
 
             // parallel strategy
             this->parallel_strategy_string = parallel_strategy_string;
-            this->parallel_strategy_id = parse_parallel_strategy(parallel_strategy_string);
+            this->parallel_strategy_id     = parse_parallel_strategy(parallel_strategy_string);
 
-            if(hierarchy.size() != distance.size()){
+            if (hierarchy.size() != distance.size()) {
                 std::cout << "Hierarchy (size " << hierarchy.size() << ") and Distance (size " << distance.size() << ") are not equal!" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            if(hierarchy.size() != serial_alg_id.size()){
+            if (hierarchy.size() != serial_alg_id.size()) {
                 std::cout << "Hierarchy (size " << hierarchy.size() << ") and Serial Alg (size " << serial_alg_id.size() << ") are not equal!" << std::endl;
                 exit(EXIT_FAILURE);
             }
-            if(hierarchy.size() != parallel_alg_id.size()){
+            if (hierarchy.size() != parallel_alg_id.size()) {
                 std::cout << "Hierarchy (size " << hierarchy.size() << ") and Parallel Alg (size " << parallel_alg_id.size() << ") are not equal!" << std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -174,6 +172,8 @@ namespace SharedMap {
             s += tabs + to_JSON_MACRO(k);
             s += tabs + to_JSON_MACRO(distance_string);
             s += tabs + to_JSON_MACRO(distance);
+            s += tabs + to_JSON_MACRO(index_vec);
+            s += tabs + to_JSON_MACRO(k_rem_vec);
             s += tabs + to_JSON_MACRO(imbalance);
             s += tabs + to_JSON_MACRO(parallel_alg_string);
             s += tabs + to_JSON_MACRO(parallel_alg_id);
@@ -189,7 +189,6 @@ namespace SharedMap {
             return s;
         }
     };
-
 }
 
 #endif //SHAREDMAP_ALGORTHM_CONFIGURATION_H
