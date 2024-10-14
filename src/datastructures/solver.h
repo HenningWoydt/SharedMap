@@ -7,6 +7,7 @@
 #include "src/utility/JSON_utils.h"
 #include "src/utility/algorthm_configuration.h"
 #include "graph.h"
+#include "src/profiling/stat_collector.h"
 
 namespace SharedMap {
 
@@ -14,6 +15,7 @@ namespace SharedMap {
 
     private:
         const AlgorithmConfiguration &m_ac;
+        StatCollector stat_collector;
 
         f64 io_time = 0.0;
         f64 solve_time = 0.0;

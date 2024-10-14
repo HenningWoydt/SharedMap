@@ -1,5 +1,5 @@
-#ifndef MT_RECPROMAP_PARTITION_H
-#define MT_RECPROMAP_PARTITION_H
+#ifndef SHAREDMAP_PARTITION_H
+#define SHAREDMAP_PARTITION_H
 
 #include <memory>
 #include <vector>
@@ -9,14 +9,14 @@
 
 #include "src/utility/definitions.h"
 #include "src/utility/macros.h"
-#include "graph.h"
-#include "translation_table.h"
+#include "src/datastructures/graph.h"
+#include "src/datastructures/translation_table.h"
 #include "src/utility/algorthm_configuration.h"
 
 #include "interface/kaHIP_interface.h"
 #include <libmtkahypar.h>
 
-namespace RecProMap {
+namespace SharedMap {
 
     /**
      * Partitions a graph into k partitions in a greedy like fashion. This
@@ -66,4 +66,4 @@ namespace RecProMap {
 
 }
 
-#endif //MT_RECPROMAP_PARTITION_H
+#endif //SHAREDMAP_PARTITION_H

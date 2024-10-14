@@ -1,6 +1,6 @@
 #include "partition.h"
 
-namespace RecProMap {
+namespace SharedMap {
 
     void greedy_partition(const Graph &g,
                           const u64 k,
