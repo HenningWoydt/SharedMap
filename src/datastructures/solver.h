@@ -3,6 +3,10 @@
 
 #include "src/datastructures/graph.h"
 #include "src/datastructures/translation_table.h"
+#include "src/partitioning/layer.h"
+#include "src/partitioning/naive.h"
+#include "src/partitioning/nb_layer.h"
+#include "src/partitioning/queue.h"
 #include "src/partitioning/serial.h"
 #include "src/profiling/stat_collector.h"
 #include "src/utility/algorithm_configuration.h"
@@ -56,41 +60,17 @@ namespace SharedMap {
             case SERIAL:
                 return solve_serial(g, m_ac, stat_collector);
             case GRAPH_PARALLEL:
-                return solve_naive(g);
+                return solve_naive(g, m_ac, stat_collector);
             case LAYER:
-                return solve_layer(g);
+                return solve_layer(g, m_ac, stat_collector);
             case QUEUE:
-                return solve_queue(g);
+                return solve_queue(g, m_ac, stat_collector);
             case LAYER_NB:
-                return solve_layer_nb(g);
+                return solve_nb_layer(g, m_ac, stat_collector);
             default:
                 std::cerr << "Strategy ID " << m_ac.parallel_strategy_id << " not recognized!" << std::endl;
                 abort();
             }
-        }
-
-        std::vector<u64> solve_naive(const Graph& g) {
-            std::vector<u64> partition(g.get_n());
-
-            return partition;
-        }
-
-        std::vector<u64> solve_layer(const Graph& g) {
-            std::vector<u64> partition(g.get_n());
-
-            return partition;
-        }
-
-        std::vector<u64> solve_queue(const Graph& g) {
-            std::vector<u64> partition(g.get_n());
-
-            return partition;
-        }
-
-        std::vector<u64> solve_layer_nb(const Graph& g) {
-            std::vector<u64> partition(g.get_n());
-
-            return partition;
         }
 
         void write_solution(const std::vector<u64>& partition) const {

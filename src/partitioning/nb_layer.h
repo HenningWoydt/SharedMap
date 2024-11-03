@@ -1,6 +1,15 @@
 #ifndef SHAREDMAP_NB_LAYER_H
 #define SHAREDMAP_NB_LAYER_H
 
-namespace SharedMap {}
+#include <vector>
+
+#include "src/datastructures/graph.h"
+#include "src/profiling/stat_collector.h"
+#include "src/utility/algorithm_configuration.h"
+#include "src/utility/definitions.h"
+
+namespace SharedMap {
+    std::vector<u64> solve_nb_layer(const Graph& original_g, const AlgorithmConfiguration& config, StatCollector& stat_collector);
+}
 
 #endif //SHAREDMAP_NB_LAYER_H
