@@ -74,12 +74,7 @@ file(GLOB_RECURSE SHAREDMAP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE SHAREDMAP_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
 # create executable
-add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS}
-        src/datastructures/item.h
-        src/partitioning/serial.cpp
-        src/partitioning/serial.h
-        src/partitioning/partition_util.cpp
-        src/partitioning/partition_util.h)
+add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
 
 # Link KaHIP library
 target_link_libraries(SharedMap kahip)

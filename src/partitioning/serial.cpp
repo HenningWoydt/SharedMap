@@ -4,9 +4,9 @@
 #include "src/partitioning/partition_util.h"
 
 namespace SharedMap {
-    std::vector<u64> solve_serial(const Graph& g, const AlgorithmConfiguration& config, StatCollector& stat_collector) {
-        std::vector<u64> partition(g.get_n()); // end partition
-        TranslationTable tt(g.get_n()); // default translation table
+    std::vector<u64> solve_serial(const Graph& original_g, const AlgorithmConfiguration& config, StatCollector& stat_collector) {
+        std::vector<u64> partition(original_g.get_n()); // end partition
+        TranslationTable original_tt(original_g.get_n()); // default translation table
 
         // references for better code readability
         const std::vector<u64>& hierarchy = config.hierarchy;
@@ -14,11 +14,11 @@ namespace SharedMap {
         const std::vector<u64>& index_vec = config.index_vec;
         const std::vector<u64>& k_rem_vec = config.k_rem_vec;
         const f64 global_imbalance        = config.imbalance;
-        const u64 global_g_weight         = g.get_weight();
+        const u64 global_g_weight         = original_g.get_weight();
         const u64 global_k                = config.k;
 
         // initialize stack;
-        std::vector<Item> stack = {{new std::vector<u64>(), const_cast<Graph*>(&g), &tt, false}};
+        std::vector<Item> stack = {{new std::vector<u64>(), const_cast<Graph*>(&original_g), &original_tt, false}};
 
         std::vector<Item> temp_stack;
 
@@ -32,11 +32,11 @@ namespace SharedMap {
             const std::vector<u64>& identifier = (*item.identifier);
 
             // get depth info
-            u64 depth       = l - 1 - identifier.size();
-            u64 local_k     = hierarchy[depth];
-            u64 local_k_rem = k_rem_vec[depth];
+            const u64 depth       = l - 1 - identifier.size();
+            const u64 local_k     = hierarchy[depth];
+            const u64 local_k_rem = k_rem_vec[depth];
 
-            f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.get_weight(), local_k_rem, depth + 1);
+            const f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.get_weight(), local_k_rem, depth + 1);
 
             // determine the partition for this graph
             partition_graph(g, local_k, local_imbalance, partition, 1, depth, config.serial_alg_id, config.parallel_alg_id);
