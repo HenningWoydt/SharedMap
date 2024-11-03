@@ -4,9 +4,9 @@
 #include <string>
 
 #include "src/utility/definitions.h"
+#include "src/utility/JSON_utils.h"
 #include "src/utility/macros.h"
 #include "src/utility/utils.h"
-#include "src/utility/JSON_utils.h"
 
 namespace SharedMap {
     // partitioning algorithms

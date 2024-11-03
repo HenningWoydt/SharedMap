@@ -1,13 +1,13 @@
 #ifndef SHAREDMAP_GRAPH_H
 #define SHAREDMAP_GRAPH_H
 
-#include <vector>
 #include <fstream>
 #include <regex>
+#include <vector>
 
 #include "src/utility/definitions.h"
-#include "src/utility/utils.h"
 #include "src/utility/macros.h"
+#include "src/utility/utils.h"
 
 namespace SharedMap {
     struct Edge {
@@ -70,9 +70,9 @@ namespace SharedMap {
 
                     // read in header
                     std::vector<std::string> header = split(line, ' ');
-                    m_n = std::stoi(header[0]);
-                    m_m = 0;
-                    expected_edges = std::stoi(header[1]);
+                    m_n                             = std::stoi(header[0]);
+                    m_m                             = 0;
+                    expected_edges                  = std::stoi(header[1]);
 
                     m_v_edges.resize(m_n, 0);
                     m_v_weights.resize(m_n, 1);
@@ -112,8 +112,7 @@ namespace SharedMap {
 
                             u += 1;
                         }
-                    }
-                    else {
+                    } else {
                         // v_weights and no e_weights
                         while (std::getline(file, line)) {
                             if (line[0] == '%') { continue; }
@@ -130,8 +129,7 @@ namespace SharedMap {
                             u += 1;
                         }
                     }
-                }
-                else {
+                } else {
                     if (has_e_weights) {
                         // no v_weights and e_weights
                         while (std::getline(file, line)) {
@@ -147,8 +145,7 @@ namespace SharedMap {
 
                             u += 1;
                         }
-                    }
-                    else {
+                    } else {
                         // no v_weights and no e_weights
                         while (std::getline(file, line)) {
                             if (line[0] == '%') { continue; }
@@ -169,8 +166,7 @@ namespace SharedMap {
                     std::cerr << "Number of expected edges " << expected_edges << " not equal to number edges " << m_m << " found!" << std::endl;
                     exit(EXIT_FAILURE);
                 }
-            }
-            else {
+            } else {
                 std::cerr << "Could not open file " << file_path << "!" << std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -201,7 +197,7 @@ namespace SharedMap {
          */
         void set_vertex_weight(u64 u, u64 weight = 1) {
             ASSERT(u < m_n);
-            m_g_weight = m_g_weight - m_v_weights[u] + weight;
+            m_g_weight     = m_g_weight - m_v_weights[u] + weight;
             m_v_weights[u] = weight;
         }
 

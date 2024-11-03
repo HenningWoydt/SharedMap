@@ -1,11 +1,10 @@
 #ifndef SHAREDMAP_MACROS_H
 #define SHAREDMAP_MACROS_H
 
-#include <string>
 #include <iostream>
+#include <string>
 
 namespace SharedMap {
-
 #define GTEST_ASSERT_ENABLED true
 
 #ifndef ASSERT_ENABLED
@@ -19,7 +18,6 @@ namespace SharedMap {
 #endif
 
 #define dump(x) std::cout << (#x) << " is " << (x) << std::endl
-
 }
 
 #endif //SHAREDMAP_MACROS_H

@@ -1,23 +1,24 @@
 #include "serial.h"
 
-#include "partition_util.h"
+#include "src/datastructures/item.h"
+#include "src/partitioning/partition_util.h"
 
 namespace SharedMap {
-    std::vector<u64> solve_serial(const Graph &g, const AlgorithmConfiguration &config, StatCollector &stat_collector) {
+    std::vector<u64> solve_serial(const Graph& g, const AlgorithmConfiguration& config, StatCollector& stat_collector) {
         std::vector<u64> partition(g.get_n()); // end partition
         TranslationTable tt(g.get_n()); // default translation table
 
         // references for better code readability
-        const std::vector<u64> &hierarchy = config.hierarchy;
-        const size_t l = hierarchy.size();
-        const std::vector<u64> &index_vec = config.index_vec;
-        const std::vector<u64> &k_rem_vec = config.k_rem_vec;
-        const f64 global_imbalance = config.imbalance;
-        const u64 global_g_weight = g.get_weight();
-        const u64 global_k = config.k;
+        const std::vector<u64>& hierarchy = config.hierarchy;
+        const size_t l                    = hierarchy.size();
+        const std::vector<u64>& index_vec = config.index_vec;
+        const std::vector<u64>& k_rem_vec = config.k_rem_vec;
+        const f64 global_imbalance        = config.imbalance;
+        const u64 global_g_weight         = g.get_weight();
+        const u64 global_k                = config.k;
 
         // initialize stack;
-        std::vector<Item> stack = {{new std::vector<u64>(), const_cast<Graph *>(&g), &tt, false}};
+        std::vector<Item> stack = {{new std::vector<u64>(), const_cast<Graph*>(&g), &tt, false}};
 
         std::vector<Item> temp_stack;
 
@@ -26,13 +27,13 @@ namespace SharedMap {
             stack.pop_back(); // remove top item
 
             // first process the item given, load item to process
-            const Graph &g = (*item.g);
-            const TranslationTable &tt = (*item.tt);
-            const std::vector<u64> &identifier = (*item.identifier);
+            const Graph& g                     = (*item.g);
+            const TranslationTable& tt         = (*item.tt);
+            const std::vector<u64>& identifier = (*item.identifier);
 
             // get depth info
-            u64 depth = l - 1 - identifier.size();
-            u64 local_k = hierarchy[depth];
+            u64 depth       = l - 1 - identifier.size();
+            u64 local_k     = hierarchy[depth];
             u64 local_k_rem = k_rem_vec[depth];
 
             f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.get_weight(), local_k_rem, depth + 1);
@@ -53,7 +54,7 @@ namespace SharedMap {
                 create_sub_graphs(g, tt, local_k, partition, identifier, temp_stack, depth, 1, stat_collector);
 
                 // push graphs into next work, this has to be thread safe
-                for (auto & i : temp_stack) {
+                for (auto& i : temp_stack) {
                     stack.emplace_back(i);
                 }
             }
@@ -62,7 +63,5 @@ namespace SharedMap {
         }
 
         return partition;
-
-
     }
 }

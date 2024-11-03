@@ -1,7 +1,6 @@
 #ifndef SHAREDMAP_TRANSLATION_TABLE_H
 #define SHAREDMAP_TRANSLATION_TABLE_H
 
-#include <map>
 #include <unordered_map>
 
 #include "src/utility/definitions.h"
@@ -10,9 +9,6 @@
 namespace SharedMap {
     class TranslationTable {
     private:
-        // std::map<u64, u64> m_translation_o_to_n;
-        // std::map<u64, u64> m_translation_n_to_o;
-
         std::unordered_map<u64, u64> m_translation_o_to_n;
         std::unordered_map<u64, u64> m_translation_n_to_o;
 

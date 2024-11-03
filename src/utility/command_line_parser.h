@@ -1,11 +1,7 @@
 #ifndef SHAREDMAP_COMMAND_LINE_PARSER_H
 #define SHAREDMAP_COMMAND_LINE_PARSER_H
 
-#include "src/utility/definitions.h"
-#include "src/utility/macros.h"
-
 namespace SharedMap {
-
     struct CommandLineOption {
         std::string large_key;
         std::string small_key;
@@ -29,10 +25,10 @@ namespace SharedMap {
                 {"parallelStrategy", "", "Parallel strategy", ""},
                 {"partitionAlgParallel", "", "Parallel Partitioning Algorithm", ""},
                 {"partitionAlgSerial", "", "Serial Partitioning Algorithm", ""},
-        };
+            };
 
     public:
-        CommandLineParser(int argc, char *argv[]) {
+        CommandLineParser(int argc, char* argv[]) {
             // read command lines into vector
             std::vector<std::string> args;
             args.reserve(argc);
@@ -42,14 +38,14 @@ namespace SharedMap {
 
             // read all command line args
             for (int i = 1; i < argc; ++i) {
-                if(args[i] == "help"){
+                if (args[i] == "help") {
                     print_help_message();
                     exit(EXIT_FAILURE);
                 }
 
-                for (auto &opt: options) {
+                for (auto& opt : options) {
                     if (opt.large_key == args[i] || opt.small_key == args[i]) {
-                        opt.input = args[i+1];
+                        opt.input  = args[i + 1];
                         opt.is_set = true;
                         i += 1;
                         break;
@@ -58,8 +54,8 @@ namespace SharedMap {
             }
         }
 
-        std::string get(const std::string &var) {
-            for (const auto &opt: options) {
+        std::string get(const std::string& var) {
+            for (const auto& opt : options) {
                 if (opt.large_key == var || opt.small_key == var) {
                     if (opt.input.empty()) {
                         std::cout << "Command Line \"" << var << "\" not set!" << std::endl;
@@ -72,8 +68,8 @@ namespace SharedMap {
             exit(EXIT_FAILURE);
         }
 
-        bool is_set(const std::string &var){
-            for (const auto &opt: options) {
+        bool is_set(const std::string& var) {
+            for (const auto& opt : options) {
                 if (opt.large_key == var || opt.small_key == var) {
                     return opt.is_set;
                 }
@@ -82,8 +78,8 @@ namespace SharedMap {
             exit(EXIT_FAILURE);
         }
 
-        void print_help_message(){
-            for (const auto &opt: options) {
+        void print_help_message() {
+            for (const auto& opt : options) {
                 std::cout << "[ --" << opt.large_key << ", -" << opt.small_key << "] - " << opt.description << std::endl;
             }
         }

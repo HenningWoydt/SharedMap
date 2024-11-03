@@ -1,8 +1,6 @@
-#include <iostream>
-
+#include "src/datastructures/solver.h"
 #include "src/utility/algorithm_configuration.h"
 #include "src/utility/command_line_parser.h"
-#include "src/datastructures/solver.h"
 
 using namespace SharedMap;
 

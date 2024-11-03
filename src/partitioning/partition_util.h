@@ -6,6 +6,7 @@
 #include "src/datastructures/graph.h"
 #include "src/datastructures/item.h"
 #include "src/datastructures/translation_table.h"
+#include "src/partitioning/partition.h"
 #include "src/profiling/stat_collector.h"
 #include "src/utility/definitions.h"
 
@@ -30,8 +31,8 @@ namespace SharedMap {
                            const TranslationTable& g_tt,
                            const u64 k,
                            const std::vector<u64>& partition,
-                           const std::vector<u64> &identifier,
-                           std::vector<Item> &temp_stack,
+                           const std::vector<u64>& identifier,
+                           std::vector<Item>& temp_stack,
                            const u64 depth,
                            const u64 n_threads,
                            StatCollector& stat_collector);

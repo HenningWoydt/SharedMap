@@ -1,22 +1,22 @@
 #ifndef SHAREDMAP_ITEM_H
 #define SHAREDMAP_ITEM_H
 
-#include "graph.h"
-#include "translation_table.h"
+#include "src/datastructures/graph.h"
+#include "src/datastructures/translation_table.h"
 
 namespace SharedMap {
     class Item {
     public:
-        std::vector<u64> *identifier = nullptr; // used to identify the current graph in the recursive partitioning
-        Graph *g = nullptr; // graph to partition
-        TranslationTable *tt = nullptr; // the tt from original graph to this graph
+        std::vector<u64>* identifier = nullptr; // used to identify the current graph in the recursive partitioning
+        Graph* g                     = nullptr; // graph to partition
+        TranslationTable* tt         = nullptr; // the tt from original graph to this graph
         bool to_delete; // whether to free the memory
 
         Item() {
             identifier = nullptr;
-            g = nullptr;
-            tt = nullptr;
-            to_delete = false;
+            g          = nullptr;
+            tt         = nullptr;
+            to_delete  = false;
         }
 
         /**
@@ -27,11 +27,11 @@ namespace SharedMap {
          * @param tt The Translation Table to the original graph.
          * @param to_delete Whether to delete the memory of the item after processing.
          */
-        Item(std::vector<u64> *identifier, Graph *g, TranslationTable *tt, bool to_delete) {
+        Item(std::vector<u64>* identifier, Graph* g, TranslationTable* tt, bool to_delete) {
             this->identifier = identifier;
-            this->g = g;
-            this->tt = tt;
-            this->to_delete = to_delete;
+            this->g          = g;
+            this->tt         = tt;
+            this->to_delete  = to_delete;
         }
 
         /**
@@ -44,12 +44,12 @@ namespace SharedMap {
             if (to_delete) {
                 delete g;
                 delete tt;
-                g = nullptr;
+                g  = nullptr;
                 tt = nullptr;
             }
         }
 
-        bool operator<(const Item &item) const {
+        bool operator<(const Item& item) const {
             return g->get_n() < item.g->get_n();
         }
     };

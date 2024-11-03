@@ -1,7 +1,5 @@
 #include "partition_util.h"
 
-#include "partition.h"
-#include "src/datastructures/item.h"
 #include "src/utility/algorithm_configuration.h"
 
 namespace SharedMap {

@@ -6,12 +6,10 @@
 #endif
 
 #include "src/utility/definitions.h"
-#include "src/utility/macros.h"
-#include "src/utility/utils.h"
 #include "src/utility/JSON_utils.h"
+#include "src/utility/utils.h"
 
 namespace SharedMap {
-
     /**
      * Class for collecting interesting statistics.
      */
@@ -100,7 +98,7 @@ namespace SharedMap {
         std::string to_JSON(u64 n_tabs = 0) const {
 #if STAT_COLLECTION
             std::string tabs;
-            for(size_t i = 0; i < n_tabs; ++i){ tabs.push_back('\t'); }
+            for (size_t i = 0; i < n_tabs; ++i) { tabs.push_back('\t'); }
 
             std::string s = "{\n";
 
@@ -131,7 +129,6 @@ namespace SharedMap {
             return "{}";
         }
     };
-
 }
 
 #endif //SHAREDMAP_STAT_COLLECTOR_H
