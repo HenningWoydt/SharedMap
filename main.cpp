@@ -5,15 +5,13 @@
 using namespace SharedMap;
 
 int main(int argc, char *argv[]) {
-    std::string graph_in = "../data/mapping/cop20k_A.mtx.graph";
+    // std::string graph_in = "../data/mapping/cop20k_A.mtx.graph";
     // std::string graph_in = "../data/mapping/afshell9.graph";
     // std::string graph_in = "../data/mapping/2cubes_sphere.mtx.graph";
-    // std::string graph_in = "../data/mapping/eur.graph";
+    std::string graph_in = "../data/mapping/eur.graph";
     // std::string graph_in = "../data/mapping/deu.graph";
     // std::string graph_in = "../data/mapping/PGPgiantcompo.graph";
     // std::string graph_in = "../data/test/manual_graphs/0.graph";
-    std::string mapping_out = "mapping.txt";
-    std::string statistics_out = "statistics.JSON";
     std::string hierarchy_string = "4:8:6";
     std::string distance_string = "1:10:100";
     f64 imbalance = 0.03;
@@ -22,6 +20,8 @@ int main(int argc, char *argv[]) {
     std::string serial_alg_string = "kaffpa_fast:kaffpa_fast:kaffpa_fast";
     u64 n_threads = 10;
     std::string parallel_strategy_string = "serial";
+    std::string mapping_out = "mapping.txt";
+    std::string statistics_out = parallel_strategy_string + "_statistics.JSON";
 
     bool use_command_line = argc > 1;
     if (use_command_line) {

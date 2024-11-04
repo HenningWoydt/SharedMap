@@ -1,10 +1,6 @@
 #ifndef SHAREDMAP_STAT_COLLECTOR_H
 #define SHAREDMAP_STAT_COLLECTOR_H
 
-#ifndef STAT_COLLECTION
-#define STAT_COLLECTION true
-#endif
-
 #include "src/utility/definitions.h"
 #include "src/utility/JSON_utils.h"
 #include "src/utility/utils.h"
@@ -15,88 +11,101 @@ namespace SharedMap {
      */
     class StatCollector {
     private:
-#if STAT_COLLECTION
         std::mutex lock;
+        std::chrono::high_resolution_clock::time_point log_sp;
 
         u32 n_layer;
 
+        // statistics for partitioning
         std::vector<f64> partition_time_per_layer; // log time on each depth
         f64 partition_time = 0.0;
 
-        std::vector<f64> statistic_time_per_layer; // log time on each depth
-        f64 statistic_time = 0.0;
+        std::vector<u64> size_per_graph;
+        std::vector<f64> start_time_per_graph;
+        std::vector<f64> time_per_graph;
+        std::vector<u64> alg_per_graph;
+        std::vector<u64> n_threads_per_graph;
+        std::vector<f64> imbalance_per_graph;
+        std::vector<u64> k_per_graph;
+        std::vector<u64> depth_per_graph;
 
-        std::vector<f64> sub_graph_creation_time_per_layer; // log time on each depth
-        f64 sub_graph_creation_time = 0.0;
+        // statistics for subgraph creation
+        std::vector<f64> subgraph_creation_time_per_layer;
+        f64 subgraph_creation_time = 0.0;
 
-        std::vector<u64> size_per_graph; // log size per graph
-        std::vector<u64> edge_weights_per_graph; // log the weight of edges
-        std::vector<f64> time_per_graph; // log time per graph
-        std::vector<u64> alg_per_graph; // log alg per graph
-        std::vector<u64> n_threads_per_graph; // log n_threads per graph
-        std::vector<f64> imbalance_per_graph; // log imbalance per graph
-        std::vector<u64> k_per_graph; // log imbalance per graph
-        std::vector<u64> distance_per_graph; // log distance per graph
-        std::vector<u64> edge_cut_per_graph; // log the edge cut of partitioned graph
-        std::vector<u64> weighted_edge_cut_per_graph; // log the weighted-edge cut of partitioned graph
-        std::vector<u64> comm_cost_per_graph; // log the communication cost of partitioned graph
-#endif
+        std::vector<u64> subgraph_size_per_graph;
+        std::vector<f64> subgraph_start_time_per_graph;
+        std::vector<f64> subgraph_time_per_graph;
+        std::vector<u64> subgraph_k_per_graph;
+        std::vector<u64> subgraph_n_threads_per_graph;
+        std::vector<u64> subgraph_depth_per_graph;
 
     public:
         explicit StatCollector() {
-#if STAT_COLLECTION
+            log_sp = std::chrono::high_resolution_clock::now();
             n_layer = 0;
-#endif
         }
 
         void initialize(u32 t_n_layer) {
-#if STAT_COLLECTION
+            log_sp = std::chrono::high_resolution_clock::now();
             n_layer = t_n_layer;
             partition_time_per_layer.resize(n_layer, 0.0);
-            statistic_time_per_layer.resize(n_layer, 0.0);
-            sub_graph_creation_time_per_layer.resize(n_layer, 0.0);
-#endif
+            subgraph_creation_time_per_layer.resize(n_layer, 0.0);
         }
 
-        void log_partition(u64 depth, u64 graph_size, u64 edge_weights, f64 time, u64 alg, u64 n_threads, f64 imbalance, u64 k, u64 distance, u64 edge_cut, u64 weighted_edge_cut, u64 comm_cost, f64 local_statistic_time) {
-#if STAT_COLLECTION
+        void log_partition(u64 depth,
+                           u64 graph_size,
+                           u64 alg,
+                           u64 n_threads,
+                           f64 imbalance,
+                           u64 k,
+                           const std::chrono::high_resolution_clock::time_point &sp,
+                           const std::chrono::high_resolution_clock::time_point &ep) {
             lock.lock();
+
+            f64 time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             partition_time_per_layer[depth] += time;
             partition_time += time;
 
-            statistic_time_per_layer[depth] += local_statistic_time;
-            statistic_time += local_statistic_time;
-
+            start_time_per_graph.emplace_back(start_time);
             size_per_graph.emplace_back(graph_size);
-            edge_weights_per_graph.emplace_back(edge_weights);
             time_per_graph.emplace_back(time);
             alg_per_graph.emplace_back(alg);
             n_threads_per_graph.emplace_back(n_threads);
             imbalance_per_graph.emplace_back(imbalance);
             k_per_graph.emplace_back(k);
-            distance_per_graph.emplace_back(distance);
-            edge_cut_per_graph.emplace_back(edge_cut);
-            weighted_edge_cut_per_graph.emplace_back(weighted_edge_cut);
-            comm_cost_per_graph.emplace_back(comm_cost);
+            depth_per_graph.emplace_back(depth);
 
             lock.unlock();
-#endif
         }
 
-        void add_subgraph_creation_time(u64 depth, f64 time) {
-#if STAT_COLLECTION
+        void log_subgraph_creation(u64 depth,
+                                   u64 graph_size,
+                                   u64 n_threads,
+                                   u64 k,
+                                   const std::chrono::high_resolution_clock::time_point &sp,
+                                   const std::chrono::high_resolution_clock::time_point &ep) {
             lock.lock();
 
-            sub_graph_creation_time_per_layer[depth] += time;
-            sub_graph_creation_time += time;
+            f64 time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
+
+            subgraph_creation_time_per_layer[depth] += time;
+            subgraph_creation_time += time;
+
+            subgraph_start_time_per_graph.emplace_back(start_time);
+            subgraph_size_per_graph.emplace_back(graph_size);
+            subgraph_time_per_graph.emplace_back(time);
+            subgraph_n_threads_per_graph.emplace_back(n_threads);
+            subgraph_k_per_graph.emplace_back(k);
+            subgraph_depth_per_graph.emplace_back(depth);
 
             lock.unlock();
-#endif
         }
 
         std::string to_JSON(u64 n_tabs = 0) const {
-#if STAT_COLLECTION
             std::string tabs;
             for (size_t i = 0; i < n_tabs; ++i) { tabs.push_back('\t'); }
 
@@ -105,28 +114,27 @@ namespace SharedMap {
             s += tabs + to_JSON_MACRO(n_layer);
             s += tabs + to_JSON_MACRO(partition_time_per_layer);
             s += tabs + to_JSON_MACRO(partition_time);
-            s += tabs + to_JSON_MACRO(statistic_time_per_layer);
-            s += tabs + to_JSON_MACRO(statistic_time);
-            s += tabs + to_JSON_MACRO(sub_graph_creation_time_per_layer);
-            s += tabs + to_JSON_MACRO(sub_graph_creation_time);
             s += tabs + to_JSON_MACRO(size_per_graph);
-            s += tabs + to_JSON_MACRO(edge_weights_per_graph);
+            s += tabs + to_JSON_MACRO(start_time_per_graph);
             s += tabs + to_JSON_MACRO(time_per_graph);
             s += tabs + to_JSON_MACRO(alg_per_graph);
             s += tabs + to_JSON_MACRO(n_threads_per_graph);
             s += tabs + to_JSON_MACRO(imbalance_per_graph);
             s += tabs + to_JSON_MACRO(k_per_graph);
-            s += tabs + to_JSON_MACRO(distance_per_graph);
-            s += tabs + to_JSON_MACRO(edge_cut_per_graph);
-            s += tabs + to_JSON_MACRO(weighted_edge_cut_per_graph);
-            s += tabs + to_JSON_MACRO(comm_cost_per_graph);
+            s += tabs + to_JSON_MACRO(depth_per_graph);
+            s += tabs + to_JSON_MACRO(subgraph_creation_time_per_layer);
+            s += tabs + to_JSON_MACRO(subgraph_creation_time);
+            s += tabs + to_JSON_MACRO(subgraph_size_per_graph);
+            s += tabs + to_JSON_MACRO(subgraph_start_time_per_graph);
+            s += tabs + to_JSON_MACRO(subgraph_time_per_graph);
+            s += tabs + to_JSON_MACRO(subgraph_n_threads_per_graph);
+            s += tabs + to_JSON_MACRO(subgraph_k_per_graph);
+            s += tabs + to_JSON_MACRO(subgraph_depth_per_graph);
 
             s.pop_back();
             s.pop_back();
             s += "\n" + tabs + "}";
             return s;
-#endif
-            return "{}";
         }
     };
 }

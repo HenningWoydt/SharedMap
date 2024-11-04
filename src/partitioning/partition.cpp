@@ -203,9 +203,8 @@ namespace SharedMap {
         partition.resize(g.get_n());
 
         // Initialize thread pool
-        mt_kahypar_initialize_thread_pool(
-                                          n_threads,
-                                          true); // activate interleaved NUMA allocation policy
+        mt_kahypar_initialize_thread_pool(n_threads,
+                                          false); // activate interleaved NUMA allocation policy
 
         // Setup partitioning context
         mt_kahypar_context_t* context = mt_kahypar_context_new();

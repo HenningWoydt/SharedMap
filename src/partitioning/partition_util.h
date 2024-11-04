@@ -19,22 +19,23 @@ namespace SharedMap {
                                      u64 depth);
 
     void partition_graph(const Graph& g,
-                         const u64 k,
-                         const f64 imbalance,
+                         u64 k,
+                         f64 imbalance,
                          std::vector<u64>& partition,
-                         const u64 n_threads,
-                         const u64 depth,
+                         u64 n_threads,
+                         u64 depth,
                          const std::vector<u64>& serial_alg_id,
-                         const std::vector<u64>& parallel_alg_id);
+                         const std::vector<u64>& parallel_alg_id,
+                         StatCollector& stat_collector);
 
     void create_sub_graphs(const Graph& g,
                            const TranslationTable& g_tt,
-                           const u64 k,
+                           u64 k,
                            const std::vector<u64>& partition,
                            const std::vector<u64>& identifier,
                            std::vector<Item>& temp_stack,
-                           const u64 depth,
-                           const u64 n_threads,
+                           u64 depth,
+                           u64 n_threads,
                            StatCollector& stat_collector);
 } // namespace SharedMap
 

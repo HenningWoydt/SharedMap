@@ -39,7 +39,7 @@ namespace SharedMap {
             const f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.get_weight(), local_k_rem, depth + 1);
 
             // partition the subgraph
-            partition_graph(g, local_k, local_imbalance, partition, n_threads, depth, config.serial_alg_id, config.parallel_alg_id);
+            partition_graph(g, local_k, local_imbalance, partition, n_threads, depth, config.serial_alg_id, config.parallel_alg_id, stat_collector);
 
             if (depth == 0) {
                 // insert solution

@@ -15,7 +15,7 @@ option(SHAREDMAP_ENABLE_ASSERTIONS "Enables Assertions." OFF)
 option(SHAREDMAP_DOWNLOAD_TBB "Downloads TBB." ON)
 
 # Set Release and Debug flags
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fopenmp -march=native -Wall -Wextra -pedantic ")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -fopenmp -march=native -Wall -Wextra -pedantic ")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic -fopenmp ")
 
 if (SHAREDMAP_ENABLE_ASSERTIONS)

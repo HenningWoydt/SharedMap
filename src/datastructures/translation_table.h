@@ -37,8 +37,8 @@ namespace SharedMap {
             ASSERT(m_translation_o_to_n.find(o) == m_translation_o_to_n.end());
             ASSERT(m_translation_n_to_o.find(n) == m_translation_n_to_o.end());
 
-            m_translation_o_to_n[o] = n;
-            m_translation_n_to_o[n] = o;
+            m_translation_o_to_n.insert({o, n});
+            m_translation_n_to_o.insert({n, o});
         }
 
         /**
@@ -61,30 +61,6 @@ namespace SharedMap {
             ASSERT(m_translation_n_to_o.find(n) != m_translation_n_to_o.end());
 
             return m_translation_n_to_o.at(n);
-        }
-
-        /**
-         * Removes all entries.
-         */
-        void clear() {
-            m_translation_o_to_n.clear();
-            m_translation_n_to_o.clear();
-        }
-
-        void merge(TranslationTable& tt) {
-            m_translation_n_to_o.merge(tt.m_translation_n_to_o);
-            m_translation_o_to_n.merge(tt.m_translation_o_to_n);
-        }
-
-        void print() {
-            std::cout << "Old to New" << std::endl;
-            for (const auto& [key, value] : m_translation_o_to_n) {
-                std::cout << key << " : " << value << std::endl;
-            }
-            std::cout << "New to old" << std::endl;
-            for (const auto& [key, value] : m_translation_n_to_o) {
-                std::cout << key << " : " << value << std::endl;
-            }
         }
     };
 }

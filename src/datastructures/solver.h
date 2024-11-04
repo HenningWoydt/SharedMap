@@ -43,7 +43,7 @@ namespace SharedMap {
 
             // write output
             sp = std::chrono::steady_clock::now();
-            // write_solution(partition);
+            write_solution(partition);
             ep = std::chrono::steady_clock::now();
             io_time += (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
@@ -88,7 +88,8 @@ namespace SharedMap {
 
             s += to_JSON_MACRO(io_time);
             s += to_JSON_MACRO(solve_time);
-            s += "\"ac\" : " + m_ac.to_JSON(2) + ",\n";
+            s += "\"algorithm-configuration\" : " + m_ac.to_JSON(2) + ",\n";
+            s += "\"statistics\" : " + stat_collector.to_JSON(2) + ",\n";
 
             s.pop_back();
             s.pop_back();

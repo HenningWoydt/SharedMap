@@ -5,7 +5,7 @@
 #include <string>
 
 namespace SharedMap {
-#define GTEST_ASSERT_ENABLED true
+#define GTEST_ASSERT_ENABLED false
 
 #ifndef ASSERT_ENABLED
 #define ASSERT_ENABLED false
