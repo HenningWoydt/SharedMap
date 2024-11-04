@@ -35,7 +35,7 @@ namespace SharedMap {
     // strategy
     enum ParallelStrategy {
         SERIAL, // no parallelization for comparison
-        GRAPH_PARALLEL, // subgraphs are processed with all threads one by one
+        NAIVE, // subgraphs are processed with all threads one by one
         LAYER, // threads are distributed to all subgraphs in a layer
         QUEUE, // subgraphs are put in a queue and processed if threads are available
         LAYER_NB // layer approach, but threads do not wait until one layer is completed
@@ -191,4 +191,4 @@ namespace SharedMap {
     };
 }
 
-#endif //SHAREDMAP_ALGORTHM_CONFIGURATION_H
+#endif //SHAREDMAP_ALGORITHM_CONFIGURATION_H

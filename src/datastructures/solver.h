@@ -59,7 +59,7 @@ namespace SharedMap {
             switch (m_ac.parallel_strategy_id) {
             case SERIAL:
                 return solve_serial(g, m_ac, stat_collector);
-            case GRAPH_PARALLEL:
+            case NAIVE:
                 return solve_naive(g, m_ac, stat_collector);
             case LAYER:
                 return solve_layer(g, m_ac, stat_collector);
