@@ -1,6 +1,8 @@
 #ifndef SHAREDMAP_LAYER_H
 #define SHAREDMAP_LAYER_H
 
+#include <atomic>
+#include <thread>
 #include <vector>
 
 #include "src/datastructures/graph.h"

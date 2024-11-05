@@ -6,19 +6,19 @@
 #include "interface/kaHIP_interface.h"
 
 namespace SharedMap {
-    void greedy_partition(const Graph& g,
+    void greedy_partition(const Graph &g,
                           const u64 k,
                           const f64 imbalance,
-                          std::vector<u64>& partition) {
+                          std::vector<u64> &partition) {
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
 
         // enough space
         partition.resize(g.get_n());
 
-        u64 total_weight       = g.get_weight();
-        u64 avg_weight         = (u64)((f64)total_weight / (f64)k);
-        u64 max_allowed_weight = (u64)((1.0 + imbalance) * (f64)avg_weight);
+        u64 total_weight = g.get_weight();
+        u64 avg_weight = (u64) ((f64) total_weight / (f64) k);
+        u64 max_allowed_weight = (u64) ((1.0 + imbalance) * (f64) avg_weight);
 
         // vectors to store each partition
         std::vector<std::vector<u64>> sets(k, std::vector<u64>{});
@@ -26,12 +26,12 @@ namespace SharedMap {
 
         // assign each vertex to the set with the smallest weight currently
         for (u64 u = 0; u < g.get_n(); ++u) {
-            u64 best_set   = 0;
+            u64 best_set = 0;
             u64 min_weight = set_weight[0];
 
             for (u64 i = 0; i < k; ++i) {
                 if (set_weight[i] < min_weight) {
-                    best_set   = i;
+                    best_set = i;
                     min_weight = set_weight[i];
                 }
             }
@@ -42,29 +42,29 @@ namespace SharedMap {
 
         // move vertices, such that a balanced partition arises
         u64 max_tries = 1000;
-        u64 n_tries   = 0;
+        u64 n_tries = 0;
         while (max(set_weight) > max_allowed_weight && n_tries < max_tries) {
             n_tries += 1;
             // get the set with most and minimal weight
-            u64 max_set    = 0;
+            u64 max_set = 0;
             u64 max_weight = set_weight[0];
-            u64 min_set    = 0;
+            u64 min_set = 0;
             u64 min_weight = set_weight[0];
 
             for (u64 i = 0; i < k; ++i) {
                 if (set_weight[i] > max_weight) {
-                    max_set    = i;
+                    max_set = i;
                     max_weight = set_weight[i];
                 }
                 if (set_weight[i] < min_weight) {
-                    min_set    = i;
+                    min_set = i;
                     min_weight = set_weight[i];
                 }
             }
 
             // move a vertex from max to min
             for (u64 i = 0; i < sets[max_set].size(); ++i) {
-                u64 u        = sets[max_set][i];
+                u64 u = sets[max_set][i];
                 u64 u_weight = g.get_vertex_weight(u);
 
                 bool min_set_overloaded = (set_weight[min_set] + u_weight) > max_allowed_weight;
@@ -96,10 +96,10 @@ namespace SharedMap {
     }
 
 
-    void kaffpa_partition(const Graph& g,
+    void kaffpa_partition(const Graph &g,
                           const u64 k,
                           const f64 imbalance,
-                          std::vector<u64>& partition,
+                          std::vector<u64> &partition,
                           const u64 kaffpa_config) {
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
@@ -108,45 +108,45 @@ namespace SharedMap {
         partition.resize(g.get_n());
 
         // number of vertices and edges
-        int n = (int)g.get_n();
-        int m = (int)g.get_m();
+        int n = (int) g.get_n();
+        int m = (int) g.get_m();
 
         // vertex weights
-        int* v_weights = (int*)malloc(n * sizeof(int));
-        for (int i = 0; i < n; ++i) { v_weights[i] = (int)g.get_vertex_weight(i); }
+        int *v_weights = (int *) malloc(n * sizeof(int));
+        for (int i = 0; i < n; ++i) { v_weights[i] = (int) g.get_vertex_weight(i); }
 
         // pointer to adjacency lists
-        int* adj_ptr   = (int*)malloc((n + 1) * sizeof(int));
-        int* adj       = (int*)malloc(2 * m * sizeof(int));
-        int* e_weights = (int*)malloc(2 * m * sizeof(int));
+        int *adj_ptr = (int *) malloc((n + 1) * sizeof(int));
+        int *adj = (int *) malloc(2 * m * sizeof(int));
+        int *e_weights = (int *) malloc(2 * m * sizeof(int));
 
-        int* insert_idx = (int*)malloc((n + 1) * sizeof(int));
+        int *insert_idx = (int *) malloc((n + 1) * sizeof(int));
 
         // set adj_ptr
-        adj_ptr[0]    = 0;
+        adj_ptr[0] = 0;
         insert_idx[0] = 0;
         for (int u = 0; u < n; ++u) {
-            adj_ptr[u + 1]    = adj_ptr[u] + (int)g.get_vertex_n_edge(u);
-            insert_idx[u + 1] = insert_idx[u] + (int)g.get_vertex_n_edge(u);
+            adj_ptr[u + 1] = adj_ptr[u] + (int) g.get_vertex_n_edge(u);
+            insert_idx[u + 1] = insert_idx[u] + (int) g.get_vertex_n_edge(u);
         }
 
         // adjacency and edge weights
         for (int u = 0; u < n; ++u) {
             // process each vertex
-            for (auto& e : g[u]) {
-                adj[insert_idx[u]]       = (int)e.v;
-                e_weights[insert_idx[u]] = (int)e.w;
+            for (auto &e: g[u]) {
+                adj[insert_idx[u]] = (int) e.v;
+                e_weights[insert_idx[u]] = (int) e.w;
                 insert_idx[u]++;
 
-                adj[insert_idx[e.v]]       = u;
-                e_weights[insert_idx[e.v]] = (int)e.w;
+                adj[insert_idx[e.v]] = u;
+                e_weights[insert_idx[e.v]] = (int) e.w;
                 insert_idx[e.v]++;
             }
         }
         free(insert_idx);
 
         // number of partitions
-        int n_partitions = (int)k;
+        int n_partitions = (int) k;
 
         // imbalance
         double kaffpa_imbalance = imbalance;
@@ -155,23 +155,23 @@ namespace SharedMap {
         int edge_cut;
 
         // partition result
-        int* kaffpa_partition = (int*)malloc(n * sizeof(int));
+        int *kaffpa_partition = (int *) malloc(n * sizeof(int));
 
         // mode
         int mode;
         switch (kaffpa_config) {
-        case KAFFPA_STRONG:
-            mode = STRONG;
-            break;
-        case KAFFPA_ECO:
-            mode = ECO;
-            break;
-        case KAFFPA_FAST:
-            mode = FAST;
-            break;
-        default:
-            std::cerr << "Kaffpa Config " << kaffpa_config << " not known!" << std::endl;
-            abort();
+            case KAFFPA_STRONG:
+                mode = STRONG;
+                break;
+            case KAFFPA_ECO:
+                mode = ECO;
+                break;
+            case KAFFPA_FAST:
+                mode = FAST;
+                break;
+            default:
+                std::cerr << "Kaffpa Config " << kaffpa_config << " not known!" << std::endl;
+                abort();
         }
 
         // execute kaffpa
@@ -189,10 +189,10 @@ namespace SharedMap {
         free(kaffpa_partition);
     }
 
-    void mt_kahypar_partition(const Graph& g,
+    void mt_kahypar_partition(const Graph &g,
                               const u64 k,
                               const f64 imbalance,
-                              std::vector<u64>& partition,
+                              std::vector<u64> &partition,
                               const u64 mt_kahypar_config,
                               const u64 n_threads) {
         ASSERT(imbalance >= 0.0);
@@ -207,27 +207,27 @@ namespace SharedMap {
                                           false); // activate interleaved NUMA allocation policy
 
         // Setup partitioning context
-        mt_kahypar_context_t* context = mt_kahypar_context_new();
+        mt_kahypar_context_t *context = mt_kahypar_context_new();
         mt_kahypar_preset_type_t preset;
         switch (mt_kahypar_config) {
-        case MTKAHYPAR_DEFAULT:
-            preset = DEFAULT;
-            break;
-        case MTKAHYPAR_QUALITY:
-            preset = QUALITY;
-            break;
-        case MTKAHYPAR_HIGHEST_QUALITY:
-            preset = HIGHEST_QUALITY;
-            break;
-        default:
-            std::cerr << "Mt-KaHyPar Config " << mt_kahypar_config << " not known!" << std::endl;
-            abort();
+            case MTKAHYPAR_DEFAULT:
+                preset = DEFAULT;
+                break;
+            case MTKAHYPAR_QUALITY:
+                preset = QUALITY;
+                break;
+            case MTKAHYPAR_HIGHEST_QUALITY:
+                preset = HIGHEST_QUALITY;
+                break;
+            default:
+                std::cerr << "Mt-KaHyPar Config " << mt_kahypar_config << " not known!" << std::endl;
+                abort();
         }
         mt_kahypar_load_preset(context, preset);
         // In the following, we partition a hypergraph into two blocks
         // with an allowed imbalance of 3% and optimize the connective metric (KM1)
         mt_kahypar_set_partitioning_parameters(context,
-                                               (int)k /* number of blocks */,
+                                               (int) k /* number of blocks */,
                                                imbalance /* imbalance parameter */,
                                                CUT /* objective function */);
 
@@ -235,24 +235,24 @@ namespace SharedMap {
         mt_kahypar_set_context_parameter(context, VERBOSE, "0");
 
         // number of vertices and edges
-        auto n = (mt_kahypar_hypernode_id_t)g.get_n();
-        auto m = (mt_kahypar_hyperedge_id_t)g.get_m();
+        auto n = (mt_kahypar_hypernode_id_t) g.get_n();
+        auto m = (mt_kahypar_hyperedge_id_t) g.get_m();
 
         // vertex weights
-        auto* v_weights = (mt_kahypar_hypernode_weight_t*)malloc(n * sizeof(mt_kahypar_hypernode_weight_t));
+        auto *v_weights = (mt_kahypar_hypernode_weight_t *) malloc(n * sizeof(mt_kahypar_hypernode_weight_t));
         for (u64 i = 0; i < n; ++i) {
-            v_weights[i] = (mt_kahypar_hypernode_weight_t)g.get_vertex_weight(i);
+            v_weights[i] = (mt_kahypar_hypernode_weight_t) g.get_vertex_weight(i);
         }
 
         // edges
-        u64 idx         = 0;
-        auto* edges     = (mt_kahypar_hypernode_id_t*)malloc(2 * m * sizeof(mt_kahypar_hypernode_id_t));
-        auto* e_weights = (mt_kahypar_hyperedge_weight_t*)malloc(m * sizeof(mt_kahypar_hyperedge_weight_t));
+        u64 idx = 0;
+        auto *edges = (mt_kahypar_hypernode_id_t *) malloc(2 * m * sizeof(mt_kahypar_hypernode_id_t));
+        auto *e_weights = (mt_kahypar_hyperedge_weight_t *) malloc(m * sizeof(mt_kahypar_hyperedge_weight_t));
         for (u64 u = 0; u < n; ++u) {
-            for (auto& e : g[u]) {
-                edges[(2 * idx)]     = (mt_kahypar_hypernode_id_t)u;
-                edges[(2 * idx) + 1] = (mt_kahypar_hypernode_id_t)e.v;
-                e_weights[idx]       = (mt_kahypar_hyperedge_weight_t)e.w;
+            for (auto &e: g[u]) {
+                edges[(2 * idx)] = (mt_kahypar_hypernode_id_t) u;
+                edges[(2 * idx) + 1] = (mt_kahypar_hypernode_id_t) e.v;
+                e_weights[idx] = (mt_kahypar_hyperedge_weight_t) e.w;
                 idx += 1;
                 ASSERT(idx <= m);
             }

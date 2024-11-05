@@ -42,6 +42,7 @@ namespace SharedMap {
 
         for (u64 i = 0; i < k; ++i) {
             temp_stack[i].g = new Graph(g_sizes[i]);
+            temp_stack[i].tt->finalize();
         }
 
         for (u64 u = 0; u < g.get_n(); ++u) {

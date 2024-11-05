@@ -217,7 +217,7 @@ namespace SharedMap {
             u64 min = std::min(u, v);
             u64 max = std::max(u, v);
 
-            m_adj[min].push_back({max, weight});
+            m_adj[min].emplace_back(max, weight);
             m_v_edges[min] += 1;
             m_v_edges[max] += 1;
             m_m += 1;
@@ -298,10 +298,10 @@ namespace SharedMap {
         }
 
         /**
-         * Returns the weight of vertex u.
+         * Returns the number of edges of vertex u.
          *
          * @param u The vertex.
-         * @return The weight.
+         * @return Number of edges.
          */
         u64 get_vertex_n_edge(u64 u) const {
             ASSERT(m_n == m_v_edges.size());

@@ -5,7 +5,7 @@
 
 namespace SharedMap {
     std::vector<u64> solve_serial(const Graph& original_g, const AlgorithmConfiguration& config, StatCollector& stat_collector) {
-        std::vector<u64> partition(original_g.get_n()); // end partition
+        std::vector<u64> solution(original_g.get_n()); // end partition
         TranslationTable original_tt(original_g.get_n()); // default translation table
 
         // references for better code readability
@@ -20,7 +20,7 @@ namespace SharedMap {
         // initialize stack;
         std::vector<Item> stack = {{new std::vector<u64>(), const_cast<Graph*>(&original_g), &original_tt, false}};
         std::vector<Item> temp_stack;
-        std::vector<u64> temp_partition;
+        std::vector<u64> partition;
 
         while (!stack.empty()) {
             Item item = stack.back(); // process first item
@@ -38,18 +38,18 @@ namespace SharedMap {
             const f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.get_weight(), local_k_rem, depth + 1);
 
             // partition the subgraph
-            temp_partition.resize(g.get_n());
-            partition_graph(g, local_k, local_imbalance, temp_partition, 1, depth, config.serial_alg_id, config.parallel_alg_id, stat_collector);
+            partition.resize(g.get_n());
+            partition_graph(g, local_k, local_imbalance, partition, 1, depth, config.serial_alg_id, config.parallel_alg_id, stat_collector);
 
             if (depth == 0) {
                 // insert solution
                 u64 offset = 0;
                 for (u64 i = 0; i < identifier.size(); ++i) { offset += identifier[i] * index_vec[index_vec.size() - 1 - i]; }
-                for (u64 u = 0; u < g.get_n(); ++u) { partition[tt.get_o(u)] = offset + temp_partition[u]; }
+                for (u64 u = 0; u < g.get_n(); ++u) { solution[tt.get_o(u)] = offset + partition[u]; }
             } else {
                 // create the subgraphs and place them in the next stack
                 temp_stack.clear();
-                create_sub_graphs(g, tt, local_k, temp_partition, identifier, temp_stack, depth, 1, stat_collector);
+                create_sub_graphs(g, tt, local_k, partition, identifier, temp_stack, depth, 1, stat_collector);
 
                 // push graphs into next work
                 for (auto& i : temp_stack) {
@@ -61,6 +61,6 @@ namespace SharedMap {
             item.free();
         }
 
-        return partition;
+        return solution;
     }
 }

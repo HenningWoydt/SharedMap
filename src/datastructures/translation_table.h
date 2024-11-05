@@ -2,6 +2,7 @@
 #define SHAREDMAP_TRANSLATION_TABLE_H
 
 #include <unordered_map>
+#include <numeric>
 
 #include "src/utility/definitions.h"
 #include "src/utility/macros.h"
@@ -9,7 +10,7 @@
 namespace SharedMap {
     class TranslationTable {
     private:
-        std::unordered_map<u64, u64> m_translation_o_to_n;
+        std::vector<std::pair<u64, u64>> m_translation_table_o_to_n;
         std::vector<u64> m_translation_n_to_o;
 
     public:
@@ -22,9 +23,13 @@ namespace SharedMap {
          * Initializes the translation table with the Identity mapping.
          */
         explicit TranslationTable(u64 n) {
-            for (u64 u = 0; u < n; ++u) {
-                add(u, u);
+            m_translation_table_o_to_n.resize(n);
+            for(size_t u = 0; u < n; ++u){
+                m_translation_table_o_to_n[u] = {u, u};
             }
+
+            m_translation_n_to_o.resize(n);
+            std::iota(m_translation_n_to_o.begin(), m_translation_n_to_o.end(), 0);
         }
 
         /**
@@ -34,13 +39,14 @@ namespace SharedMap {
          * @param n New value.
          */
         void add(u64 o, u64 n) {
-            ASSERT(m_translation_o_to_n.find(o) == m_translation_o_to_n.end());
-            ASSERT(m_translation_n_to_o.find(n) == m_translation_n_to_o.end());
+            m_translation_table_o_to_n.emplace_back(o, n);
 
-            m_translation_o_to_n[o] = n;
-
-            m_translation_n_to_o.resize(n+1);
+            m_translation_n_to_o.resize(n + 1);
             m_translation_n_to_o[n] = o;
+        }
+
+        void finalize(){
+            std::sort(m_translation_table_o_to_n.begin(), m_translation_table_o_to_n.end(), [](auto &left, auto &right) { return left.first < right.first; });
         }
 
         /**
@@ -49,9 +55,9 @@ namespace SharedMap {
          * @param o Old value
          */
         u64 get_n(u64 o) const {
-            ASSERT(m_translation_o_to_n.find(o) != m_translation_o_to_n.end());
-
-            return m_translation_o_to_n.at(o);
+            auto it = std::lower_bound(m_translation_table_o_to_n.begin(), m_translation_table_o_to_n.end(), std::make_pair(o, (u64) 0), [](auto &left, auto &right) { return left.first < right.first; });
+            u64 n = it->second;
+            return n;
         }
 
         /**
@@ -60,8 +66,6 @@ namespace SharedMap {
          * @param n New value.
          */
         u64 get_o(u64 n) const {
-            ASSERT(m_translation_n_to_o.find(n) != m_translation_n_to_o.end());
-
             return m_translation_n_to_o[n];
         }
     };
