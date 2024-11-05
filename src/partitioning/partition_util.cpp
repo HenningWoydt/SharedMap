@@ -29,18 +29,13 @@ namespace SharedMap {
             temp_stack[i].identifier = new std::vector<u64>(identifier);
             temp_stack[i].identifier->push_back(i);
             temp_stack[i].to_delete = true;
-        }
-
-        for (u64 i = 0; i < k; ++i) {
             temp_stack[i].tt = new TranslationTable();
         }
 
         std::vector<u64> g_sizes(k, 0);
-        std::vector<TranslationTable> tt_locals(k);
 
         for (u64 u = 0; u < g.get_n(); ++u) {
             u64 p_id = partition[u];
-            tt_locals[p_id].add(u, g_sizes[p_id]);
             temp_stack[p_id].tt->add(g_tt.get_o(u), g_sizes[p_id]);
             g_sizes[p_id] += 1;
         }
@@ -52,13 +47,13 @@ namespace SharedMap {
         for (u64 u = 0; u < g.get_n(); ++u) {
             u64 p_id = partition[u];
 
-            u64 sub_u = tt_locals[p_id].get_n(u);
+            u64 sub_u = temp_stack[p_id].tt->get_n(g_tt.get_o(u));
 
             temp_stack[p_id].g->set_vertex_weight(sub_u, g.get_vertex_weight(u));
 
             for (const Edge& e : g[u]) {
                 if (partition[e.v] == p_id) {
-                    u64 sub_v = tt_locals[p_id].get_n(e.v);
+                    u64 sub_v = temp_stack[p_id].tt->get_n(g_tt.get_o(e.v));
                     temp_stack[p_id].g->add_edge(sub_u, sub_v, e.w);
                 }
             }
@@ -106,30 +101,30 @@ namespace SharedMap {
         }
 
         switch (alg) {
-        case GREEDY:
-            greedy_partition(g, k, imbalance, partition);
-            break;
-        case KAFFPA_STRONG:
-            kaffpa_partition(g, k, imbalance, partition, KAFFPA_STRONG);
-            break;
-        case KAFFPA_ECO:
-            kaffpa_partition(g, k, imbalance, partition, KAFFPA_ECO);
-            break;
-        case KAFFPA_FAST:
-            kaffpa_partition(g, k, imbalance, partition, KAFFPA_FAST);
-            break;
-        case MTKAHYPAR_DEFAULT:
-            mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_DEFAULT, n_threads);
-            break;
-        case MTKAHYPAR_QUALITY:
-            mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_QUALITY, n_threads);
-            break;
-        case MTKAHYPAR_HIGHEST_QUALITY:
-            mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_HIGHEST_QUALITY, n_threads);
-            break;
-        default:
-            std::cerr << "Algorithm ID " << alg << " not recognized" << std::endl;
-            abort();
+            case GREEDY:
+                greedy_partition(g, k, imbalance, partition);
+                break;
+            case KAFFPA_STRONG:
+                kaffpa_partition(g, k, imbalance, partition, KAFFPA_STRONG);
+                break;
+            case KAFFPA_ECO:
+                kaffpa_partition(g, k, imbalance, partition, KAFFPA_ECO);
+                break;
+            case KAFFPA_FAST:
+                kaffpa_partition(g, k, imbalance, partition, KAFFPA_FAST);
+                break;
+            case MTKAHYPAR_DEFAULT:
+                mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_DEFAULT, n_threads);
+                break;
+            case MTKAHYPAR_QUALITY:
+                mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_QUALITY, n_threads);
+                break;
+            case MTKAHYPAR_HIGHEST_QUALITY:
+                mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_HIGHEST_QUALITY, n_threads);
+                break;
+            default:
+                std::cerr << "Algorithm ID " << alg << " not recognized" << std::endl;
+                abort();
         }
 
         auto ep = std::chrono::high_resolution_clock::now();

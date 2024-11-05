@@ -10,7 +10,7 @@ namespace SharedMap {
     class TranslationTable {
     private:
         std::unordered_map<u64, u64> m_translation_o_to_n;
-        std::unordered_map<u64, u64> m_translation_n_to_o;
+        std::vector<u64> m_translation_n_to_o;
 
     public:
         /**
@@ -37,8 +37,10 @@ namespace SharedMap {
             ASSERT(m_translation_o_to_n.find(o) == m_translation_o_to_n.end());
             ASSERT(m_translation_n_to_o.find(n) == m_translation_n_to_o.end());
 
-            m_translation_o_to_n.insert({o, n});
-            m_translation_n_to_o.insert({n, o});
+            m_translation_o_to_n[o] = n;
+
+            m_translation_n_to_o.resize(n+1);
+            m_translation_n_to_o[n] = o;
         }
 
         /**
@@ -60,7 +62,7 @@ namespace SharedMap {
         u64 get_o(u64 n) const {
             ASSERT(m_translation_n_to_o.find(n) != m_translation_n_to_o.end());
 
-            return m_translation_n_to_o.at(n);
+            return m_translation_n_to_o[n];
         }
     };
 }
