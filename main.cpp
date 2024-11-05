@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     std::string parallel_alg_string = "mtkahypar_default:mtkahypar_default:mtkahypar_default";
     std::string serial_alg_string = "kaffpa_fast:kaffpa_fast:kaffpa_fast";
     u64 n_threads = 10;
-    std::string parallel_strategy_string = "serial";
+    std::string parallel_strategy_string = "queue";
     std::string mapping_out = "mapping.txt";
     std::string statistics_out = parallel_strategy_string + "_statistics.JSON";
 
