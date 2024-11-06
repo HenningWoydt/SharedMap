@@ -38,7 +38,7 @@ namespace SharedMap {
         NAIVE, // subgraphs are processed with all threads one by one
         LAYER, // threads are distributed to all subgraphs in a layer
         QUEUE, // subgraphs are put in a queue and processed if threads are available
-        LAYER_NB // layer approach, but threads do not wait until one layer is completed
+        NB_LAYER // layer approach, but threads do not wait until one layer is completed
     };
 
     /**

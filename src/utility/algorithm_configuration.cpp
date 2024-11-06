@@ -68,7 +68,7 @@ namespace SharedMap {
                 {"naive", NAIVE},
                 {"layer", LAYER},
                 {"queue", QUEUE},
-                {"layer_nb", LAYER_NB}
+                {"nb_layer", NB_LAYER}
             };
 
         for (auto& pair : strategies) {

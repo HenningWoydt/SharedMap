@@ -65,7 +65,7 @@ namespace SharedMap {
                 return solve_layer(g, m_ac, stat_collector);
             case QUEUE:
                 return solve_queue(g, m_ac, stat_collector);
-            case LAYER_NB:
+            case NB_LAYER:
                 return solve_nb_layer(g, m_ac, stat_collector);
             default:
                 std::cerr << "Strategy ID " << m_ac.parallel_strategy_id << " not recognized!" << std::endl;
