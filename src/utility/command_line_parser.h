@@ -7,28 +7,28 @@ namespace SharedMap {
         std::string small_key;
         std::string description;
         std::string input;
-        bool is_set = false;
+        bool        is_set = false;
     };
 
     class CommandLineParser {
     private:
         std::vector<CommandLineOption> options = {
-                {"help", "", "produces help message", ""},
-                {"graph", "g", "Filepath to the graph", ""},
-                {"mapping", "m", "Output filepath to the generated mapping", ""},
-                {"stats", "s", "Output filepath to measured statistics", ""},
-                {"hierarchy", "h", "Hierarchy in the form a1:a2:...:al", ""},
-                {"distance", "d", "Distance in the form d1:d2:...:dl", ""},
-                {"imbalance", "e", "Allowed imbalance (for example 0.03)", ""},
-                {"config", "c", "The configuration", ""},
-                {"threads", "t", "Number of threads", ""},
-                {"parallelStrategy", "", "Parallel strategy", ""},
-                {"partitionAlgParallel", "", "Parallel Partitioning Algorithm", ""},
-                {"partitionAlgSerial", "", "Serial Partitioning Algorithm", ""},
-            };
+                {"help",                 "",  "produces help message",                    ""},
+                {"graph",                "g", "Filepath to the graph",                    ""},
+                {"mapping",              "m", "Output filepath to the generated mapping", ""},
+                {"stats",                "s", "Output filepath to measured statistics",   ""},
+                {"hierarchy",            "h", "Hierarchy in the form a1:a2:...:al",       ""},
+                {"distance",             "d", "Distance in the form d1:d2:...:dl",        ""},
+                {"imbalance",            "e", "Allowed imbalance (for example 0.03)",     ""},
+                {"config",               "c", "The configuration",                        ""},
+                {"threads",              "t", "Number of threads",                        ""},
+                {"parallelStrategy",     "",  "Parallel strategy",                        ""},
+                {"partitionAlgParallel", "",  "Parallel Partitioning Algorithm",          ""},
+                {"partitionAlgSerial",   "",  "Serial Partitioning Algorithm",            ""},
+        };
 
     public:
-        CommandLineParser(int argc, char* argv[]) {
+        CommandLineParser(int argc, char *argv[]) {
             // read command lines into vector
             std::vector<std::string> args;
             args.reserve(argc);
@@ -43,7 +43,7 @@ namespace SharedMap {
                     exit(EXIT_FAILURE);
                 }
 
-                for (auto& opt : options) {
+                for (auto &opt: options) {
                     if (opt.large_key == args[i] || opt.small_key == args[i]) {
                         opt.input  = args[i + 1];
                         opt.is_set = true;
@@ -54,8 +54,8 @@ namespace SharedMap {
             }
         }
 
-        std::string get(const std::string& var) {
-            for (const auto& opt : options) {
+        std::string get(const std::string &var) {
+            for (const auto &opt: options) {
                 if (opt.large_key == var || opt.small_key == var) {
                     if (opt.input.empty()) {
                         std::cout << "Command Line \"" << var << "\" not set!" << std::endl;
@@ -68,8 +68,8 @@ namespace SharedMap {
             exit(EXIT_FAILURE);
         }
 
-        bool is_set(const std::string& var) {
-            for (const auto& opt : options) {
+        bool is_set(const std::string &var) {
+            for (const auto &opt: options) {
                 if (opt.large_key == var || opt.small_key == var) {
                     return opt.is_set;
                 }
@@ -79,7 +79,7 @@ namespace SharedMap {
         }
 
         void print_help_message() {
-            for (const auto& opt : options) {
+            for (const auto &opt: options) {
                 std::cout << "[ --" << opt.large_key << ", -" << opt.small_key << "] - " << opt.description << std::endl;
             }
         }

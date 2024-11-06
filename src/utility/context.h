@@ -9,24 +9,24 @@
 namespace SharedMap {
     class Context {
     public:
-        const AlgorithmConfiguration& ac;
+        const AlgorithmConfiguration &ac;
         const u64 global_g_weight;
-        const std::vector<u64>& index_vec;
-        const std::vector<u64>& k_rem_vec;
-        StatCollector& stat_collector;
+        const std::vector<u64> &index_vec;
+        const std::vector<u64> &k_rem_vec;
+        StatCollector          &stat_collector;
 
         std::mutex global_mutex;
 
-        Context(const AlgorithmConfiguration& t_ac,
+        Context(const AlgorithmConfiguration &t_ac,
                 u64 t_global_g_weight,
-                const std::vector<u64>& t_index_vec,
-                const std::vector<u64>& t_k_rem_vec,
-                StatCollector& t_stat_collector) :
-            ac(t_ac),
-            global_g_weight(t_global_g_weight),
-            index_vec(t_index_vec),
-            k_rem_vec(t_k_rem_vec),
-            stat_collector(t_stat_collector) {}
+                const std::vector<u64> &t_index_vec,
+                const std::vector<u64> &t_k_rem_vec,
+                StatCollector &t_stat_collector) :
+                ac(t_ac),
+                global_g_weight(t_global_g_weight),
+                index_vec(t_index_vec),
+                k_rem_vec(t_k_rem_vec),
+                stat_collector(t_stat_collector) {}
     };
 }
 

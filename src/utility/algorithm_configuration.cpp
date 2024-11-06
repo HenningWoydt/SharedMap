@@ -1,18 +1,18 @@
 #include "algorithm_configuration.h"
 
 namespace SharedMap {
-    u64 parse_partitioning_algorithm(const std::string& alg) {
+    u64 parse_partitioning_algorithm(const std::string &alg) {
         std::vector<std::pair<std::string, u64>> algs = {
-                {"greedy", GREEDY},
-                {"kaffpa_strong", KAFFPA_STRONG},
-                {"kaffpa_eco", KAFFPA_ECO},
-                {"kaffpa_fast", KAFFPA_FAST},
-                {"mtkahypar_default", MTKAHYPAR_DEFAULT},
-                {"mtkahypar_quality", MTKAHYPAR_QUALITY},
+                {"greedy",                    GREEDY},
+                {"kaffpa_strong",             KAFFPA_STRONG},
+                {"kaffpa_eco",                KAFFPA_ECO},
+                {"kaffpa_fast",               KAFFPA_FAST},
+                {"mtkahypar_default",         MTKAHYPAR_DEFAULT},
+                {"mtkahypar_quality",         MTKAHYPAR_QUALITY},
                 {"mtkahypar_highest_quality", MTKAHYPAR_HIGHEST_QUALITY},
-            };
+        };
 
-        for (auto& pair : algs) {
+        for (auto &pair: algs) {
             if (pair.first == alg) {
                 return pair.second;
             }
@@ -22,7 +22,7 @@ namespace SharedMap {
         exit(EXIT_FAILURE);
     }
 
-    std::string parse_config_to_serial(const std::string& config, size_t n_layers) {
+    std::string parse_config_to_serial(const std::string &config, size_t n_layers) {
         std::string alg;
         for (size_t i = 0; i < n_layers; ++i) {
             std::string temp;
@@ -42,7 +42,7 @@ namespace SharedMap {
         return alg;
     }
 
-    std::string parse_config_to_parallel(const std::string& config, size_t n_layers) {
+    std::string parse_config_to_parallel(const std::string &config, size_t n_layers) {
         std::string alg;
         for (size_t i = 0; i < n_layers; ++i) {
             std::string temp;
@@ -62,16 +62,16 @@ namespace SharedMap {
         return alg;
     }
 
-    u64 parse_parallel_strategy(const std::string& strategy) {
+    u64 parse_parallel_strategy(const std::string &strategy) {
         std::vector<std::pair<std::string, u64>> strategies = {
-                {"serial", SERIAL},
-                {"naive", NAIVE},
-                {"layer", LAYER},
-                {"queue", QUEUE},
+                {"serial",   SERIAL},
+                {"naive",    NAIVE},
+                {"layer",    LAYER},
+                {"queue",    QUEUE},
                 {"nb_layer", NB_LAYER}
-            };
+        };
 
-        for (auto& pair : strategies) {
+        for (auto &pair: strategies) {
             if (pair.first == strategy) {
                 return pair.second;
             }

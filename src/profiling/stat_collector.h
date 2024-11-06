@@ -11,14 +11,14 @@ namespace SharedMap {
      */
     class StatCollector {
     private:
-        std::mutex lock;
+        std::mutex                                     lock;
         std::chrono::high_resolution_clock::time_point log_sp;
 
         u32 n_layer;
 
         // statistics for partitioning
         std::vector<f64> partition_time_per_layer; // log time on each depth
-        f64 partition_time = 0.0;
+        f64              partition_time = 0.0;
 
         std::vector<u64> size_per_graph;
         std::vector<f64> start_time_per_graph;
@@ -31,7 +31,7 @@ namespace SharedMap {
 
         // statistics for subgraph creation
         std::vector<f64> subgraph_creation_time_per_layer;
-        f64 subgraph_creation_time = 0.0;
+        f64              subgraph_creation_time = 0.0;
 
         std::vector<u64> subgraph_size_per_graph;
         std::vector<f64> subgraph_start_time_per_graph;
@@ -42,12 +42,12 @@ namespace SharedMap {
 
     public:
         explicit StatCollector() {
-            log_sp = std::chrono::high_resolution_clock::now();
+            log_sp  = std::chrono::high_resolution_clock::now();
             n_layer = 0;
         }
 
         void initialize(u32 t_n_layer) {
-            log_sp = std::chrono::high_resolution_clock::now();
+            log_sp  = std::chrono::high_resolution_clock::now();
             n_layer = t_n_layer;
             partition_time_per_layer.resize(n_layer, 0.0);
             subgraph_creation_time_per_layer.resize(n_layer, 0.0);
@@ -63,7 +63,7 @@ namespace SharedMap {
                            const std::chrono::high_resolution_clock::time_point &ep) {
             lock.lock();
 
-            f64 time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 time       = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
             f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             partition_time_per_layer[depth] += time;
@@ -89,7 +89,7 @@ namespace SharedMap {
                                    const std::chrono::high_resolution_clock::time_point &ep) {
             lock.lock();
 
-            f64 time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 time       = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
             f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             subgraph_creation_time_per_layer[depth] += time;

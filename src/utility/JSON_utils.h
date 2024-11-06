@@ -27,10 +27,10 @@ namespace SharedMap {
 
     std::string to_JSON_value(f64 x);
 
-    std::string to_JSON_value(const std::string& s);
+    std::string to_JSON_value(const std::string &s);
 
-    template <typename T>
-    std::string to_JSON_value(const std::vector<T>& vec) {
+    template<typename T>
+    std::string to_JSON_value(const std::vector<T> &vec) {
         if (vec.empty()) {
             return "[]";
         }

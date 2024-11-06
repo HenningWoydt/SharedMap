@@ -21,5 +21,5 @@ namespace SharedMap {
 
     std::string to_JSON_value(const f64 x) { return std::to_string(x); }
 
-    std::string to_JSON_value(const std::string& s) { return "\"" + s + "\""; }
+    std::string to_JSON_value(const std::string &s) { return "\"" + s + "\""; }
 }
