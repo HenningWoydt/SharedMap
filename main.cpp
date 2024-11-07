@@ -26,28 +26,28 @@ int main(const int argc, const char *argv[]) {
     if (argc > 1) {
         CommandLineParser clp(argc, argv);
 
-        graph_in = clp.get("graph");
-        mapping_out = clp.get("mapping");
-        statistics_out = clp.get("stats");
-        hierarchy_string = clp.get("hierarchy");
-        distance_string = clp.get("distance");
-        imbalance = std::stod(clp.get("imbalance"));
+        graph_in = clp.get("--graph");
+        mapping_out = clp.get("--mapping");
+        statistics_out = clp.get("--stats");
+        hierarchy_string = clp.get("--hierarchy");
+        distance_string = clp.get("--distance");
+        imbalance = std::stod(clp.get("--imbalance"));
 
         size_t n_layers = 1 + std::count_if( hierarchy_string.begin(), hierarchy_string.end(), []( const char c ){return c ==':';});
-        if(clp.is_set("config")){
-            config = clp.get("config");
+        if(clp.is_set("--config")){
+            config = clp.get("--config");
             serial_alg_string = parse_config_to_serial(config, n_layers);
             parallel_alg_string = parse_config_to_parallel(config, n_layers);
         }
-        if(clp.is_set("partitionAlgSerial")){
-            serial_alg_string = clp.get("partitionAlgParallel");
+        if(clp.is_set("--partitionAlgSerial")){
+            serial_alg_string = clp.get("--partitionAlgParallel");
         }
-        if(clp.is_set("partitionAlgParallel")){
-            parallel_alg_string = clp.get("partitionAlgParallel");
+        if(clp.is_set("--partitionAlgParallel")){
+            parallel_alg_string = clp.get("--partitionAlgParallel");
         }
 
-        n_threads = std::stoi(clp.get("threads"));
-        parallel_strategy_string = clp.get("parallelStrategy");
+        n_threads = std::stoi(clp.get("--threads"));
+        parallel_strategy_string = clp.get("--parallelStrategy");
     }
 
     AlgorithmConfiguration ac(graph_in,
