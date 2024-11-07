@@ -4,7 +4,7 @@
 
 using namespace SharedMap;
 
-int main(int argc, char *argv[]) {
+int main(const int argc, const char *argv[]) {
     // std::string graph_in = "../data/mapping/cop20k_A.mtx.graph";
     // std::string graph_in = "../data/mapping/afshell9.graph";
     // std::string graph_in = "../data/mapping/2cubes_sphere.mtx.graph";
@@ -23,8 +23,7 @@ int main(int argc, char *argv[]) {
     std::string mapping_out = "mapping.txt";
     std::string statistics_out = parallel_strategy_string + "_statistics.JSON";
 
-    bool use_command_line = argc > 1;
-    if (use_command_line) {
+    if (argc > 1) {
         CommandLineParser clp(argc, argv);
 
         graph_in = clp.get("graph");
@@ -34,7 +33,7 @@ int main(int argc, char *argv[]) {
         distance_string = clp.get("distance");
         imbalance = std::stod(clp.get("imbalance"));
 
-        size_t n_layers = 1 + std::count_if( hierarchy_string.begin(), hierarchy_string.end(), []( char c ){return c ==':';});
+        size_t n_layers = 1 + std::count_if( hierarchy_string.begin(), hierarchy_string.end(), []( const char c ){return c ==':';});
         if(clp.is_set("config")){
             config = clp.get("config");
             serial_alg_string = parse_config_to_serial(config, n_layers);

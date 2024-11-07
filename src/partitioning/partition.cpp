@@ -1,101 +1,9 @@
 #include "partition.h"
 
-#include "src/utility/algorithm_configuration.h"
-
 #include <libmtkahypar.h>
 #include "interface/kaHIP_interface.h"
 
 namespace SharedMap {
-    void greedy_partition(const Graph &g,
-                          const u64 k,
-                          const f64 imbalance,
-                          std::vector<u64> &partition) {
-        ASSERT(imbalance >= 0.0);
-        ASSERT(k > 0);
-
-        // enough space
-        partition.resize(g.get_n());
-
-        u64 total_weight       = g.get_weight();
-        u64 avg_weight         = (u64) ((f64) total_weight / (f64) k);
-        u64 max_allowed_weight = (u64) ((1.0 + imbalance) * (f64) avg_weight);
-
-        // vectors to store each partition
-        std::vector<std::vector<u64>> sets(k, std::vector<u64>{});
-        std::vector<u64>              set_weight(k, 0);
-
-        // assign each vertex to the set with the smallest weight currently
-        for (u64 u = 0; u < g.get_n(); ++u) {
-            u64 best_set   = 0;
-            u64 min_weight = set_weight[0];
-
-            for (u64 i = 0; i < k; ++i) {
-                if (set_weight[i] < min_weight) {
-                    best_set   = i;
-                    min_weight = set_weight[i];
-                }
-            }
-
-            sets[best_set].push_back(u);
-            set_weight[best_set] += g.get_vertex_weight(u);
-        }
-
-        // move vertices, such that a balanced partition arises
-        u64 max_tries = 1000;
-        u64 n_tries   = 0;
-        while (max(set_weight) > max_allowed_weight && n_tries < max_tries) {
-            n_tries += 1;
-            // get the set with most and minimal weight
-            u64 max_set    = 0;
-            u64 max_weight = set_weight[0];
-            u64 min_set    = 0;
-            u64 min_weight = set_weight[0];
-
-            for (u64 i = 0; i < k; ++i) {
-                if (set_weight[i] > max_weight) {
-                    max_set    = i;
-                    max_weight = set_weight[i];
-                }
-                if (set_weight[i] < min_weight) {
-                    min_set    = i;
-                    min_weight = set_weight[i];
-                }
-            }
-
-            // move a vertex from max to min
-            for (u64 i = 0; i < sets[max_set].size(); ++i) {
-                u64 u        = sets[max_set][i];
-                u64 u_weight = g.get_vertex_weight(u);
-
-                bool min_set_overloaded = (set_weight[min_set] + u_weight) > max_allowed_weight;
-
-                if (!min_set_overloaded) {
-                    // move the vertex
-                    sets[min_weight].push_back(u);
-                    std::swap(sets[max_weight][i], sets[max_weight].back());
-                    sets[max_weight].pop_back();
-
-                    sets[min_weight][i] = u;
-
-                    set_weight[max_set] = set_weight[max_set] - u_weight;
-                    set_weight[min_set] = set_weight[min_set] + u_weight;
-
-                    // terminate the loop
-                    n_tries = 0;
-                    break;
-                }
-            }
-        }
-
-        // enter the partition
-        for (u64 i = 0; i < sets.size(); ++i) {
-            for (u64 j = 0; j < sets[i].size(); ++j) {
-                partition[sets[i][j]] = i;
-            }
-        }
-    }
-
-
     void kaffpa_partition(const Graph &g,
                           const u64 k,
                           const f64 imbalance,
@@ -197,7 +105,6 @@ namespace SharedMap {
                               const u64 n_threads) {
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
-        g.assert_graph();
 
         // enough space
         partition.resize(g.get_n());
@@ -250,8 +157,8 @@ namespace SharedMap {
         auto     *e_weights = (mt_kahypar_hyperedge_weight_t *) malloc(m * sizeof(mt_kahypar_hyperedge_weight_t));
         for (u64 u          = 0; u < n; ++u) {
             for (auto &e: g[u]) {
-                edges[(2 * idx)]     = (mt_kahypar_hypernode_id_t) u;
-                edges[(2 * idx) + 1] = (mt_kahypar_hypernode_id_t) e.v;
+                edges[2 * idx]     = (mt_kahypar_hypernode_id_t) u;
+                edges[2 * idx + 1] = (mt_kahypar_hypernode_id_t) e.v;
                 e_weights[idx]       = (mt_kahypar_hyperedge_weight_t) e.w;
                 idx += 1;
                 ASSERT(idx <= m);
@@ -265,7 +172,7 @@ namespace SharedMap {
         mt_kahypar_partitioned_hypergraph_t partitioned_hg = mt_kahypar_partition(graph, context);
 
         // Extract Partition
-        std::unique_ptr<mt_kahypar_partition_id_t[]> mt_kahypar_partition = std::make_unique<mt_kahypar_partition_id_t[]>(mt_kahypar_num_hypernodes(graph));
+        auto mt_kahypar_partition = std::make_unique<mt_kahypar_partition_id_t[]>(mt_kahypar_num_hypernodes(graph));
         mt_kahypar_get_partition(partitioned_hg, mt_kahypar_partition.get());
 
         // move partition

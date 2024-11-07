@@ -5,19 +5,20 @@
 #include "src/datastructures/translation_table.h"
 
 namespace SharedMap {
+    /**
+     * Item holding one partitioning task.
+     */
     class Item {
     public:
         std::vector<u64>* identifier = nullptr; // used to identify the current graph in the recursive partitioning
         Graph* g                     = nullptr; // graph to partition
         TranslationTable* tt         = nullptr; // the tt from original graph to this graph
-        bool to_delete; // whether to free the memory
+        bool to_delete               = false; // whether to free the memory
 
-        Item() {
-            identifier = nullptr;
-            g          = nullptr;
-            tt         = nullptr;
-            to_delete  = false;
-        }
+        /**
+         * Default constructor.
+         */
+        Item() = default;
 
         /**
          * Default constructor.
@@ -39,8 +40,11 @@ namespace SharedMap {
          * set to true.
          */
         void free() {
+            // definitely delete the identifier
             delete identifier;
             identifier = nullptr;
+
+            // release memory of the graph and translation table
             if (to_delete) {
                 delete g;
                 delete tt;
@@ -49,6 +53,12 @@ namespace SharedMap {
             }
         }
 
+        /**
+         * Compares the number of vertices of this graph and the other graph.
+         *
+         * @param item The other item.
+         * @return True if there are fewer vertices than in the other graph.
+         */
         bool operator<(const Item& item) const {
             return g->get_n() < item.g->get_n();
         }

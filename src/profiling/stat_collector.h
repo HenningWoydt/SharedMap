@@ -1,6 +1,8 @@
 #ifndef SHAREDMAP_STAT_COLLECTOR_H
 #define SHAREDMAP_STAT_COLLECTOR_H
 
+#include <mutex>
+
 #include "src/utility/definitions.h"
 #include "src/utility/JSON_utils.h"
 #include "src/utility/utils.h"
@@ -11,14 +13,15 @@ namespace SharedMap {
      */
     class StatCollector {
     private:
-        std::mutex                                     lock;
-        std::chrono::high_resolution_clock::time_point log_sp;
+        std::mutex lock; // for organized access
 
-        u32 n_layer;
+        std::chrono::high_resolution_clock::time_point log_sp = std::chrono::high_resolution_clock::now(); // start time for logging
+
+        u32 n_layer = 0; // number of layers
 
         // statistics for partitioning
         std::vector<f64> partition_time_per_layer; // log time on each depth
-        f64              partition_time = 0.0;
+        f64 partition_time = 0.0;
 
         std::vector<u64> size_per_graph;
         std::vector<f64> start_time_per_graph;
@@ -31,7 +34,7 @@ namespace SharedMap {
 
         // statistics for subgraph creation
         std::vector<f64> subgraph_creation_time_per_layer;
-        f64              subgraph_creation_time = 0.0;
+        f64 subgraph_creation_time = 0.0;
 
         std::vector<u64> subgraph_size_per_graph;
         std::vector<f64> subgraph_start_time_per_graph;
@@ -41,30 +44,47 @@ namespace SharedMap {
         std::vector<u64> subgraph_depth_per_graph;
 
     public:
-        explicit StatCollector() {
-            log_sp  = std::chrono::high_resolution_clock::now();
-            n_layer = 0;
-        }
+        /**
+         * Default constructor.
+         */
+        StatCollector() = default;
 
-        void initialize(u32 t_n_layer) {
+        /**
+         * Initializes the Statistic Collector.
+         *
+         * @param t_n_layer Number of layers in the hierarchy
+         */
+        void initialize(const u32 t_n_layer) {
             log_sp  = std::chrono::high_resolution_clock::now();
             n_layer = t_n_layer;
             partition_time_per_layer.resize(n_layer, 0.0);
             subgraph_creation_time_per_layer.resize(n_layer, 0.0);
         }
 
+        /**
+         * Logs statistics of a partitioning task.
+         *
+         * @param depth Depth of the partitioning.
+         * @param graph_size Size of the partitioned graph
+         * @param alg Algorithm used.
+         * @param n_threads Number of threads used.
+         * @param imbalance Imbalance used.
+         * @param k Number of partitions created.
+         * @param sp Start time point.
+         * @param ep End time point.
+         */
         void log_partition(u64 depth,
                            u64 graph_size,
                            u64 alg,
                            u64 n_threads,
                            f64 imbalance,
                            u64 k,
-                           const std::chrono::high_resolution_clock::time_point &sp,
-                           const std::chrono::high_resolution_clock::time_point &ep) {
+                           const std::chrono::high_resolution_clock::time_point& sp,
+                           const std::chrono::high_resolution_clock::time_point& ep) {
             lock.lock();
 
-            f64 time       = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
-            f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
+            f64 time       = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 start_time = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             partition_time_per_layer[depth] += time;
             partition_time += time;
@@ -81,16 +101,26 @@ namespace SharedMap {
             lock.unlock();
         }
 
+        /**
+         * Logs statistics of subgraph creation.
+         *
+         * @param depth Depth of the creation.
+         * @param graph_size Size of the graph.
+         * @param n_threads Number of threads used.
+         * @param k Number of subgraph created.
+         * @param sp Start time point.
+         * @param ep End time point.
+         */
         void log_subgraph_creation(u64 depth,
                                    u64 graph_size,
                                    u64 n_threads,
                                    u64 k,
-                                   const std::chrono::high_resolution_clock::time_point &sp,
-                                   const std::chrono::high_resolution_clock::time_point &ep) {
+                                   const std::chrono::high_resolution_clock::time_point& sp,
+                                   const std::chrono::high_resolution_clock::time_point& ep) {
             lock.lock();
 
-            f64 time       = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
-            f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
+            f64 time       = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 start_time = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             subgraph_creation_time_per_layer[depth] += time;
             subgraph_creation_time += time;
@@ -105,7 +135,13 @@ namespace SharedMap {
             lock.unlock();
         }
 
-        std::string to_JSON(u64 n_tabs = 0) const {
+        /**
+         * Packs all statistics into a string in JSON format.
+         *
+         * @param n_tabs Number of tabs appended in front of each line (for visual purposes).
+         * @return String in JSON format.
+         */
+        std::string to_JSON(const u64 n_tabs = 0) const {
             std::string tabs;
             for (size_t i = 0; i < n_tabs; ++i) { tabs.push_back('\t'); }
 

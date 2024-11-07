@@ -4,23 +4,10 @@
 #include <vector>
 
 #include "src/datastructures/graph.h"
+#include "src/utility/algorithm_configuration.h"
 #include "src/utility/definitions.h"
 
 namespace SharedMap {
-    /**
-     * Partitions a graph into k partitions in a greedy like fashion. This
-     * function is mainly used for testing purposes.
-     *
-     * @param g The graph.
-     * @param k The number of partitions.
-     * @param imbalance The allowed imbalance.
-     * @param partition The resulting partition.
-     */
-    void greedy_partition(const Graph &g,
-                          u64 k,
-                          f64 imbalance,
-                          std::vector<u64> &partition);
-
     /**
      * Uses Kaffpa to partition a graph into k partitions.
      *

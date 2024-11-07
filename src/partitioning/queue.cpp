@@ -1,38 +1,30 @@
-#include <queue>
-#include <atomic>
-#include <thread>
 #include "queue.h"
-
-#include "src/datastructures/translation_table.h"
-#include "src/datastructures/item.h"
-#include "src/partitioning/partition_util.h"
 
 namespace SharedMap {
     void queue_thread_work(Item item,
-                           std::priority_queue<Item> &queue,
-                           std::mutex &queue_lock,
-                           std::atomic<u64> &queue_size,
-                           std::atomic<u64> &n_available_threads,
+                           std::priority_queue<Item>& queue,
+                           std::mutex& queue_lock,
+                           std::atomic<u64>& queue_size,
+                           std::atomic<u64>& n_available_threads,
                            u64 n_assigned_threads,
-                           std::vector<u64> &solution,
-                           const Graph &original_g,
-                           const AlgorithmConfiguration &config,
-                           StatCollector &stat_collector) {
-
+                           std::vector<u64>& solution,
+                           const Graph& original_g,
+                           const AlgorithmConfiguration& config,
+                           StatCollector& stat_collector) {
         // references for better code readability
-        const std::vector<u64> &hierarchy       = config.hierarchy;
-        const size_t           l                = hierarchy.size();
-        const std::vector<u64> &index_vec       = config.index_vec;
-        const std::vector<u64> &k_rem_vec       = config.k_rem_vec;
-        const f64              global_imbalance = config.imbalance;
-        const u64              global_g_weight  = original_g.get_weight();
-        const u64              global_k         = config.k;
-        const u64              n_threads        = config.n_threads;
+        const std::vector<u64>& hierarchy = config.hierarchy;
+        const size_t l                    = hierarchy.size();
+        const std::vector<u64>& index_vec = config.index_vec;
+        const std::vector<u64>& k_rem_vec = config.k_rem_vec;
+        const f64 global_imbalance        = config.imbalance;
+        const u64 global_g_weight         = original_g.get_weight();
+        const u64 global_k                = config.k;
+        const u64 n_threads               = config.n_threads;
 
         // load item to process
-        const Graph            &g          = (*item.g);
-        const TranslationTable &tt         = (*item.tt);
-        const std::vector<u64> &identifier = (*item.identifier);
+        const Graph& g                     = (*item.g);
+        const TranslationTable& tt         = (*item.tt);
+        const std::vector<u64>& identifier = (*item.identifier);
 
         // get depth info
         const u64 depth           = l - 1 - identifier.size();
@@ -46,16 +38,16 @@ namespace SharedMap {
 
         if (depth == 0) {
             // insert solution
-            u64      offset = 0;
-            for (u64 i      = 0; i < identifier.size(); ++i) { offset += identifier[i] * index_vec[index_vec.size() - 1 - i]; }
-            for (u64 u      = 0; u < g.get_n(); ++u) { solution[tt.get_o(u)] = offset + partition[u]; }
+            u64 offset = 0;
+
+            for (u64 i = 0; i < identifier.size(); ++i) { offset += identifier[i] * index_vec[index_vec.size() - 1 - i]; }
+            for (u64 u = 0; u < g.get_n(); ++u) { solution[tt.get_o(u)] = offset + partition[u]; }
 
             // free item
             item.free();
 
             // make threads available
             n_available_threads += n_assigned_threads;
-
         } else {
             // create the subgraphs and place them in the next stack
             std::vector<Item> temp_stack;
@@ -75,7 +67,9 @@ namespace SharedMap {
         }
     }
 
-    std::vector<u64> solve_queue(const Graph &original_g, const AlgorithmConfiguration &config, StatCollector &stat_collector) {
+    std::vector<u64> solve_queue(const Graph& original_g,
+                                 const AlgorithmConfiguration& config,
+                                 StatCollector& stat_collector) {
         std::vector<u64> solution(original_g.get_n()); // end partition
         TranslationTable original_tt(original_g.get_n()); // default translation table
 
@@ -84,21 +78,23 @@ namespace SharedMap {
 
         // initialize the queue
         std::priority_queue<Item> queue;
-        queue.emplace(new std::vector<u64>(), const_cast<Graph *>(&original_g), &original_tt, false);
-        std::mutex       queue_lock;
+        queue.emplace(new std::vector<u64>(), const_cast<Graph*>(&original_g), &original_tt, false);
+        std::mutex queue_lock;
         std::atomic<u64> queue_size          = 1;
         std::atomic<u64> n_available_threads = n_threads;
 
-        while ((!(n_available_threads == n_threads && queue_size == 0))) {
-            while ((n_available_threads == 0 || queue_size == 0) && !(n_available_threads == n_threads && queue_size == 0)) { /* wait */ }
+        while (!(n_available_threads == n_threads && queue_size == 0)) {
+            while ((n_available_threads == 0 || queue_size == 0) && !(n_available_threads == n_threads && queue_size == 0)) {
+                /* wait */
+            }
 
             // all threads available and queue empty, so finished
             if (n_available_threads == n_threads && queue_size == 0) { break; }
 
             // get item
             queue_lock.lock();
-            u64  n_assigned_threads = (n_available_threads + queue_size - 1) / queue_size;
-            Item item               = queue.top();
+            u64 n_assigned_threads = (n_available_threads + queue_size - 1) / queue_size;
+            Item item              = queue.top();
             queue.pop();
             n_available_threads -= n_assigned_threads;
             queue_size -= 1;

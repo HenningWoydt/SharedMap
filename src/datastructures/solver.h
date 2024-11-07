@@ -15,6 +15,9 @@
 #include "src/utility/utils.h"
 
 namespace SharedMap {
+    /**
+     * Solver
+     */
     class Solver {
     private:
         const AlgorithmConfiguration& m_ac;
@@ -24,10 +27,18 @@ namespace SharedMap {
         f64 solve_time = 0.0;
 
     public:
+        /**
+         * Default constructor.
+         *
+         * @param ac Configuration to use.
+         */
         explicit Solver(AlgorithmConfiguration& ac) : m_ac(ac) {
             stat_collector.initialize(m_ac.hierarchy.size());
         }
 
+        /**
+         * Solves the problem.
+         */
         void solve() {
             // read graph
             auto sp = std::chrono::steady_clock::now();
@@ -47,10 +58,16 @@ namespace SharedMap {
             ep = std::chrono::steady_clock::now();
             io_time += (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
-            write_statistics();
+            print_statistics();
         }
 
     private:
+        /**
+         * Internal solve function.
+         *
+         * @param g The graph.
+         * @return The partition.
+         */
         std::vector<u64> internal_solve(const Graph& g) {
             if (m_ac.n_threads == 1) {
                 return solve_serial(g, m_ac, stat_collector);
@@ -73,6 +90,11 @@ namespace SharedMap {
             }
         }
 
+        /**
+         * Writes the partition to a file.
+         *
+         * @param partition The partition.
+         */
         void write_solution(const std::vector<u64>& partition) const {
             std::stringstream ss;
             for (u64 i : partition) {
@@ -83,7 +105,10 @@ namespace SharedMap {
             out.close();
         }
 
-        void write_statistics() {
+        /**
+         * Prints interesting statistics to std::cout.
+         */
+        void print_statistics() const {
             std::string s = "{\n";
 
             s += to_JSON_MACRO(io_time);
@@ -94,9 +119,7 @@ namespace SharedMap {
             s.pop_back();
             s.pop_back();
             s += "\n}";
-            std::ofstream out(m_ac.statistics_out);
-            out << s << std::endl;
-            out.close();
+            std::cout << s << std::endl;
         }
     };
 }

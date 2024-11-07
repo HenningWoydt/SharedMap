@@ -9,12 +9,13 @@
 #include "src/utility/utils.h"
 
 namespace SharedMap {
-    // partitioning algorithms
+    /**
+     * Enum of partitioning configurations.
+     */
     enum PartitioningAlgorithms {
-        GREEDY,
-        KAFFPA_STRONG,
-        KAFFPA_ECO,
         KAFFPA_FAST,
+        KAFFPA_ECO,
+        KAFFPA_STRONG,
         MTKAHYPAR_DEFAULT,
         MTKAHYPAR_QUALITY,
         MTKAHYPAR_HIGHEST_QUALITY
@@ -27,13 +28,31 @@ namespace SharedMap {
      * @param alg The Algorithm.
      * @return The algorithm id.
      */
-    u64 parse_partitioning_algorithm(const std::string &alg);
+    u64 parse_partitioning_algorithm(const std::string& alg);
 
-    std::string parse_config_to_serial(const std::string &config, size_t n_layers);
+    /**
+     * Generates the serial alg string.
+     *
+     * @param config The config e.g. "strong", "eco", "fast".
+     * @param n_layers Number of layers.
+     * @return The serial configuration.
+     */
+    std::string parse_config_to_serial(const std::string& config,
+                                       size_t n_layers);
 
-    std::string parse_config_to_parallel(const std::string &config, size_t n_layers);
+    /**
+     * Generates the parallel alg string.
+     *
+     * @param config The config e.g. "strong", "eco", "fast".
+     * @param n_layers Number of layers.
+     * @return The parallel configuration.
+     */
+    std::string parse_config_to_parallel(const std::string& config,
+                                         size_t n_layers);
 
-    // strategy
+    /**
+     * Enum of parallel strategies.
+     */
     enum ParallelStrategy {
         SERIAL, // no parallelization for comparison
         NAIVE, // subgraphs are processed with all threads one by one
@@ -49,7 +68,7 @@ namespace SharedMap {
      * @param strategy The Strategy.
      * @return The strategy id.
      */
-    u64 parse_parallel_strategy(const std::string &strategy);
+    u64 parse_parallel_strategy(const std::string& strategy);
 
     /**
     * Class to store the configuration of the algorithm.
@@ -62,12 +81,12 @@ namespace SharedMap {
         std::string statistics_out;
 
         // hierarchy information
-        std::string      hierarchy_string;
+        std::string hierarchy_string;
         std::vector<u64> hierarchy;
-        u64              k;
+        u64 k;
 
         // distance information
-        std::string      distance_string;
+        std::string distance_string;
         std::vector<u64> distance;
 
         // info for correctly identifying subgraphs
@@ -78,9 +97,9 @@ namespace SharedMap {
         f64 imbalance;
 
         // partitioning algorithm
-        std::string      parallel_alg_string;
+        std::string parallel_alg_string;
         std::vector<u64> parallel_alg_id;
-        std::string      serial_alg_string;
+        std::string serial_alg_string;
         std::vector<u64> serial_alg_id;
 
         // number of threads
@@ -88,18 +107,18 @@ namespace SharedMap {
 
         // parallel strategy
         std::string parallel_strategy_string;
-        u64         parallel_strategy_id;
+        u64 parallel_strategy_id;
 
-        AlgorithmConfiguration(const std::string &graph_in,
-                               const std::string &mapping_out,
-                               const std::string &statistics_out,
-                               const std::string &hierarchy_string,
-                               const std::string &distance_string,
+        AlgorithmConfiguration(const std::string& graph_in,
+                               const std::string& mapping_out,
+                               const std::string& statistics_out,
+                               const std::string& hierarchy_string,
+                               const std::string& distance_string,
                                const f64 imbalance,
-                               const std::string &parallel_alg_string,
-                               const std::string &serial_alg_string,
+                               const std::string& parallel_alg_string,
+                               const std::string& serial_alg_string,
                                const u64 n_threads,
-                               const std::string &parallel_strategy_string) {
+                               const std::string& parallel_strategy_string) {
             // graph information
             this->graph_in       = graph_in;
             this->mapping_out    = mapping_out;
@@ -108,7 +127,7 @@ namespace SharedMap {
             // hierarchy information
             this->hierarchy_string = hierarchy_string;
             this->hierarchy        = convert<u64>(split(hierarchy_string, ':'));
-            this->k                = prod<u64, u64>(hierarchy);
+            this->k                = product(hierarchy);
 
             // distance information
             this->distance_string = distance_string;
@@ -121,7 +140,7 @@ namespace SharedMap {
             }
 
             k_rem_vec.resize(hierarchy.size());
-            u64      p = 1;
+            u64 p = 1;
             for (u64 i = 0; i < hierarchy.size(); ++i) {
                 k_rem_vec[i] = p * hierarchy[i];
                 p *= hierarchy[i];
@@ -131,12 +150,12 @@ namespace SharedMap {
             this->imbalance = imbalance;
 
             // partitioning algorithm
-            this->parallel_alg_string = parallel_alg_string;
+            this->parallel_alg_string              = parallel_alg_string;
             std::vector<std::string> temp_parallel = split(parallel_alg_string, ':');
-            for (auto &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
-            this->serial_alg_string = serial_alg_string;
+            for (auto& s : temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            this->serial_alg_string              = serial_alg_string;
             std::vector<std::string> temp_serial = split(serial_alg_string, ':');
-            for (auto &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto& s : temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
 
             // number of threads
             this->n_threads = n_threads;
@@ -159,7 +178,13 @@ namespace SharedMap {
             }
         }
 
-        std::string to_JSON(u64 n_tabs = 0) const {
+        /**
+         * Converts algorithm configuration into a string in JSON format.
+         *
+         * @param n_tabs Number of tabs appended in front of each line (for visual purposes).
+         * @return String in JSON format.
+         */
+        std::string to_JSON(const u64 n_tabs = 0) const {
             std::string tabs;
             for (size_t i = 0; i < n_tabs; ++i) { tabs.push_back('\t'); }
 

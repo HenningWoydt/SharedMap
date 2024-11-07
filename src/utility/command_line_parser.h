@@ -2,6 +2,9 @@
 #define SHAREDMAP_COMMAND_LINE_PARSER_H
 
 namespace SharedMap {
+    /**
+     * Holds one option for the command line.
+     */
     struct CommandLineOption {
         std::string large_key;
         std::string small_key;
@@ -10,6 +13,9 @@ namespace SharedMap {
         bool        is_set = false;
     };
 
+    /**
+     * Class to parse the command line.
+     */
     class CommandLineParser {
     private:
         std::vector<CommandLineOption> options = {
@@ -28,13 +34,15 @@ namespace SharedMap {
         };
 
     public:
-        CommandLineParser(int argc, char *argv[]) {
+        /**
+         * Constructor taking in the command line.
+         *
+         * @param argc Number of arguments.
+         * @param argv The arguments.
+         */
+        CommandLineParser(const int argc, const char *argv[]) {
             // read command lines into vector
-            std::vector<std::string> args;
-            args.reserve(argc);
-            for (int i = 0; i < argc; ++i) {
-                args.emplace_back(argv[i]);
-            }
+            std::vector<std::string> args(argv, argv + argc);
 
             // read all command line args
             for (int i = 1; i < argc; ++i) {
@@ -43,10 +51,10 @@ namespace SharedMap {
                     exit(EXIT_FAILURE);
                 }
 
-                for (auto &opt: options) {
-                    if (opt.large_key == args[i] || opt.small_key == args[i]) {
-                        opt.input  = args[i + 1];
-                        opt.is_set = true;
+                for (auto & [large_key, small_key, description, input, is_set]: options) {
+                    if (large_key == args[i] || small_key == args[i]) {
+                        input  = args[i + 1];
+                        is_set = true;
                         i += 1;
                         break;
                     }
@@ -54,33 +62,48 @@ namespace SharedMap {
             }
         }
 
+        /**
+         * Gets the entered input as a string.
+         *
+         * @param var The option in interest.
+         * @return The input.
+         */
         std::string get(const std::string &var) {
-            for (const auto &opt: options) {
-                if (opt.large_key == var || opt.small_key == var) {
-                    if (opt.input.empty()) {
+            for (const auto & [large_key, small_key, description, input, is_set]: options) {
+                if (large_key == var || small_key == var) {
+                    if (input.empty()) {
                         std::cout << "Command Line \"" << var << "\" not set!" << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    return opt.input;
+                    return input;
                 }
             }
             std::cout << "Command Line \"" << var << "\" is not an allowed name!" << std::endl;
             exit(EXIT_FAILURE);
         }
 
+        /**
+         * Returns whether the option was entered.
+         *
+         * @param var The option in interest.
+         * @return True if the option was entered, false else.
+         */
         bool is_set(const std::string &var) {
-            for (const auto &opt: options) {
-                if (opt.large_key == var || opt.small_key == var) {
-                    return opt.is_set;
+            for (const auto & [large_key, small_key, description, input, is_set]: options) {
+                if (large_key == var || small_key == var) {
+                    return is_set;
                 }
             }
             std::cout << "Command Line \"" << var << "\" is not an allowed name!" << std::endl;
             exit(EXIT_FAILURE);
         }
 
+        /**
+         * Prints the help message.
+         */
         void print_help_message() {
-            for (const auto &opt: options) {
-                std::cout << "[ --" << opt.large_key << ", -" << opt.small_key << "] - " << opt.description << std::endl;
+            for (const auto & [large_key, small_key, description, input, is_set]: options) {
+                std::cout << "[ --" << large_key << ", -" << small_key << "] - " << description << std::endl;
             }
         }
     };

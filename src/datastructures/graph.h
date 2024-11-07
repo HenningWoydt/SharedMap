@@ -10,17 +10,32 @@
 #include "src/utility/utils.h"
 
 namespace SharedMap {
+    /**
+    * Standard edge consisting of end-vertex and weight.
+    */
     struct Edge {
         u64 v;
         u64 w;
 
-        Edge(u64 v, u64 w) {
+        /**
+         * Default edge constructor.
+         *
+         * @param v End-vertex.
+         * @param w The weight.
+         */
+        Edge(const u64 v, const u64 w) {
             this->v = v;
             this->w = w;
         }
 
-        bool operator<(const Edge& y) const {
-            return v < y.v;
+        /**
+         * Default < operator that compares vertex ids.
+         *
+         * @param e The other edge.
+         * @return True if v is smaller than the other edge v.
+         */
+        bool operator<(const Edge& e) const {
+            return v < e.v;
         }
     };
 
@@ -54,13 +69,14 @@ namespace SharedMap {
                 exit(EXIT_FAILURE);
             }
 
-            bool has_v_weights = false;
-            bool has_e_weights = false;
-            u64 expected_edges = 0;
-
             std::ifstream file(file_path);
             std::string line(64, ' ');
             if (file.is_open()) {
+                bool has_v_weights = false;
+                bool has_e_weights = false;
+                u64 expected_edges = 0;
+
+                // read in header
                 while (std::getline(file, line)) {
                     if (line[0] == '%') { continue; }
 
@@ -74,16 +90,17 @@ namespace SharedMap {
                     m_m                             = 0;
                     expected_edges                  = std::stoi(header[1]);
 
+                    // allocate space
                     m_v_edges.resize(m_n, 0);
                     m_v_weights.resize(m_n, 1);
                     m_g_weight = m_n;
                     m_adj.resize(m_n);
 
+                    // read in header
                     std::string fmt = "000";
                     if (header.size() == 3 && header[2].size() == 3) {
                         fmt = header[2];
                     }
-
                     has_v_weights = fmt[1] == '1';
                     has_e_weights = fmt[2] == '1';
 
@@ -94,72 +111,28 @@ namespace SharedMap {
                 u64 u = 0;
                 std::vector<u64> ints;
 
-                if (has_v_weights) {
-                    if (has_e_weights) {
-                        // v_weights and e_weights
-                        while (std::getline(file, line)) {
-                            if (line[0] == '%') { continue; }
-                            // remove leading and trailing whitespaces, replace double whitespaces
+                while (std::getline(file, line)) {
+                    if (line[0] == '%') { continue; }
+                    // remove leading and trailing whitespaces, replace double whitespaces
+                    str_to_ints(line, ints);
 
-                            line_to_ints(line, ints);
-                            set_vertex_weight(u, ints[0]);
+                    u64 i = 0;
 
-                            for (u64 i = 1; i < ints.size(); i += 2) {
-                                u64 v = ints[i] - 1;
-                                u64 w = ints[i + 1];
-                                add_edge_if_not_exist(u, v, w);
-                            }
+                    // check if vertex weights
+                    if (has_v_weights) { set_vertex_weight(u, ints[i++]); }
 
-                            u += 1;
-                        }
-                    } else {
-                        // v_weights and no e_weights
-                        while (std::getline(file, line)) {
-                            if (line[0] == '%') { continue; }
-                            // remove leading and trailing whitespaces, replace double whitespaces
+                    while (i < ints.size()) {
+                        u64 v = ints[i++] - 1;
 
-                            line_to_ints(line, ints);
-                            set_vertex_weight(u, ints[0]);
+                        u64 w = 1;
 
-                            for (u64 i = 1; i < ints.size(); ++i) {
-                                u64 v = ints[i] - 1;
-                                add_edge_if_not_exist(u, v);
-                            }
+                        // check if edge weights
+                        if (has_e_weights) { w = ints[i++]; }
 
-                            u += 1;
-                        }
+                        add_edge_if_not_exist(u, v, w);
                     }
-                } else {
-                    if (has_e_weights) {
-                        // no v_weights and e_weights
-                        while (std::getline(file, line)) {
-                            if (line[0] == '%') { continue; }
-                            // remove leading and trailing whitespaces, replace double whitespaces
 
-                            line_to_ints(line, ints);
-                            for (u64 i = 0; i < ints.size(); i += 2) {
-                                u64 v = ints[i] - 1;
-                                u64 w = ints[i + 1];
-                                add_edge_if_not_exist(u, v, w);
-                            }
-
-                            u += 1;
-                        }
-                    } else {
-                        // no v_weights and no e_weights
-                        while (std::getline(file, line)) {
-                            if (line[0] == '%') { continue; }
-                            // remove leading and trailing whitespaces, replace double whitespaces
-
-                            line_to_ints(line, ints);
-                            for (u64 i = 0; i < ints.size(); ++i) {
-                                u64 v = ints[i] - 1;
-                                add_edge_if_not_exist(u, v);
-                            }
-
-                            u += 1;
-                        }
-                    }
+                    u += 1;
                 }
 
                 if (expected_edges != m_m) {
@@ -176,10 +149,8 @@ namespace SharedMap {
          * Constructor for the graph.
          *
          * @param n Number of vertices.
-         * @param has_vertex_w Whether the graph has vertex weights.
-         * @param has_edge_w Whether the graph has edge weights.
          */
-        explicit Graph(u64 n) {
+        explicit Graph(const u64 n) {
             m_n = n;
             m_m = 0;
 
@@ -195,7 +166,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @param weight The weight.
          */
-        void set_vertex_weight(u64 u, u64 weight = 1) {
+        void set_vertex_weight(const u64 u, const u64 weight = 1) {
             ASSERT(u < m_n);
             m_g_weight     = m_g_weight - m_v_weights[u] + weight;
             m_v_weights[u] = weight;
@@ -208,7 +179,7 @@ namespace SharedMap {
          * @param v Vertex v.
          * @param weight The weight of the edge.
          */
-        void add_edge(u64 u, u64 v, u64 weight = 1) {
+        void add_edge(const u64 u, const u64 v, const u64 weight = 1) {
             ASSERT(u < m_n);
             ASSERT(v < m_n);
             ASSERT(weight > 0);
@@ -232,7 +203,7 @@ namespace SharedMap {
          * @param v Vertex v.
          * @param weight The weight of the edge.
          */
-        void add_edge_if_not_exist(u64 u, u64 v, u64 weight = 1) {
+        void add_edge_if_not_exist(const u64 u, const u64 v, const u64 weight = 1) {
             ASSERT(u < m_n);
             ASSERT(v < m_n);
             ASSERT(weight > 0);
@@ -282,19 +253,14 @@ namespace SharedMap {
          * @param v Vertex v.
          * @return True if the edge exists, false else.
          */
-        bool edge_exists(u64 u, u64 v) const {
+        bool edge_exists(const u64 u, const u64 v) const {
             ASSERT(u < m_n);
             ASSERT(v < m_n);
 
             u64 min = std::min(u, v);
             u64 max = std::max(u, v);
 
-            for (const Edge& e : m_adj[min]) {
-                if (e.v == max) {
-                    return true;
-                }
-            }
-            return false;
+            return std::any_of(m_adj[min].begin(), m_adj[min].end(), [&](const Edge& e) { return e.v == max; });
         }
 
         /**
@@ -303,7 +269,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @return Number of edges.
          */
-        u64 get_vertex_n_edge(u64 u) const {
+        u64 get_vertex_n_edge(const u64 u) const {
             ASSERT(m_n == m_v_edges.size());
             ASSERT(u < m_n);
             return m_v_edges[u];
@@ -315,7 +281,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @return The weight.
          */
-        u64 get_vertex_weight(u64 u) const {
+        u64 get_vertex_weight(const u64 u) const {
             ASSERT(m_n == m_v_weights.size());
             ASSERT(u < m_n);
             return m_v_weights[u];
@@ -339,7 +305,7 @@ namespace SharedMap {
          * @param v The vertex v.
          * @return The weight.
          */
-        u64 get_edge_weight(u64 u, u64 v) const {
+        u64 get_edge_weight(const u64 u, const u64 v) const {
             ASSERT(u < m_n);
             ASSERT(v < m_n);
             ASSERT(edge_exists(u, v));
@@ -347,13 +313,7 @@ namespace SharedMap {
             u64 min = std::min(u, v);
             u64 max = std::max(u, v);
 
-            for (auto& e : m_adj[min]) {
-                if (e.v == max) {
-                    return e.w;
-                }
-            }
-            // unreachable
-            abort();
+            return std::find_if(m_adj[min].begin(), m_adj[min].end(), [&](const Edge& e) { return e.v == max; })->w;
         }
 
         /**
@@ -377,7 +337,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @return Reference to the adjacency.
          */
-        std::vector<Edge>& operator[](u64 u) {
+        std::vector<Edge>& operator[](const u64 u) {
             ASSERT(u < m_n);
 
             return m_adj[u];
@@ -389,51 +349,11 @@ namespace SharedMap {
          * @param u The vertex.
          * @return Reference to the adjacency.
          */
-        const std::vector<Edge>& operator[](u64 u) const {
+        const std::vector<Edge>& operator[](const u64 u) const {
             ASSERT(u < m_n);
 
             return m_adj[u];
         }
-
-        /**
-         * Used for asserting that the graph is correctly set.
-         */
-        void assert_graph() const {
-#if ASSERT_ENABLED
-            ASSERT(m_n == m_adj.size()); // correct number of adjacencies
-
-            u64 n_edges = 0;
-            for (u64 u = 0; u < m_n; ++u) {
-                ASSERT(m_adj[u].size() < m_n);
-                ASSERT(m_v_edges[u] < m_n);
-                for (u64 i = 0; i < m_adj[u].size(); ++i) {
-                    for (u64 j = i + 1; j < m_adj[u].size(); ++j) {
-                        ASSERT(m_adj[u][i].v != m_adj[u][j].v); // no duplicates
-                    }
-                }
-
-                n_edges += m_adj[u].size();
-            }
-
-            ASSERT(m_m == n_edges); // correct number of edges
-#endif
-        }
-
-        void write_metis_graph(const std::string& file_path) const {
-            std::stringstream ss;
-            ss << m_n << " " << m_m << " 011" << std::endl;
-            for (u64 u = 0; u < m_n; ++u) {
-                ss << m_v_weights[u] << " ";
-                for (auto& e : m_adj[u]) {
-                    ss << e.v + 1 << " " << e.w << " ";
-                }
-                ss << std::endl;
-            }
-
-            std::ofstream file(file_path);
-            file << ss.rdbuf();
-            file.close();
-        };
     };
 }
 
