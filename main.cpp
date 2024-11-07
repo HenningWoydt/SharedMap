@@ -21,14 +21,12 @@ int main(const int argc, const char *argv[]) {
     u64 n_threads = 10;
     std::string parallel_strategy_string = "nb_layer";
     std::string mapping_out = "mapping.txt";
-    std::string statistics_out = parallel_strategy_string + "_statistics.JSON";
 
     if (argc > 1) {
         CommandLineParser clp(argc, argv);
 
         graph_in = clp.get("--graph");
         mapping_out = clp.get("--mapping");
-        statistics_out = clp.get("--stats");
         hierarchy_string = clp.get("--hierarchy");
         distance_string = clp.get("--distance");
         imbalance = std::stod(clp.get("--imbalance"));
@@ -52,7 +50,6 @@ int main(const int argc, const char *argv[]) {
 
     AlgorithmConfiguration ac(graph_in,
                               mapping_out,
-                              statistics_out,
                               hierarchy_string,
                               distance_string,
                               imbalance,

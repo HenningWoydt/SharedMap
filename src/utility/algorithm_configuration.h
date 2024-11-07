@@ -78,7 +78,6 @@ namespace SharedMap {
         // graph information
         std::string graph_in;
         std::string mapping_out;
-        std::string statistics_out;
 
         // hierarchy information
         std::string hierarchy_string;
@@ -111,7 +110,6 @@ namespace SharedMap {
 
         AlgorithmConfiguration(const std::string& graph_in,
                                const std::string& mapping_out,
-                               const std::string& statistics_out,
                                const std::string& hierarchy_string,
                                const std::string& distance_string,
                                const f64 imbalance,
@@ -122,7 +120,6 @@ namespace SharedMap {
             // graph information
             this->graph_in       = graph_in;
             this->mapping_out    = mapping_out;
-            this->statistics_out = statistics_out;
 
             // hierarchy information
             this->hierarchy_string = hierarchy_string;
@@ -192,7 +189,6 @@ namespace SharedMap {
 
             s += tabs + to_JSON_MACRO(graph_in);
             s += tabs + to_JSON_MACRO(mapping_out);
-            s += tabs + to_JSON_MACRO(statistics_out);
             s += tabs + to_JSON_MACRO(hierarchy_string);
             s += tabs + to_JSON_MACRO(hierarchy);
             s += tabs + to_JSON_MACRO(k);
