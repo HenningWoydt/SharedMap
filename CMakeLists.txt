@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # CMake Options
 option(SHAREDMAP_ENABLE_ASSERTIONS "Enables Assertions." OFF)
-# option(SHAREDMAP_DOWNLOAD_TBB "Downloads TBB." ON)
+option(SHAREDMAP_DOWNLOAD_TBB "Downloads TBB." ON)
 
 # Set Release and Debug flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -march=native -Wall -Wextra -pedantic")
