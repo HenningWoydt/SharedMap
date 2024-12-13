@@ -15,6 +15,7 @@
 #include "src/utility/definitions.h"
 
 namespace SharedMap {
+    /*
     void nb_layer_thread_work_oversubscribed(u64 local_idx,
                                              std::atomic<u64>& global_idx,
                                              const std::vector<Item>& layer,
@@ -33,6 +34,7 @@ namespace SharedMap {
                               const Graph& original_g,
                               const AlgorithmConfiguration& config,
                               StatCollector& stat_collector);
+                              */
 
     /**
      * Uses the non-blocking layer approach.
