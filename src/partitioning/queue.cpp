@@ -88,11 +88,15 @@ namespace SharedMap {
                 /* wait */
             }
 
-            // all threads available and queue empty, so finished
-            if (n_available_threads == n_threads && queue_size == 0) { break; }
-
             // get item
             queue_lock.lock();
+
+            // all threads available and queue empty, so finished
+            if (n_available_threads == n_threads && queue_size == 0) {
+                queue_lock.unlock();
+                break;
+            }
+
             u64 n_assigned_threads = (n_available_threads + queue_size - 1) / queue_size;
             Item item              = queue.top();
             queue.pop();

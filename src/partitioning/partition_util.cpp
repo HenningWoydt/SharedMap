@@ -180,28 +180,33 @@ namespace SharedMap {
             alg = serial_alg_id[depth];
         }
 
-        switch (alg) {
-        case KAFFPA_STRONG:
-            kaffpa_partition(g, k, imbalance, partition, KAFFPA_STRONG);
-            break;
-        case KAFFPA_ECO:
-            kaffpa_partition(g, k, imbalance, partition, KAFFPA_ECO);
-            break;
-        case KAFFPA_FAST:
-            kaffpa_partition(g, k, imbalance, partition, KAFFPA_FAST);
-            break;
-        case MTKAHYPAR_DEFAULT:
-            mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_DEFAULT, n_threads);
-            break;
-        case MTKAHYPAR_QUALITY:
-            mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_QUALITY, n_threads);
-            break;
-        case MTKAHYPAR_HIGHEST_QUALITY:
-            mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_HIGHEST_QUALITY, n_threads);
-            break;
-        default:
-            std::cerr << "Algorithm ID " << alg << " not recognized" << std::endl;
-            abort();
+        if (k == 1){
+            partition.resize(g.get_n());
+            std::fill(partition.begin(), partition.end(), 0);
+        } else {
+            switch (alg) {
+                case KAFFPA_STRONG:
+                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_STRONG);
+                    break;
+                case KAFFPA_ECO:
+                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_ECO);
+                    break;
+                case KAFFPA_FAST:
+                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_FAST);
+                    break;
+                case MTKAHYPAR_DEFAULT:
+                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_DEFAULT, n_threads);
+                    break;
+                case MTKAHYPAR_QUALITY:
+                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_QUALITY, n_threads);
+                    break;
+                case MTKAHYPAR_HIGHEST_QUALITY:
+                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_HIGHEST_QUALITY, n_threads);
+                    break;
+                default:
+                    std::cerr << "Algorithm ID " << alg << " not recognized" << std::endl;
+                    abort();
+            }
         }
 
         auto ep = std::chrono::high_resolution_clock::now();
