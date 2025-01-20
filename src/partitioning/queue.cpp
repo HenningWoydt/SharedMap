@@ -83,7 +83,7 @@ namespace SharedMap {
         std::atomic<u64> queue_size          = 1;
         std::atomic<u64> n_available_threads = n_threads;
 
-        while (!(n_available_threads == n_threads && queue_size == 0)) {
+        while (true) {
             while ((n_available_threads == 0 || queue_size == 0) && !(n_available_threads == n_threads && queue_size == 0)) {
                 /* wait */
             }
