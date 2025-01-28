@@ -111,7 +111,7 @@ namespace SharedMap {
 
                 while (std::getline(file, line)) {
                     if (line[0] == '%') { continue; }
-                    // remove leading and trailing whitespaces, replace double whitespaces
+                    // convert the lines into ints
                     str_to_ints(line, ints);
 
                     u64 i = 0;
@@ -122,9 +122,8 @@ namespace SharedMap {
                     while (i < ints.size()) {
                         u64 v = ints[i++] - 1;
 
-                        u64 w = 1;
-
                         // check if edge weights
+                        u64 w = 1;
                         if (has_e_weights) { w = ints[i++]; }
 
                         add_edge_if_not_exist(u, v, w);

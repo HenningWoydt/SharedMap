@@ -16,6 +16,7 @@ namespace SharedMap {
      * @param imbalance The allowed imbalance.
      * @param partition The resulting partition.
      * @param kaffpa_config Configuration for kaffpa.
+     * @param seed The random seed.
      */
     void kaffpa_partition(const Graph &g,
                           u64 k,
@@ -33,6 +34,7 @@ namespace SharedMap {
      * @param partition The resulting partition.
      * @param mt_kahypar_config Configuration for MtKaHyPar.
      * @param n_threads Number of cores to use.
+     * @param seed The random seed.
      */
     void mt_kahypar_partition(const Graph &g,
                               u64 k,

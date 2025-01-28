@@ -13,7 +13,7 @@ namespace SharedMap {
         std::vector<u64> *identifier = nullptr; // used to identify the current graph in the recursive partitioning
         Graph            *g          = nullptr; // graph to partition
         TranslationTable *tt         = nullptr; // the tt from original graph to this graph
-        bool to_delete = false; // whether to free the memory
+        bool             to_delete   = false;   // whether to free the memory
 
         /**
          * Default constructor.

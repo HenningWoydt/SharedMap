@@ -182,6 +182,7 @@ namespace SharedMap {
         }
 
         if (k == 1) {
+            // if only one partition
             partition.resize(g.get_n());
             std::fill(partition.begin(), partition.end(), 0);
         } else {

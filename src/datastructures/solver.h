@@ -21,7 +21,7 @@ namespace SharedMap {
     class Solver {
     private:
         const AlgorithmConfiguration &m_ac;
-        StatCollector stat_collector;
+        StatCollector                stat_collector;
 
         f64 io_time    = 0.0;
         f64 solve_time = 0.0;
@@ -69,6 +69,7 @@ namespace SharedMap {
          * @return The partition.
          */
         std::vector<u64> internal_solve(const Graph &g) {
+            // if only one thread, then just solve serial
             if (m_ac.n_threads == 1) {
                 return solve_serial(g, m_ac, stat_collector);
             }
@@ -97,10 +98,11 @@ namespace SharedMap {
          */
         void write_solution(const std::vector<u64> &partition) const {
             std::stringstream ss;
-            for (u64          i: partition) {
+
+            for (u64      i: partition) {
                 ss << i << "\n";
             }
-            std::ofstream     out(m_ac.mapping_out);
+            std::ofstream out(m_ac.mapping_out);
             out << ss.rdbuf();
             out.close();
         }
