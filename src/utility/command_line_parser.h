@@ -27,6 +27,7 @@ namespace SharedMap {
                 {"--imbalance",            "-e", "Allowed imbalance (for example 0.03)",     ""},
                 {"--config",               "-c", "The configuration",                        ""},
                 {"--threads",              "-t", "Number of threads",                        ""},
+                {"--seed",                 "",  "Seed for diversifying partitioning",        ""},
                 {"--parallelStrategy",     "",  "Parallel strategy",                        ""},
                 {"--partitionAlgParallel", "",  "Parallel Partitioning Algorithm",          ""},
                 {"--partitionAlgSerial",   "",  "Serial Partitioning Algorithm",            ""},
