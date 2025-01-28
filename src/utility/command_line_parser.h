@@ -19,7 +19,7 @@ namespace SharedMap {
     class CommandLineParser {
     private:
         std::vector<CommandLineOption> options = {
-                {"--help",                 "",  "produces help message",                    ""},
+                {"--help",                 "",   "produces help message",                    ""},
                 {"--graph",                "-g", "Filepath to the graph",                    ""},
                 {"--mapping",              "-m", "Output filepath to the generated mapping", ""},
                 {"--hierarchy",            "-h", "Hierarchy in the form a1:a2:...:al",       ""},
@@ -27,10 +27,10 @@ namespace SharedMap {
                 {"--imbalance",            "-e", "Allowed imbalance (for example 0.03)",     ""},
                 {"--config",               "-c", "The configuration",                        ""},
                 {"--threads",              "-t", "Number of threads",                        ""},
-                {"--seed",                 "",  "Seed for diversifying partitioning",        ""},
-                {"--parallelStrategy",     "",  "Parallel strategy",                        ""},
-                {"--partitionAlgParallel", "",  "Parallel Partitioning Algorithm",          ""},
-                {"--partitionAlgSerial",   "",  "Serial Partitioning Algorithm",            ""},
+                {"--seed",                 "",   "Seed for diversifying partitioning",       ""},
+                {"--parallelStrategy",     "",   "Parallel strategy",                        ""},
+                {"--partitionAlgParallel", "",   "Parallel Partitioning Algorithm",          ""},
+                {"--partitionAlgSerial",   "",   "Serial Partitioning Algorithm",            ""},
         };
 
     public:
@@ -51,7 +51,7 @@ namespace SharedMap {
                     exit(EXIT_FAILURE);
                 }
 
-                for (auto & [large_key, small_key, description, input, is_set]: options) {
+                for (auto &[large_key, small_key, description, input, is_set]: options) {
                     if (large_key == args[i] || small_key == args[i]) {
                         input  = args[i + 1];
                         is_set = true;
@@ -69,7 +69,7 @@ namespace SharedMap {
          * @return The input.
          */
         std::string get(const std::string &var) {
-            for (const auto & [large_key, small_key, description, input, is_set]: options) {
+            for (const auto &[large_key, small_key, description, input, is_set]: options) {
                 if (large_key == var || small_key == var) {
                     if (input.empty()) {
                         std::cout << "Command Line \"" << var << "\" not set!" << std::endl;
@@ -89,7 +89,7 @@ namespace SharedMap {
          * @return True if the option was entered, false else.
          */
         bool is_set(const std::string &var) {
-            for (const auto & [large_key, small_key, description, input, is_set]: options) {
+            for (const auto &[large_key, small_key, description, input, is_set]: options) {
                 if (large_key == var || small_key == var) {
                     return is_set;
                 }
@@ -102,7 +102,7 @@ namespace SharedMap {
          * Prints the help message.
          */
         void print_help_message() {
-            for (const auto & [large_key, small_key, description, input, is_set]: options) {
+            for (const auto &[large_key, small_key, description, input, is_set]: options) {
                 std::cout << "[ --" << large_key << ", -" << small_key << "] - " << description << std::endl;
             }
         }

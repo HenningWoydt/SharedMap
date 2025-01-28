@@ -20,7 +20,7 @@ namespace SharedMap {
      */
     class Solver {
     private:
-        const AlgorithmConfiguration& m_ac;
+        const AlgorithmConfiguration &m_ac;
         StatCollector stat_collector;
 
         f64 io_time    = 0.0;
@@ -32,7 +32,7 @@ namespace SharedMap {
          *
          * @param ac Configuration to use.
          */
-        explicit Solver(AlgorithmConfiguration& ac) : m_ac(ac) {
+        explicit Solver(AlgorithmConfiguration &ac) : m_ac(ac) {
             stat_collector.initialize(m_ac.hierarchy.size());
         }
 
@@ -41,22 +41,22 @@ namespace SharedMap {
          */
         void solve() {
             // read graph
-            auto sp = std::chrono::steady_clock::now();
+            auto  sp = std::chrono::steady_clock::now();
             Graph g(m_ac.graph_in);
-            auto ep = std::chrono::steady_clock::now();
-            io_time += (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            auto  ep = std::chrono::steady_clock::now();
+            io_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
             // solve problem
-            sp                         = std::chrono::steady_clock::now();
+            sp = std::chrono::steady_clock::now();
             std::vector<u64> partition = internal_solve(g);
-            ep                         = std::chrono::steady_clock::now();
-            solve_time += (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            ep = std::chrono::steady_clock::now();
+            solve_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
             // write output
             sp = std::chrono::steady_clock::now();
             write_solution(partition);
             ep = std::chrono::steady_clock::now();
-            io_time += (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            io_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
             print_statistics();
         }
@@ -68,25 +68,25 @@ namespace SharedMap {
          * @param g The graph.
          * @return The partition.
          */
-        std::vector<u64> internal_solve(const Graph& g) {
+        std::vector<u64> internal_solve(const Graph &g) {
             if (m_ac.n_threads == 1) {
                 return solve_serial(g, m_ac, stat_collector);
             }
 
             switch (m_ac.parallel_strategy_id) {
-            case SERIAL:
-                return solve_serial(g, m_ac, stat_collector);
-            case NAIVE:
-                return solve_naive(g, m_ac, stat_collector);
-            case LAYER:
-                return solve_layer(g, m_ac, stat_collector);
-            case QUEUE:
-                return solve_queue(g, m_ac, stat_collector);
-            case NB_LAYER:
-                return solve_nb_layer(g, m_ac, stat_collector);
-            default:
-                std::cerr << "Strategy ID " << m_ac.parallel_strategy_id << " not recognized!" << std::endl;
-                abort();
+                case SERIAL:
+                    return solve_serial(g, m_ac, stat_collector);
+                case NAIVE:
+                    return solve_naive(g, m_ac, stat_collector);
+                case LAYER:
+                    return solve_layer(g, m_ac, stat_collector);
+                case QUEUE:
+                    return solve_queue(g, m_ac, stat_collector);
+                case NB_LAYER:
+                    return solve_nb_layer(g, m_ac, stat_collector);
+                default:
+                    std::cerr << "Strategy ID " << m_ac.parallel_strategy_id << " not recognized!" << std::endl;
+                    abort();
             }
         }
 
@@ -95,12 +95,12 @@ namespace SharedMap {
          *
          * @param partition The partition.
          */
-        void write_solution(const std::vector<u64>& partition) const {
+        void write_solution(const std::vector<u64> &partition) const {
             std::stringstream ss;
-            for (u64 i : partition) {
+            for (u64          i: partition) {
                 ss << i << "\n";
             }
-            std::ofstream out(m_ac.mapping_out);
+            std::ofstream     out(m_ac.mapping_out);
             out << ss.rdbuf();
             out.close();
         }

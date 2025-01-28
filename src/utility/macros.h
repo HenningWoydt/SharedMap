@@ -14,8 +14,6 @@ namespace SharedMap {
 #else
 #define ASSERT(condition) ((void)0)
 #endif
-
-#define dump(x) std::cout << (#x) << " is " << (x) << std::endl
 }
 
 #endif //SHAREDMAP_MACROS_H

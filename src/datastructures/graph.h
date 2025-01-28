@@ -34,28 +34,26 @@ namespace SharedMap {
          * @param e The other edge.
          * @return True if v is smaller than the other edge v.
          */
-        bool operator<(const Edge& e) const {
+        bool operator<(const Edge &e) const {
             return v < e.v;
         }
     };
 
     /**
-    * Standard undirected Graph that can hold vertex and edge weights.
-    */
+     * Standard undirected Graph that can hold vertex and edge weights.
+     * An edge {u, v} will only be stored once at index min(u, v).
+     */
     class Graph {
     private:
         u64 m_n; // number of vertices
         u64 m_m; // number of edges
 
-        // edges per vertex
-        std::vector<u64> m_v_edges;
+        std::vector<u64> m_v_edges; // edges per vertex
 
-        // vertex weight
-        std::vector<u64> m_v_weights;
-        u64 m_g_weight;
+        std::vector<u64> m_v_weights; // vertex weight
+        u64              m_g_weight; // graph weight
 
-        // adjacency and edge weights
-        std::vector<std::vector<Edge>> m_adj;
+        std::vector<std::vector<Edge>> m_adj; // edges
 
     public:
         /**
@@ -63,18 +61,18 @@ namespace SharedMap {
          *
          * @param file_path Path to the file.
          */
-        explicit Graph(const std::string& file_path) {
+        explicit Graph(const std::string &file_path) {
             if (!file_exists(file_path)) {
                 std::cerr << "File " << file_path << " does not exist!" << std::endl;
                 exit(EXIT_FAILURE);
             }
 
             std::ifstream file(file_path);
-            std::string line(64, ' ');
+            std::string   line(64, ' ');
             if (file.is_open()) {
-                bool has_v_weights = false;
-                bool has_e_weights = false;
-                u64 expected_edges = 0;
+                bool has_v_weights  = false;
+                bool has_e_weights  = false;
+                u64  expected_edges = 0;
 
                 // read in header
                 while (std::getline(file, line)) {
@@ -86,9 +84,9 @@ namespace SharedMap {
 
                     // read in header
                     std::vector<std::string> header = split(line, ' ');
-                    m_n                             = std::stoi(header[0]);
-                    m_m                             = 0;
-                    expected_edges                  = std::stoi(header[1]);
+                    m_n            = std::stoi(header[0]);
+                    m_m            = 0;
+                    expected_edges = std::stoi(header[1]);
 
                     // allocate space
                     m_v_edges.resize(m_n, 0);
@@ -101,14 +99,14 @@ namespace SharedMap {
                     if (header.size() == 3 && header[2].size() == 3) {
                         fmt = header[2];
                     }
-                    has_v_weights = fmt[1] == '1';
-                    has_e_weights = fmt[2] == '1';
+                    has_v_weights   = fmt[1] == '1';
+                    has_e_weights   = fmt[2] == '1';
 
                     break;
                 }
 
                 // read in edges
-                u64 u = 0;
+                u64              u = 0;
                 std::vector<u64> ints;
 
                 while (std::getline(file, line)) {
@@ -168,7 +166,7 @@ namespace SharedMap {
          */
         void set_vertex_weight(const u64 u, const u64 weight = 1) {
             ASSERT(u < m_n);
-            m_g_weight     = m_g_weight - m_v_weights[u] + weight;
+            m_g_weight = m_g_weight - m_v_weights[u] + weight;
             m_v_weights[u] = weight;
         }
 
@@ -208,8 +206,8 @@ namespace SharedMap {
             ASSERT(v < m_n);
             ASSERT(weight > 0);
 
-            u64 min = std::min(u, v);
-            u64 max = std::max(u, v);
+            u64  min = std::min(u, v);
+            u64  max = std::max(u, v);
             Edge e(max, weight);
 
             // Find the position where the new item should be inserted
@@ -260,7 +258,7 @@ namespace SharedMap {
             u64 min = std::min(u, v);
             u64 max = std::max(u, v);
 
-            return std::any_of(m_adj[min].begin(), m_adj[min].end(), [&](const Edge& e) { return e.v == max; });
+            return std::any_of(m_adj[min].begin(), m_adj[min].end(), [&](const Edge &e) { return e.v == max; });
         }
 
         /**
@@ -298,46 +296,12 @@ namespace SharedMap {
         }
 
         /**
-         * Returns the weight of edge between vertices u and v. Undefined
-         * behaviour if edge does not exist.
-         *
-         * @param u The vertex u.
-         * @param v The vertex v.
-         * @return The weight.
-         */
-        u64 get_edge_weight(const u64 u, const u64 v) const {
-            ASSERT(u < m_n);
-            ASSERT(v < m_n);
-            ASSERT(edge_exists(u, v));
-
-            u64 min = std::min(u, v);
-            u64 max = std::max(u, v);
-
-            return std::find_if(m_adj[min].begin(), m_adj[min].end(), [&](const Edge& e) { return e.v == max; })->w;
-        }
-
-        /**
-         * Returns the sum of vertex weights.
-         *
-         * @return The sum of all vertex weights.
-         */
-        u64 get_sum_edge_weights() const {
-            u64 edge_weights = 0;
-            for (u64 u = 0; u < m_n; ++u) {
-                for (const Edge& e : m_adj[u]) {
-                    edge_weights += e.w;
-                }
-            }
-            return edge_weights;
-        }
-
-        /**
          * Get the adjacency of vertex u.
          *
          * @param u The vertex.
          * @return Reference to the adjacency.
          */
-        std::vector<Edge>& operator[](const u64 u) {
+        std::vector<Edge> &operator[](const u64 u) {
             ASSERT(u < m_n);
 
             return m_adj[u];
@@ -349,7 +313,7 @@ namespace SharedMap {
          * @param u The vertex.
          * @return Reference to the adjacency.
          */
-        const std::vector<Edge>& operator[](const u64 u) const {
+        const std::vector<Edge> &operator[](const u64 u) const {
             ASSERT(u < m_n);
 
             return m_adj[u];

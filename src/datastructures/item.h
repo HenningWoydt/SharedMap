@@ -10,10 +10,10 @@ namespace SharedMap {
      */
     class Item {
     public:
-        std::vector<u64>* identifier = nullptr; // used to identify the current graph in the recursive partitioning
-        Graph* g                     = nullptr; // graph to partition
-        TranslationTable* tt         = nullptr; // the tt from original graph to this graph
-        bool to_delete               = false; // whether to free the memory
+        std::vector<u64> *identifier = nullptr; // used to identify the current graph in the recursive partitioning
+        Graph            *g          = nullptr; // graph to partition
+        TranslationTable *tt         = nullptr; // the tt from original graph to this graph
+        bool to_delete = false; // whether to free the memory
 
         /**
          * Default constructor.
@@ -28,7 +28,7 @@ namespace SharedMap {
          * @param tt The Translation Table to the original graph.
          * @param to_delete Whether to delete the memory of the item after processing.
          */
-        Item(std::vector<u64>* identifier, Graph* g, TranslationTable* tt, bool to_delete) {
+        Item(std::vector<u64> *identifier, Graph *g, TranslationTable *tt, bool to_delete) {
             this->identifier = identifier;
             this->g          = g;
             this->tt         = tt;
@@ -59,7 +59,7 @@ namespace SharedMap {
          * @param item The other item.
          * @return True if there are fewer vertices than in the other graph.
          */
-        bool operator<(const Item& item) const {
+        bool operator<(const Item &item) const {
             return g->get_n() < item.g->get_n();
         }
     };

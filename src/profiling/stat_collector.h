@@ -21,7 +21,7 @@ namespace SharedMap {
 
         // statistics for partitioning
         std::vector<f64> partition_time_per_layer; // log time on each depth
-        f64 partition_time = 0.0;
+        f64              partition_time = 0.0;
 
         std::vector<u64> size_per_graph;
         std::vector<f64> start_time_per_graph;
@@ -34,7 +34,7 @@ namespace SharedMap {
 
         // statistics for subgraph creation
         std::vector<f64> subgraph_creation_time_per_layer;
-        f64 subgraph_creation_time = 0.0;
+        f64              subgraph_creation_time = 0.0;
 
         std::vector<u64> subgraph_size_per_graph;
         std::vector<f64> subgraph_start_time_per_graph;
@@ -79,12 +79,12 @@ namespace SharedMap {
                            u64 n_threads,
                            f64 imbalance,
                            u64 k,
-                           const std::chrono::high_resolution_clock::time_point& sp,
-                           const std::chrono::high_resolution_clock::time_point& ep) {
+                           const std::chrono::high_resolution_clock::time_point &sp,
+                           const std::chrono::high_resolution_clock::time_point &ep) {
             lock.lock();
 
-            f64 time       = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
-            f64 start_time = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
+            f64 time       = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             partition_time_per_layer[depth] += time;
             partition_time += time;
@@ -115,12 +115,12 @@ namespace SharedMap {
                                    u64 graph_size,
                                    u64 n_threads,
                                    u64 k,
-                                   const std::chrono::high_resolution_clock::time_point& sp,
-                                   const std::chrono::high_resolution_clock::time_point& ep) {
+                                   const std::chrono::high_resolution_clock::time_point &sp,
+                                   const std::chrono::high_resolution_clock::time_point &ep) {
             lock.lock();
 
-            f64 time       = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
-            f64 start_time = (f64)std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
+            f64 time       = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+            f64 start_time = (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(sp - log_sp).count() / 1e9;
 
             subgraph_creation_time_per_layer[depth] += time;
             subgraph_creation_time += time;

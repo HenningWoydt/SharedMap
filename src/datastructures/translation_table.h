@@ -13,7 +13,7 @@ namespace SharedMap {
     class TranslationTable {
     private:
         std::vector<std::pair<u64, u64>> m_translation_table_o_to_n;
-        std::vector<u64> m_translation_n_to_o;
+        std::vector<u64>                 m_translation_n_to_o;
 
     public:
         /**
@@ -48,10 +48,10 @@ namespace SharedMap {
         }
 
         /**
-         * Preprocesses the datastructure after writing, for faster reading.
+         * Preprocesses the datastructures after writing, for faster reading.
          */
         void finalize() {
-            std::sort(m_translation_table_o_to_n.begin(), m_translation_table_o_to_n.end(), [](auto& left, auto& right) { return left.first < right.first; });
+            std::sort(m_translation_table_o_to_n.begin(), m_translation_table_o_to_n.end(), [](auto &left, auto &right) { return left.first < right.first; });
         }
 
         /**
@@ -60,7 +60,7 @@ namespace SharedMap {
          * @param o Old value
          */
         u64 get_n(const u64 o) const {
-            return std::lower_bound(m_translation_table_o_to_n.begin(), m_translation_table_o_to_n.end(), std::make_pair(o, (u64)0), [](auto& left, auto& right) { return left.first < right.first; })->second;
+            return std::lower_bound(m_translation_table_o_to_n.begin(), m_translation_table_o_to_n.end(), std::make_pair(o, (u64) 0), [](auto &left, auto &right) { return left.first < right.first; })->second;
         }
 
         /**

@@ -45,16 +45,16 @@ namespace SharedMap {
      * @param parallel_alg_id Vector of parallel algorithm ids.
      * @param stat_collector The statistic collector.
      */
-    void partition_graph(const Graph& g,
+    void partition_graph(const Graph &g,
                          u64 k,
                          f64 imbalance,
-                         std::vector<u64>& partition,
+                         std::vector<u64> &partition,
                          u64 n_threads,
                          u64 depth,
-                         const std::vector<u64>& serial_alg_id,
-                         const std::vector<u64>& parallel_alg_id,
+                         const std::vector<u64> &serial_alg_id,
+                         const std::vector<u64> &parallel_alg_id,
                          u64 seed,
-                         StatCollector& stat_collector);
+                         StatCollector &stat_collector);
 
     /**
      * Creates subgraph of a graph and its partition.
@@ -69,15 +69,15 @@ namespace SharedMap {
      * @param n_threads The number of threads.
      * @param stat_collector The statistic collector.
      */
-    void create_sub_graphs(const Graph& g,
-                           const TranslationTable& g_tt,
+    void create_sub_graphs(const Graph &g,
+                           const TranslationTable &g_tt,
                            u64 k,
-                           const std::vector<u64>& partition,
-                           const std::vector<u64>& identifier,
-                           std::vector<Item>& temp_stack,
+                           const std::vector<u64> &partition,
+                           const std::vector<u64> &identifier,
+                           std::vector<Item> &temp_stack,
                            u64 depth,
                            u64 n_threads,
-                           StatCollector& stat_collector);
-} // namespace SharedMap
+                           StatCollector &stat_collector);
+}
 
 #endif // SHAREDMAP_PARTITION_UTIL_H

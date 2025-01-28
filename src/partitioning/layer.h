@@ -22,9 +22,9 @@ namespace SharedMap {
      * @param stat_collector The statistic collector.
      * @return The partition.
      */
-    std::vector<u64> solve_layer(const Graph& original_g,
-                                 const AlgorithmConfiguration& config,
-                                 StatCollector& stat_collector);
+    std::vector<u64> solve_layer(const Graph &original_g,
+                                 const AlgorithmConfiguration &config,
+                                 StatCollector &stat_collector);
 }
 
 #endif //SHAREDMAP_LAYER_H

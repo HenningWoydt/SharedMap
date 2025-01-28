@@ -28,7 +28,7 @@ namespace SharedMap {
      * @param alg The Algorithm.
      * @return The algorithm id.
      */
-    u64 parse_partitioning_algorithm(const std::string& alg);
+    u64 parse_partitioning_algorithm(const std::string &alg);
 
     /**
      * Generates the serial alg string.
@@ -37,7 +37,7 @@ namespace SharedMap {
      * @param n_layers Number of layers.
      * @return The serial configuration.
      */
-    std::string parse_config_to_serial(const std::string& config,
+    std::string parse_config_to_serial(const std::string &config,
                                        size_t n_layers);
 
     /**
@@ -47,7 +47,7 @@ namespace SharedMap {
      * @param n_layers Number of layers.
      * @return The parallel configuration.
      */
-    std::string parse_config_to_parallel(const std::string& config,
+    std::string parse_config_to_parallel(const std::string &config,
                                          size_t n_layers);
 
     /**
@@ -68,7 +68,7 @@ namespace SharedMap {
      * @param strategy The Strategy.
      * @return The strategy id.
      */
-    u64 parse_parallel_strategy(const std::string& strategy);
+    u64 parse_parallel_strategy(const std::string &strategy);
 
     /**
     * Class to store the configuration of the algorithm.
@@ -80,12 +80,12 @@ namespace SharedMap {
         std::string mapping_out;
 
         // hierarchy information
-        std::string hierarchy_string;
+        std::string      hierarchy_string;
         std::vector<u64> hierarchy;
-        u64 k;
+        u64              k;
 
         // distance information
-        std::string distance_string;
+        std::string      distance_string;
         std::vector<u64> distance;
 
         // info for correctly identifying subgraphs
@@ -96,9 +96,9 @@ namespace SharedMap {
         f64 imbalance;
 
         // partitioning algorithm
-        std::string parallel_alg_string;
+        std::string      parallel_alg_string;
         std::vector<u64> parallel_alg_id;
-        std::string serial_alg_string;
+        std::string      serial_alg_string;
         std::vector<u64> serial_alg_id;
 
         // number of threads
@@ -106,24 +106,24 @@ namespace SharedMap {
 
         // parallel strategy
         std::string parallel_strategy_string;
-        u64 parallel_strategy_id;
+        u64         parallel_strategy_id;
 
         // random initialization
         u64 seed;
 
-        AlgorithmConfiguration(const std::string& graph_in,
-                               const std::string& mapping_out,
-                               const std::string& hierarchy_string,
-                               const std::string& distance_string,
+        AlgorithmConfiguration(const std::string &graph_in,
+                               const std::string &mapping_out,
+                               const std::string &hierarchy_string,
+                               const std::string &distance_string,
                                const f64 imbalance,
-                               const std::string& parallel_alg_string,
-                               const std::string& serial_alg_string,
+                               const std::string &parallel_alg_string,
+                               const std::string &serial_alg_string,
                                const u64 n_threads,
-                               const std::string& parallel_strategy_string,
+                               const std::string &parallel_strategy_string,
                                const u64 seed) {
             // graph information
-            this->graph_in       = graph_in;
-            this->mapping_out    = mapping_out;
+            this->graph_in    = graph_in;
+            this->mapping_out = mapping_out;
 
             // hierarchy information
             this->hierarchy_string = hierarchy_string;
@@ -141,7 +141,7 @@ namespace SharedMap {
             }
 
             k_rem_vec.resize(hierarchy.size());
-            u64 p = 1;
+            u64      p = 1;
             for (u64 i = 0; i < hierarchy.size(); ++i) {
                 k_rem_vec[i] = p * hierarchy[i];
                 p *= hierarchy[i];
@@ -151,12 +151,12 @@ namespace SharedMap {
             this->imbalance = imbalance;
 
             // partitioning algorithm
-            this->parallel_alg_string              = parallel_alg_string;
+            this->parallel_alg_string = parallel_alg_string;
             std::vector<std::string> temp_parallel = split(parallel_alg_string, ':');
-            for (auto& s : temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
-            this->serial_alg_string              = serial_alg_string;
+            for (auto &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            this->serial_alg_string = serial_alg_string;
             std::vector<std::string> temp_serial = split(serial_alg_string, ':');
-            for (auto& s : temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
 
             // number of threads
             this->n_threads = n_threads;

@@ -86,7 +86,7 @@ namespace SharedMap {
         // execute kaffpa
         kaffpa(&n, v_weights, adj_ptr, e_weights, adj, &n_partitions, &kaffpa_imbalance, true, (int) seed, mode, &edge_cut, kaffpa_partition);
 
-        // get result
+        // get the result
         for (int i = 0; i < n; ++i) {
             partition[i] = kaffpa_partition[i];
         }
