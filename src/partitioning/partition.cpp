@@ -8,7 +8,8 @@ namespace SharedMap {
                           const u64 k,
                           const f64 imbalance,
                           std::vector<u64> &partition,
-                          const u64 kaffpa_config) {
+                          const u64 kaffpa_config,
+                          const u64 seed) {
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
 
@@ -83,7 +84,7 @@ namespace SharedMap {
         }
 
         // execute kaffpa
-        kaffpa(&n, v_weights, adj_ptr, e_weights, adj, &n_partitions, &kaffpa_imbalance, true, 0, mode, &edge_cut, kaffpa_partition);
+        kaffpa(&n, v_weights, adj_ptr, e_weights, adj, &n_partitions, &kaffpa_imbalance, true, (int) seed, mode, &edge_cut, kaffpa_partition);
 
         // get result
         for (int i = 0; i < n; ++i) {
@@ -102,7 +103,8 @@ namespace SharedMap {
                               const f64 imbalance,
                               std::vector<u64> &partition,
                               const u64 mt_kahypar_config,
-                              const u64 n_threads) {
+                              const u64 n_threads,
+                              const u64 seed) {
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
 
@@ -138,8 +140,9 @@ namespace SharedMap {
                                                imbalance /* imbalance parameter */,
                                                CUT /* objective function */);
 
-        // Enable logging
+        // set context
         mt_kahypar_set_context_parameter(context, VERBOSE, "0");
+        mt_kahypar_set_seed(seed);
 
         // number of vertices and edges
         auto n = (mt_kahypar_hypernode_id_t) g.get_n();
@@ -159,7 +162,7 @@ namespace SharedMap {
             for (auto &e: g[u]) {
                 edges[2 * idx]     = (mt_kahypar_hypernode_id_t) u;
                 edges[2 * idx + 1] = (mt_kahypar_hypernode_id_t) e.v;
-                e_weights[idx]       = (mt_kahypar_hyperedge_weight_t) e.w;
+                e_weights[idx]     = (mt_kahypar_hyperedge_weight_t) e.w;
                 idx += 1;
                 ASSERT(idx <= m);
             }

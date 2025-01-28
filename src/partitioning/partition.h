@@ -21,7 +21,8 @@ namespace SharedMap {
                           u64 k,
                           f64 imbalance,
                           std::vector<u64> &partition,
-                          u64 kaffpa_config);
+                          u64 kaffpa_config,
+                          const u64 seed);
 
     /**
      * Uses MtKaHyPar to partition a graph into k partitions.
@@ -38,7 +39,8 @@ namespace SharedMap {
                               f64 imbalance,
                               std::vector<u64> &partition,
                               u64 mt_kahypar_config,
-                              u64 n_threads);
+                              u64 n_threads,
+                              const u64 seed);
 }
 
 #endif //SHAREDMAP_PARTITION_H

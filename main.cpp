@@ -1,3 +1,4 @@
+#include <random>
 #include "src/datastructures/solver.h"
 #include "src/utility/algorithm_configuration.h"
 #include "src/utility/command_line_parser.h"
@@ -7,8 +8,9 @@ using namespace SharedMap;
 int main(const int argc, const char *argv[]) {
     // std::string graph_in = "../data/mapping/cop20k_A.mtx.graph";
     // std::string graph_in = "../data/mapping/afshell9.graph";
-    // std::string graph_in = "../data/mapping/2cubes_sphere.mtx.graph";
-    std::string graph_in = "../data/mapping/eur.graph";
+    std::string graph_in = "../data/mapping/2cubes_sphere.mtx.graph";
+    // std::string graph_in = "../data/mapping/eur.graph";
+    // std::string graph_in = "../data/mapping/144.graph";
     // std::string graph_in = "../data/mapping/bmwcra_1.mtx.graph";
     // std::string graph_in = "../data/mapping/deu.graph";
     // std::string graph_in = "../data/mapping/PGPgiantcompo.graph";
@@ -22,7 +24,8 @@ int main(const int argc, const char *argv[]) {
     std::string parallel_alg_string = "mtkahypar_highest_quality:mtkahypar_highest_quality:mtkahypar_highest_quality";
     // std::string serial_alg_string = "kaffpa_fast:kaffpa_fast:kaffpa_fast";
     std::string serial_alg_string = "kaffpa_strong:kaffpa_strong:kaffpa_strong";
-    u64 n_threads = 10;
+    u64 n_threads = 16;
+    u64 seed = std::random_device{}();
     std::string parallel_strategy_string = "nb_layer";
     std::string mapping_out = "mapping.txt";
 
@@ -50,6 +53,13 @@ int main(const int argc, const char *argv[]) {
 
         n_threads = std::stoi(clp.get("--threads"));
         parallel_strategy_string = clp.get("--parallelStrategy");
+
+        if(clp.is_set("--seed")){
+            seed = std::stoi(clp.get("--seed"));
+        } else{
+            seed = std::random_device{}();
+        }
+
     }
 
     AlgorithmConfiguration ac(graph_in,
@@ -60,7 +70,8 @@ int main(const int argc, const char *argv[]) {
                               parallel_alg_string,
                               serial_alg_string,
                               n_threads,
-                              parallel_strategy_string);
+                              parallel_strategy_string,
+                              seed);
 
     Solver solver(ac);
     solver.solve();

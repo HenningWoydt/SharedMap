@@ -53,6 +53,7 @@ namespace SharedMap {
                          u64 depth,
                          const std::vector<u64>& serial_alg_id,
                          const std::vector<u64>& parallel_alg_id,
+                         u64 seed,
                          StatCollector& stat_collector);
 
     /**

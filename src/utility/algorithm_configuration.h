@@ -108,6 +108,9 @@ namespace SharedMap {
         std::string parallel_strategy_string;
         u64 parallel_strategy_id;
 
+        // random initialization
+        u64 seed;
+
         AlgorithmConfiguration(const std::string& graph_in,
                                const std::string& mapping_out,
                                const std::string& hierarchy_string,
@@ -116,7 +119,8 @@ namespace SharedMap {
                                const std::string& parallel_alg_string,
                                const std::string& serial_alg_string,
                                const u64 n_threads,
-                               const std::string& parallel_strategy_string) {
+                               const std::string& parallel_strategy_string,
+                               const u64 seed) {
             // graph information
             this->graph_in       = graph_in;
             this->mapping_out    = mapping_out;
@@ -160,6 +164,9 @@ namespace SharedMap {
             // parallel strategy
             this->parallel_strategy_string = parallel_strategy_string;
             this->parallel_strategy_id     = parse_parallel_strategy(parallel_strategy_string);
+
+            // random initialization
+            this->seed = seed;
 
             if (hierarchy.size() != distance.size()) {
                 std::cout << "Hierarchy (size " << hierarchy.size() << ") and Distance (size " << distance.size() << ") are not equal!" << std::endl;

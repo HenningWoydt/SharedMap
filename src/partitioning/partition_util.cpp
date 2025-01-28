@@ -172,6 +172,7 @@ namespace SharedMap {
                          const u64 depth,
                          const std::vector<u64>& serial_alg_id,
                          const std::vector<u64>& parallel_alg_id,
+                         const u64 seed,
                          StatCollector& stat_collector) {
         auto sp = std::chrono::high_resolution_clock::now();
 
@@ -186,22 +187,22 @@ namespace SharedMap {
         } else {
             switch (alg) {
                 case KAFFPA_STRONG:
-                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_STRONG);
+                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_STRONG, seed);
                     break;
                 case KAFFPA_ECO:
-                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_ECO);
+                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_ECO, seed);
                     break;
                 case KAFFPA_FAST:
-                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_FAST);
+                    kaffpa_partition(g, k, imbalance, partition, KAFFPA_FAST, seed);
                     break;
                 case MTKAHYPAR_DEFAULT:
-                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_DEFAULT, n_threads);
+                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_DEFAULT, n_threads, seed);
                     break;
                 case MTKAHYPAR_QUALITY:
-                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_QUALITY, n_threads);
+                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_QUALITY, n_threads, seed);
                     break;
                 case MTKAHYPAR_HIGHEST_QUALITY:
-                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_HIGHEST_QUALITY, n_threads);
+                    mt_kahypar_partition(g, k, imbalance, partition, MTKAHYPAR_HIGHEST_QUALITY, n_threads, seed);
                     break;
                 default:
                     std::cerr << "Algorithm ID " << alg << " not recognized" << std::endl;

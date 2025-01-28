@@ -39,7 +39,7 @@ namespace SharedMap {
 
             // partition the subgraph
             partition.resize(g.get_n());
-            partition_graph(g, local_k, local_imbalance, partition, n_assigned_threads, depth, config.serial_alg_id, config.parallel_alg_id, stat_collector);
+            partition_graph(g, local_k, local_imbalance, partition, n_assigned_threads, depth, config.serial_alg_id, config.parallel_alg_id, config.seed, stat_collector);
 
             if (depth == 0) {
                 // insert solution
