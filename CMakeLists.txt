@@ -19,11 +19,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -march=native -Wall -Wextra -pedan
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic")
 
 if (SHAREDMAP_ENABLE_ASSERTIONS)
-    message(STATUS "Assertions activated")
+    message(STATUS "SharedMap: Assertions activated")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D ASSERT_ENABLED=true ")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D ASSERT_ENABLED=true ")
 else ()
-    message(STATUS "Assertions deactivated")
+    message(STATUS "SharedMap: Assertions deactivated")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D ASSERT_ENABLED=false ")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D ASSERT_ENABLED=false ")
 endif()
@@ -55,11 +55,11 @@ if (TBB_FOUND)
     ELSE ()
         MESSAGE(FATAL_ERROR "
       Your current TBB version ${TBB_INTERFACE_VERSION} is too old. The minimum required version is 12050 (OneTBB 2021.5).
-      Add -DMTRECPROMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
+      Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
     ENDIF ()
 ELSE ()
     MESSAGE(FATAL_ERROR "
-    TBB library not found. Add -DMTRECPROMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
+    TBB library not found. Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
 ENDIF ()
 
 # include KaHIP library
@@ -86,6 +86,17 @@ target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
 target_link_libraries(SharedMap "-Wl,--disable-new-dtags")
 
 # Link Mt-KaHyPar library
-target_include_directories(SharedMap PRIVATE ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/include)
-target_link_libraries(SharedMap ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib/libmtkahypar.so)
-# target_link_libraries(SharedMap ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64/libmtkahypar.so)
+find_library(MTKAHYPAR_LIBRARY
+        NAMES mtkahypar
+        PATHS
+        ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib
+        ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64
+        NO_DEFAULT_PATH
+)
+
+if (MTKAHYPAR_LIBRARY)
+    message(STATUS "Found Mt-KaHyPar: ${MTKAHYPAR_LIBRARY}")
+    target_link_libraries(SharedMap ${MTKAHYPAR_LIBRARY})
+else()
+    message(FATAL_ERROR "Mt-KaHyPar library not found in expected locations (lib or lib64).")
+endif()
