@@ -29,6 +29,12 @@ int main(const int argc, const char *argv[]) {
     std::string parallel_strategy_string = "nb_layer";
     std::string mapping_out = "mapping.txt";
 
+    if (argc == 1) {
+        CommandLineParser clp(argc, argv);
+        clp.print_help_message();
+        exit(0);
+    }
+
     if (argc > 1) {
         CommandLineParser clp(argc, argv);
 
