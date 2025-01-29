@@ -103,7 +103,11 @@ namespace SharedMap {
          */
         void print_help_message() {
             for (const auto &[large_key, small_key, description, input, is_set]: options) {
-                std::cout << "[ --" << large_key << ", -" << small_key << "] - " << description << std::endl;
+                if(small_key.empty()){
+                    std::cout << "[ " << large_key << "] - " << description << std::endl;
+                } else {
+                    std::cout << "[ " << large_key << ", " << small_key << "] - " << description << std::endl;
+                }
             }
         }
     };
