@@ -28,9 +28,6 @@ else ()
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D ASSERT_ENABLED=false ")
 endif()
 
-# Find Threads
-# find_package(Threads REQUIRED)
-# message(STATUS "Found Threads: ${CMAKE_THREAD_LIBS_INIT}")
 
 # Download TBB Library
 if (SHAREDMAP_DOWNLOAD_TBB)
@@ -40,7 +37,6 @@ if (SHAREDMAP_DOWNLOAD_TBB)
             URL https://github.com/oneapi-src/oneTBB/releases/download/v2021.12.0/oneapi-tbb-2021.12.0-lin.tgz
             SOURCE_DIR external_tools/tbb
     )
-
     set(TBB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/external_tools/tbb)
 ENDIF ()
 
@@ -72,6 +68,9 @@ add_subdirectory(extern/KaHIP)
 include_directories(${PROJECT_SOURCE_DIR})
 file(GLOB_RECURSE SHAREDMAP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE SHAREDMAP_HEADERS CONFIGURE_DEPENDS "src/*.h")
+
+# add mtkahypar include
+include_directories(${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/include)
 
 # create executable
 add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
