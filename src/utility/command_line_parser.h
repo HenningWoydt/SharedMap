@@ -48,7 +48,7 @@ namespace SharedMap {
             for (int i = 1; i < argc; ++i) {
                 if (args[i] == "--help") {
                     print_help_message();
-                    exit(EXIT_FAILURE);
+                    exit(EXIT_SUCCESS);
                 }
 
                 for (auto &[large_key, small_key, description, input, is_set]: options) {
