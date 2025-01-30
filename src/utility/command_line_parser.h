@@ -19,18 +19,16 @@ namespace SharedMap {
     class CommandLineParser {
     private:
         std::vector<CommandLineOption> options = {
-                {"--help",                 "",   "produces help message",                    ""},
-                {"--graph",                "-g", "Filepath to the graph",                    ""},
-                {"--mapping",              "-m", "Output filepath to the generated mapping", ""},
-                {"--hierarchy",            "-h", "Hierarchy in the form a1:a2:...:al",       ""},
-                {"--distance",             "-d", "Distance in the form d1:d2:...:dl",        ""},
-                {"--imbalance",            "-e", "Allowed imbalance (for example 0.03)",     ""},
-                {"--config",               "-c", "The configuration",                        ""},
-                {"--threads",              "-t", "Number of threads",                        ""},
-                {"--seed",                 "",   "Seed for diversifying partitioning",       ""},
-                {"--parallelStrategy",     "",   "Parallel strategy",                        ""},
-                {"--partitionAlgParallel", "",   "Parallel Partitioning Algorithm",          ""},
-                {"--partitionAlgSerial",   "",   "Serial Partitioning Algorithm",            ""},
+                {"--help",      "",   "produces help message",                    ""},
+                {"--graph",     "-g", "Filepath to the graph",                    ""},
+                {"--mapping",   "-m", "Output filepath to the generated mapping", ""},
+                {"--hierarchy", "-h", "Hierarchy in the form a1:a2:...:al",       ""},
+                {"--distance",  "-d", "Distance in the form d1:d2:...:dl",        ""},
+                {"--imbalance", "-e", "Allowed imbalance (for example 0.03)",     ""},
+                {"--config",    "-c", "The configuration",                        ""},
+                {"--threads",   "-t", "Number of threads",                        ""},
+                {"--seed",      "",   "Seed for diversifying partitioning",       ""},
+                {"--strategy",  "-s", "Parallel strategy",                        ""},
         };
 
     public:
@@ -103,7 +101,7 @@ namespace SharedMap {
          */
         void print_help_message() {
             for (const auto &[large_key, small_key, description, input, is_set]: options) {
-                if(small_key.empty()){
+                if (small_key.empty()) {
                     std::cout << "[ " << large_key << "] - " << description << std::endl;
                 } else {
                     std::cout << "[ " << large_key << ", " << small_key << "] - " << description << std::endl;
