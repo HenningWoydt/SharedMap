@@ -58,7 +58,7 @@ void shared_map_hierarchical_multisection(int n,
 }
 
 
-void shared_map_hierarchical_multisection_assert_input(int n,
+bool shared_map_hierarchical_multisection_assert_input(int n,
                                                        int *v_weights,
                                                        int *adj_ptrs,
                                                        int *adj_weights,
@@ -74,4 +74,40 @@ void shared_map_hierarchical_multisection_assert_input(int n,
                                                        shared_map_partitioning_type_t serial_alg,
                                                        int &comm_cost,
                                                        int *partition,
-                                                       bool verbose);
+                                                       bool verbose){
+    std::string prefix = "---SharedMap: ";
+    if(verbose) {
+        std::cout << prefix << "Asserting graph!" << std::endl;
+        std::cout << prefix << "Graph has " << n << " vertices" << std::endl;
+        std::cout << prefix << "Printing each vertex and its neighborhood" << std::endl;
+        for(int i = 0; i < n; ++i){
+            std::cout << prefix << "Vertex " << i << " : weight = " << v_weights[i] << " neighborhood (neighbor, edge_weight):";
+            for(int j = adj_ptrs[i]; j < adj_ptrs[i+1]; ++j){
+                std::cout << "(" << adj[j] << ", " << adj_weights[j] << ") ";
+            }
+            std::cout << std::endl;
+        }
+
+        std::cout << prefix << "Asserting other parameters!" << std::endl;
+        std::cout << prefix << "Hierarchy: ";
+        for(int i = 0; i < l-1; ++i){
+            std::cout << hierarchy[i] << ":";
+        }
+        std::cout << hierarchy[l-1] << std::endl;
+        std::cout << prefix << "Distance: ";
+        for(int i = 0; i < l-1; ++i){
+            std::cout << distance[i] << ":";
+        }
+        std::cout << distance[l-1] << std::endl;
+
+        std::cout << prefix << "Imbalance: " << imbalance << std::endl;
+        std::cout << prefix << "#Threads : " << n_threads << std::endl;
+        std::cout << prefix << "Seed     : " << seed << std::endl;
+
+        std::cout << prefix << "Distribution : " << distribution << std::endl;
+        std::cout << prefix << "Parallel Alg.: " << parallel_alg << std::endl;
+        std::cout << prefix << "Serial Alg.  : " << serial_alg << std::endl;
+    }
+
+    return false;
+}

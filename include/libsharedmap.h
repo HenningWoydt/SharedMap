@@ -50,7 +50,7 @@ void shared_map_hierarchical_multisection(int n,
  * @param serial
  * @param partition
  */
-void shared_map_hierarchical_multisection_assert_input(int n,
+bool shared_map_hierarchical_multisection_assert_input(int n,
                                                        int *v_weights,
                                                        int *adj_ptrs,
                                                        int *adj_weights,
