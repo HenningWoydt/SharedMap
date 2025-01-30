@@ -23,9 +23,9 @@ cd ${ROOT}
 rm -rf build
 mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release && cd ${ROOT}
-cmake --build build --parallel "$(get_num_cores)" --target SharedMap
-cmake --build build --parallel "$(get_num_cores)" --target sharedmap
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . --parallel "$(get_num_cores)" --target SharedMap
+cmake --build . --parallel "$(get_num_cores)" --target sharedmap
 cd ${ROOT}
 
 mkdir -p bin

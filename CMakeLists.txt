@@ -67,6 +67,9 @@ add_subdirectory(extern/KaHIP)
 
 # Find all source and header files
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 file(GLOB_RECURSE SHAREDMAP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE SHAREDMAP_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
@@ -102,4 +105,4 @@ else()
 endif()
 
 # Add the library subdirectory
-add_subdirectory(lib)
+add_library(sharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
