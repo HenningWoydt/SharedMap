@@ -37,8 +37,8 @@ void shared_map_hierarchical_multisection(int n,
     }
 
     // create the hierarchy and distance
-    std::vector<SharedMap::u64> hierarchy_vec(hierarchy, hierarchy + l * sizeof(hierarchy[0]));
-    std::vector<SharedMap::u64> distance_vec(distance, distance + l * sizeof(distance[0]));
+    std::vector<SharedMap::u64> hierarchy_vec(hierarchy, hierarchy + l);
+    std::vector<SharedMap::u64> distance_vec(distance, distance + l);
 
     // create the algorithm configuration
     SharedMap::AlgorithmConfiguration ac(hierarchy_vec,
