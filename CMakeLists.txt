@@ -65,6 +65,21 @@ include_directories(extern/KaHIP)
 link_directories(extern/KaHIP)
 add_subdirectory(extern/KaHIP)
 
+# Link Mt-KaHyPar library
+find_library(MTKAHYPAR_LIBRARY
+        NAMES mtkahypar
+        PATHS
+        ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib
+        ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64
+        NO_DEFAULT_PATH
+)
+
+if (MTKAHYPAR_LIBRARY)
+    message(STATUS "Found Mt-KaHyPar: ${MTKAHYPAR_LIBRARY}")
+else()
+    message(FATAL_ERROR "Mt-KaHyPar library not found in expected locations (lib or lib64).")
+endif()
+
 # Find all source and header files
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -88,21 +103,17 @@ target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
 # without this TBB wont link properly
 target_link_libraries(SharedMap "-Wl,--disable-new-dtags")
 
-# Link Mt-KaHyPar library
-find_library(MTKAHYPAR_LIBRARY
-        NAMES mtkahypar
-        PATHS
-        ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib
-        ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64
-        NO_DEFAULT_PATH
-)
-
-if (MTKAHYPAR_LIBRARY)
-    message(STATUS "Found Mt-KaHyPar: ${MTKAHYPAR_LIBRARY}")
-    target_link_libraries(SharedMap ${MTKAHYPAR_LIBRARY})
-else()
-    message(FATAL_ERROR "Mt-KaHyPar library not found in expected locations (lib or lib64).")
-endif()
+# Link Mt-KaHyPar
+target_link_libraries(SharedMap ${MTKAHYPAR_LIBRARY})
 
 # Add the library subdirectory
-add_library(sharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
+add_library(libsharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
+
+# Shared interface library
+add_library(sharedmap SHARED lib/libsharedmap.cpp $<TARGET_OBJECTS:libsharedmap>)
+target_include_directories(sharedmap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/interface)
+target_link_libraries(sharedmap kahip)
+target_link_libraries(sharedmap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
+target_link_libraries(sharedmap "-Wl,--disable-new-dtags")
+target_link_libraries(sharedmap ${MTKAHYPAR_LIBRARY})
+install(TARGETS sharedmap DESTINATION lib)
