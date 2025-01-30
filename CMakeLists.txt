@@ -12,23 +12,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CMake Options
-option(SHAREDMAP_ENABLE_ASSERTIONS "Enables Assertions." OFF)
 option(SHAREDMAP_DOWNLOAD_TBB "Downloads TBB." ON)
 
 # Set Release and Debug flags
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -march=native -Wall -Wextra -pedantic")
-set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic")
-
-if (SHAREDMAP_ENABLE_ASSERTIONS)
-    message(STATUS "SharedMap: Assertions activated")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D ASSERT_ENABLED=true ")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D ASSERT_ENABLED=true ")
-else ()
-    message(STATUS "SharedMap: Assertions deactivated")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D ASSERT_ENABLED=false ")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D ASSERT_ENABLED=false ")
-endif()
-
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -march=native -mtune=native -flto -funroll-loops -fprefetch-loop-arrays -fomit-frame-pointer -falign-functions=32 -falign-loops=16 -Wall -Wextra -pedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic -fsanitize=undefined,address -fno-omit-frame-pointer -fstack-protector-strong -D_GLIBCXX_DEBUG")
+# set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic -Wshadow -Wformat=2 -Wconversion -Wnull-dereference -Wdouble-promotion -Woverloaded-virtual -Wnon-virtual-dtor -Wsign-conversion -fsanitize=undefined,address -fno-omit-frame-pointer -fstack-protector-strong -D_GLIBCXX_DEBUG")
 
 # Download TBB Library
 if (SHAREDMAP_DOWNLOAD_TBB)
@@ -61,11 +50,12 @@ ENDIF ()
 
 # include KaHIP library
 set(NOMPI ON CACHE BOOL "For KaHIP: disable all targets that depend on MPI (kaffpaE, ParHIP)")
-include_directories(extern/KaHIP)
+include_directories(SYSTEM extern/KaHIP)
 link_directories(extern/KaHIP)
 add_subdirectory(extern/KaHIP)
+set_target_properties(kahip PROPERTIES COMPILE_OPTIONS "-w")
 
-# Link Mt-KaHyPar library
+# Find Mt-KaHyPar library
 find_library(MTKAHYPAR_LIBRARY
         NAMES mtkahypar
         PATHS
@@ -73,7 +63,6 @@ find_library(MTKAHYPAR_LIBRARY
         ${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/lib64
         NO_DEFAULT_PATH
 )
-
 if (MTKAHYPAR_LIBRARY)
     message(STATUS "Found Mt-KaHyPar: ${MTKAHYPAR_LIBRARY}")
 else()
@@ -84,7 +73,6 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 file(GLOB_RECURSE SHAREDMAP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE SHAREDMAP_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
@@ -93,27 +81,17 @@ include_directories(${PROJECT_SOURCE_DIR}/extern/mt_kahypar_local/include)
 
 # create executable
 add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
-
-# Link KaHIP library
-target_link_libraries(SharedMap kahip)
-
-# Link TBB library
-target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
-
-# without this TBB wont link properly
-target_link_libraries(SharedMap "-Wl,--disable-new-dtags")
-
-# Link Mt-KaHyPar
-target_link_libraries(SharedMap ${MTKAHYPAR_LIBRARY})
+target_link_libraries(SharedMap kahip) # Link KaHIP library
+target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc) # Link TBB library
+target_link_libraries(SharedMap "-Wl,--disable-new-dtags") # without this TBB wont link properly
+target_link_libraries(SharedMap ${MTKAHYPAR_LIBRARY}) # Link Mt-KaHyPar
 
 # Add the library subdirectory
 add_library(libsharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
-
-# Shared interface library
 add_library(sharedmap SHARED lib/libsharedmap.cpp $<TARGET_OBJECTS:libsharedmap>)
 target_include_directories(sharedmap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/interface)
-target_link_libraries(sharedmap kahip)
-# target_link_libraries(sharedmap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
-# target_link_libraries(sharedmap "-Wl,--disable-new-dtags")
-target_link_libraries(sharedmap ${MTKAHYPAR_LIBRARY})
+target_link_libraries(sharedmap kahip) # Link KaHIP library
+target_link_libraries(sharedmap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc) # Link TBB library
+target_link_libraries(sharedmap "-Wl,--disable-new-dtags") # without this TBB wont link properly
+target_link_libraries(sharedmap ${MTKAHYPAR_LIBRARY}) # Link Mt-KaHyPar
 install(TARGETS sharedmap DESTINATION lib)
