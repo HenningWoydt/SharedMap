@@ -6,6 +6,40 @@
 #include "src/profiling/stat_collector.h"
 #include "src/datastructures/solver.h"
 
+std::string distribution_to_string(shared_map_distribution_type_t distribution) {
+    switch (distribution) {
+        case NAIVE:
+            return "NAIVE";
+        case LAYER:
+            return "LAYER";
+        case QUEUE:
+            return "QUEUE";
+        case NB_LAYER:
+            return "NB_LAYER";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+std::string algorithm_to_string(shared_map_algorithm_type_t algorithm) {
+    switch (algorithm) {
+        case KAFFPA_FAST:
+            return "KAFFPA_FAST";
+        case KAFFPA_ECO:
+            return "KAFFPA_ECO";
+        case KAFFPA_STRONG:
+            return "KAFFPA_STRONG";
+        case MTKAHYPAR_DEFAULT:
+            return "MTKAHYPAR_DEFAULT";
+        case MTKAHYPAR_QUALITY:
+            return "MTKAHYPAR_QUALITY";
+        case MTKAHYPAR_HIGHEST_QUALITY:
+            return "MTKAHYPAR_HIGHEST_QUALITY";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 void shared_map_hierarchical_multisection(int n,
                                           int *v_weights,
                                           int *adj_ptrs,
@@ -18,8 +52,8 @@ void shared_map_hierarchical_multisection(int n,
                                           int n_threads,
                                           int seed,
                                           shared_map_distribution_type_t distribution,
-                                          shared_map_partitioning_type_t parallel_alg,
-                                          shared_map_partitioning_type_t serial_alg,
+                                          shared_map_algorithm_type_t parallel_alg,
+                                          shared_map_algorithm_type_t serial_alg,
                                           int &comm_cost,
                                           int *partition,
                                           bool verbose) {
@@ -70,19 +104,19 @@ bool shared_map_hierarchical_multisection_assert_input(int n,
                                                        int n_threads,
                                                        int seed,
                                                        shared_map_distribution_type_t distribution,
-                                                       shared_map_partitioning_type_t parallel_alg,
-                                                       shared_map_partitioning_type_t serial_alg,
+                                                       shared_map_algorithm_type_t parallel_alg,
+                                                       shared_map_algorithm_type_t serial_alg,
                                                        int &comm_cost,
                                                        int *partition,
-                                                       bool verbose){
+                                                       bool verbose) {
     std::string prefix = "---SharedMap: ";
-    if(verbose) {
+    if (verbose) {
         std::cout << prefix << "Asserting graph!" << std::endl;
         std::cout << prefix << "Graph has " << n << " vertices" << std::endl;
         std::cout << prefix << "Printing each vertex and its neighborhood" << std::endl;
-        for(int i = 0; i < n; ++i){
+        for (int i = 0; i < n; ++i) {
             std::cout << prefix << "Vertex " << i << " : weight = " << v_weights[i] << " neighborhood (neighbor, edge_weight):";
-            for(int j = adj_ptrs[i]; j < adj_ptrs[i+1]; ++j){
+            for (int j = adj_ptrs[i]; j < adj_ptrs[i + 1]; ++j) {
                 std::cout << "(" << adj[j] << ", " << adj_weights[j] << ") ";
             }
             std::cout << std::endl;
@@ -90,23 +124,23 @@ bool shared_map_hierarchical_multisection_assert_input(int n,
 
         std::cout << prefix << "Asserting other parameters!" << std::endl;
         std::cout << prefix << "Hierarchy: ";
-        for(int i = 0; i < l-1; ++i){
+        for (int i = 0; i < l - 1; ++i) {
             std::cout << hierarchy[i] << ":";
         }
-        std::cout << hierarchy[l-1] << std::endl;
+        std::cout << hierarchy[l - 1] << std::endl;
         std::cout << prefix << "Distance: ";
-        for(int i = 0; i < l-1; ++i){
+        for (int i = 0; i < l - 1; ++i) {
             std::cout << distance[i] << ":";
         }
-        std::cout << distance[l-1] << std::endl;
+        std::cout << distance[l - 1] << std::endl;
 
         std::cout << prefix << "Imbalance: " << imbalance << std::endl;
         std::cout << prefix << "#Threads : " << n_threads << std::endl;
         std::cout << prefix << "Seed     : " << seed << std::endl;
 
-        std::cout << prefix << "Distribution : " << distribution << std::endl;
-        std::cout << prefix << "Parallel Alg.: " << parallel_alg << std::endl;
-        std::cout << prefix << "Serial Alg.  : " << serial_alg << std::endl;
+        std::cout << prefix << "Distribution : " << distribution << " (" << distribution_to_string(distribution) << ")" << std::endl;
+        std::cout << prefix << "Parallel Alg.: " << parallel_alg << " (" << algorithm_to_string(parallel_alg) << ")" << std::endl;
+        std::cout << prefix << "Serial Alg.  : " << serial_alg << " (" << algorithm_to_string(serial_alg) << ")" << std::endl;
     }
 
     return false;

@@ -9,6 +9,8 @@ typedef enum {
     NB_LAYER
 } shared_map_distribution_type_t;
 
+std::string distribution_to_string(shared_map_distribution_type_t distribution);
+
 /** TODO */
 typedef enum {
     KAFFPA_FAST,
@@ -17,8 +19,8 @@ typedef enum {
     MTKAHYPAR_DEFAULT,
     MTKAHYPAR_QUALITY,
     MTKAHYPAR_HIGHEST_QUALITY
-} shared_map_partitioning_type_t;
+} shared_map_algorithm_type_t;
 
-class shared_map_graph;
+std::string algorithm_to_string(shared_map_algorithm_type_t algorithm);
 
 #endif //SHAREDMAP_LIBSHAREDMAPTYPES_H

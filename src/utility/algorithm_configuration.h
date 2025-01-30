@@ -163,8 +163,8 @@ namespace SharedMap {
         AlgorithmConfiguration(const std::vector<u64> &hierarchy_vec,
                                const std::vector<u64> &distance_vec,
                                const f64 imbalance,
-                               const shared_map_partitioning_type_t &parallel_alg,
-                               const shared_map_partitioning_type_t &serial_alg,
+                               const shared_map_algorithm_type_t &parallel_alg,
+                               const shared_map_algorithm_type_t &serial_alg,
                                const u64 n_threads,
                                const shared_map_distribution_type_t &distribution,
                                const u64 seed) {
