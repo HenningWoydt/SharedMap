@@ -1,6 +1,8 @@
 #ifndef SHAREDMAP_LIBSHAREDMAPTYPES_H
 #define SHAREDMAP_LIBSHAREDMAPTYPES_H
 
+#include <string>
+
 /** TODO */
 typedef enum {
     NAIVE,
