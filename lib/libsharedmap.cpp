@@ -150,7 +150,7 @@ bool shared_map_hierarchical_multisection_assert_input(int n,
 
             g.add_edge_if_not_exist(i, adj[j], adj_weights[j]);
         }
-        std::cout << std::endl;
+        if (verbose) std::cout << std::endl;
     }
 
     // check edges exist from both sides
