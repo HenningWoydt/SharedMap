@@ -31,33 +31,33 @@ endif()
 
 
 # Download TBB Library
-if (SHAREDMAP_DOWNLOAD_TBB)
-    include(FetchContent)
-    FetchContent_Populate(
-            tbb
-            URL https://github.com/oneapi-src/oneTBB/releases/download/v2021.12.0/oneapi-tbb-2021.12.0-lin.tgz
-            SOURCE_DIR external_tools/tbb
-    )
-    set(TBB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/external_tools/tbb)
-ENDIF ()
-
-# # Find TBB Library
-find_package(TBB REQUIRED)
-if (TBB_FOUND)
-    if (TBB_INTERFACE_VERSION GREATER_EQUAL 12050)
-        MESSAGE(STATUS "TBB Version: ${TBB_VERSION_MAJOR}.${TBB_VERSION_MINOR} (Interface Version=${TBB_INTERFACE_VERSION})")
-        MESSAGE(STATUS "Found TBB library: inc=${TBB_INCLUDE_DIRS}, lib=${TBB_LIBRARIES}")
-        MESSAGE(STATUS "Found TBB Malloc library: inc=${TBB_MALLOC_INCLUDE_DIRS}, lib=${TBB_MALLOC_LIBRARIES}")
-        MESSAGE(STATUS "Found TBB Malloc Proxy library: inc=${TBB_MALLOC_PROXY_INCLUDE_DIRS}, lib=${TBB_MALLOC_PROXY_LIBRARIES}")
-    ELSE ()
-        MESSAGE(FATAL_ERROR "
-      Your current TBB version ${TBB_INTERFACE_VERSION} is too old. The minimum required version is 12050 (OneTBB 2021.5).
-      Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
-    ENDIF ()
-ELSE ()
-    MESSAGE(FATAL_ERROR "
-    TBB library not found. Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
-ENDIF ()
+# if (SHAREDMAP_DOWNLOAD_TBB)
+#     include(FetchContent)
+#     FetchContent_Populate(
+#             tbb
+#             URL https://github.com/oneapi-src/oneTBB/releases/download/v2021.12.0/oneapi-tbb-2021.12.0-lin.tgz
+#             SOURCE_DIR external_tools/tbb
+#     )
+#     set(TBB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/external_tools/tbb)
+# ENDIF ()
+#
+# # # Find TBB Library
+# find_package(TBB REQUIRED)
+# if (TBB_FOUND)
+#     if (TBB_INTERFACE_VERSION GREATER_EQUAL 12050)
+#         MESSAGE(STATUS "TBB Version: ${TBB_VERSION_MAJOR}.${TBB_VERSION_MINOR} (Interface Version=${TBB_INTERFACE_VERSION})")
+#         MESSAGE(STATUS "Found TBB library: inc=${TBB_INCLUDE_DIRS}, lib=${TBB_LIBRARIES}")
+#         MESSAGE(STATUS "Found TBB Malloc library: inc=${TBB_MALLOC_INCLUDE_DIRS}, lib=${TBB_MALLOC_LIBRARIES}")
+#         MESSAGE(STATUS "Found TBB Malloc Proxy library: inc=${TBB_MALLOC_PROXY_INCLUDE_DIRS}, lib=${TBB_MALLOC_PROXY_LIBRARIES}")
+#     ELSE ()
+#         MESSAGE(FATAL_ERROR "
+#       Your current TBB version ${TBB_INTERFACE_VERSION} is too old. The minimum required version is 12050 (OneTBB 2021.5).
+#       Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
+#     ENDIF ()
+# ELSE ()
+#     MESSAGE(FATAL_ERROR "
+#     TBB library not found. Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
+# ENDIF ()
 
 # include KaHIP library
 set(NOMPI ON CACHE BOOL "For KaHIP: disable all targets that depend on MPI (kaffpaE, ParHIP)")
@@ -98,7 +98,7 @@ add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
 target_link_libraries(SharedMap kahip)
 
 # Link TBB library
-target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
+# target_link_libraries(SharedMap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
 
 # without this TBB wont link properly
 target_link_libraries(SharedMap "-Wl,--disable-new-dtags")
@@ -113,7 +113,7 @@ add_library(libsharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
 add_library(sharedmap SHARED lib/libsharedmap.cpp $<TARGET_OBJECTS:libsharedmap>)
 target_include_directories(sharedmap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/interface)
 target_link_libraries(sharedmap kahip)
-target_link_libraries(sharedmap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
-target_link_libraries(sharedmap "-Wl,--disable-new-dtags")
+# target_link_libraries(sharedmap TBB::tbb TBB::tbbmalloc_proxy TBB::tbbmalloc)
+# target_link_libraries(sharedmap "-Wl,--disable-new-dtags")
 target_link_libraries(sharedmap ${MTKAHYPAR_LIBRARY})
 install(TARGETS sharedmap DESTINATION lib)
