@@ -110,38 +110,97 @@ bool shared_map_hierarchical_multisection_assert_input(int n,
                                                        int *partition,
                                                        bool verbose) {
     std::string prefix = "---SharedMap: ";
-    if (verbose) {
-        std::cout << prefix << "Asserting graph!" << std::endl;
-        std::cout << prefix << "Graph has " << n << " vertices" << std::endl;
-        std::cout << prefix << "Printing each vertex and its neighborhood" << std::endl;
-        for (int i = 0; i < n; ++i) {
-            std::cout << prefix << "Vertex " << i << " : weight = " << v_weights[i] << " neighborhood (neighbor, edge_weight):";
-            for (int j = adj_ptrs[i]; j < adj_ptrs[i + 1]; ++j) {
-                std::cout << "(" << adj[j] << ", " << adj_weights[j] << ") ";
+
+    SharedMap::Graph g(n);
+
+    if (verbose) std::cout << prefix << "Asserting graph!" << std::endl;
+    if (verbose) std::cout << prefix << "Graph has " << n << " vertices" << std::endl;
+    if (verbose) std::cout << prefix << "Printing each vertex and its neighborhood" << std::endl;
+    for (int i = 0; i < n; ++i) {
+        if (verbose) std::cout << prefix << "Vertex " << i << " : weight = " << v_weights[i] << " neighborhood (neighbor, edge_weight):";
+
+        if (v_weights[i] <= 0) {
+            std::cout << prefix << "Vertex " << i << " has weight " << v_weights[i] << " <= 0, which is not allowed!" << std::endl;
+            return true;
+        }
+
+        g.set_vertex_weight(i, v_weights[i]);
+        for (int j = adj_ptrs[i]; j < adj_ptrs[i + 1]; ++j) {
+            if (verbose) std::cout << "(" << adj[j] << ", " << adj_weights[j] << ") ";
+
+            if (adj[j] == i) {
+                std::cout << prefix << "Vertex " << i << " has itself as neighbor , which is not allowed!" << std::endl;
+                return true;
             }
-            std::cout << std::endl;
-        }
 
-        std::cout << prefix << "Asserting other parameters!" << std::endl;
-        std::cout << prefix << "Hierarchy: ";
-        for (int i = 0; i < l - 1; ++i) {
-            std::cout << hierarchy[i] << ":";
-        }
-        std::cout << hierarchy[l - 1] << std::endl;
-        std::cout << prefix << "Distance: ";
-        for (int i = 0; i < l - 1; ++i) {
-            std::cout << distance[i] << ":";
-        }
-        std::cout << distance[l - 1] << std::endl;
+            if (adj[j] >= n) {
+                std::cout << prefix << "Vertex " << i << " has neighbor " << adj[j] << " >= n (" << n << "), which is not allowed!" << std::endl;
+                return true;
+            }
 
-        std::cout << prefix << "Imbalance: " << imbalance << std::endl;
-        std::cout << prefix << "#Threads : " << n_threads << std::endl;
-        std::cout << prefix << "Seed     : " << seed << std::endl;
+            if (adj[j] < 0) {
+                std::cout << prefix << "Vertex " << i << " has neighbor " << adj[j] << " < 0, which is not allowed!" << std::endl;
+                return true;
+            }
 
-        std::cout << prefix << "Distribution : " << distribution << " (" << distribution_to_string(distribution) << ")" << std::endl;
-        std::cout << prefix << "Parallel Alg.: " << parallel_alg << " (" << algorithm_to_string(parallel_alg) << ")" << std::endl;
-        std::cout << prefix << "Serial Alg.  : " << serial_alg << " (" << algorithm_to_string(serial_alg) << ")" << std::endl;
+            if (adj_weights[j] <= 0) {
+                std::cout << prefix << "Vertex " << i << " has neighbor " << adj[j] << " and the edge weight is " << adj_weights[j] << " <= 0, which is not allowed!" << std::endl;
+                return true;
+            }
+
+            g.add_edge_if_not_exist(i, adj[j], adj_weights[j]);
+        }
+        std::cout << std::endl;
     }
+
+    // check edges exist from both sides
+    for (int n1 = 0; n1 < n; ++n1) {
+        for (int j = adj_ptrs[n1]; j < adj_ptrs[n1 + 1]; ++j) {
+            int  n2    = adj[j];
+            int  w2    = adj_weights[j];
+            bool found = false;
+
+            for (int k = adj_ptrs[n2]; k < adj_ptrs[n2] && !false; ++k) {
+                int n3 = adj[k];
+                int w3 = adj_weights[k];
+
+                if (n1 == n3) {
+                    found = true;
+                    if (w2 != w3) {
+                        std::cout << prefix << "Vertex " << n1 << " is adjacent to vertex " << n2 << " with an edge weight of " << w2 << ", however vertex " << n2 << " is adjacent to vertex " << n1 << " with an edge weight of " << w3 << ", which is not allowed!" << std::endl;
+                        return false;
+                    }
+                }
+
+            }
+
+            if (!found) {
+                std::cout << prefix << "Vertex " << n1 << " has (neighbor, edge_weight) (" << n2 << ", " << w2 << "), however that edge is missing in " << n2 << "'s neighborhood, which is not allowed!" << std::endl;
+                return false;
+            }
+
+        }
+    }
+
+    if (verbose) std::cout << prefix << "Asserting other parameters!" << std::endl;
+    if (verbose) std::cout << prefix << "Hierarchy: ";
+    for (int i = 0; i < l - 1; ++i) {
+        if (verbose) std::cout << hierarchy[i] << ":";
+    }
+    if (verbose) std::cout << hierarchy[l - 1] << std::endl;
+    if (verbose) std::cout << prefix << "Distance : ";
+    for (int i = 0; i < l - 1; ++i) {
+        if (verbose) std::cout << distance[i] << ":";
+    }
+    if (verbose) std::cout << distance[l - 1] << std::endl;
+
+    if (verbose) std::cout << prefix << "Imbalance: " << imbalance << std::endl;
+    if (verbose) std::cout << prefix << "#Threads : " << n_threads << std::endl;
+    if (verbose) std::cout << prefix << "Seed     : " << seed << std::endl;
+
+    if (verbose) std::cout << prefix << "Distribution : " << distribution << " (" << distribution_to_string(distribution) << ")" << std::endl;
+    if (verbose) std::cout << prefix << "Parallel Alg.: " << parallel_alg << " (" << algorithm_to_string(parallel_alg) << ")" << std::endl;
+    if (verbose) std::cout << prefix << "Serial Alg.  : " << serial_alg << " (" << algorithm_to_string(serial_alg) << ")" << std::endl;
 
     return false;
 }
