@@ -109,7 +109,7 @@ bool shared_map_hierarchical_multisection_assert_input(int n,
                                                        int &comm_cost,
                                                        int *partition,
                                                        bool verbose) {
-    std::string prefix = "---SharedMap---: ";
+    std::string prefix = "---SharedMap--- ";
 
     SharedMap::Graph g(n);
 
