@@ -160,7 +160,7 @@ bool shared_map_hierarchical_multisection_assert_input(int n,
             int  w2    = adj_weights[j];
             bool found = false;
 
-            for (int k = adj_ptrs[n2]; k < adj_ptrs[n2] && !false; ++k) {
+            for (int k = adj_ptrs[n2]; k < adj_ptrs[n2 + 1] && !false; ++k) {
                 int n3 = adj[k];
                 int w3 = adj_weights[k];
 
