@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(SharedMapLibrary)
 
 # Set the library name
-set(LIBRARY_NAME SharedMapLib)
+set(LIBRARY_NAME sharedmap)
 
 # Include header files
 include_directories(${CMAKE_SOURCE_DIR}/include)

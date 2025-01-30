@@ -11,7 +11,7 @@ if [ -d .git ]; then
 fi
 
 # install mt_kahypar
-rm -rf extern/mt-kahypar/build
+# rm -rf extern/mt-kahypar/build
 mkdir -p extern/mt_kahypar_local
 mkdir -p extern/mt-kahypar/build
 cd extern/mt-kahypar/build
@@ -25,7 +25,7 @@ mkdir -p build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release && cd ${ROOT}
 cmake --build build --parallel "$(get_num_cores)" --target SharedMap
-cmake --build build --parallel "$(get_num_cores)" --target SharedMapLib
+cmake --build build --parallel "$(get_num_cores)" --target sharedmap
 cd ${ROOT}
 
 mkdir -p bin
