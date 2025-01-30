@@ -13,6 +13,7 @@
 #include "src/utility/definitions.h"
 #include "src/utility/JSON_utils.h"
 #include "src/utility/utils.h"
+#include "src/utility/qap.h"
 
 namespace SharedMap {
     /**
@@ -64,7 +65,7 @@ namespace SharedMap {
         /**
          * Solves the problem.
          */
-        void solve(Graph &g, int* partition, bool verbose=false) {
+        void solve(Graph &g, int* partition, int &comm_cost, bool verbose=false) {
             io_time = 0;
 
             // solve problem
@@ -75,6 +76,8 @@ namespace SharedMap {
             for(size_t i = 0; i < g.get_n(); ++i){
                 partition[i] = (int) internal_partition[i];
             }
+
+            comm_cost = (int) determine_qap(g, m_ac.hierarchy, m_ac.distance, internal_partition);
 
             auto ep = std::chrono::steady_clock::now();
             solve_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;

@@ -32,7 +32,7 @@ int main(const int argc, const char *argv[]) {
     if (argc == 1) {
         CommandLineParser clp(argc, argv);
         clp.print_help_message();
-        // exit(0);
+        exit(0);
     }
 
     if (argc > 1) {

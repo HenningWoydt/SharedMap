@@ -88,7 +88,7 @@ void shared_map_hierarchical_multisection(int n,
     SharedMap::Solver solver(ac);
 
     // solve
-    solver.solve(g, partition, verbose);
+    solver.solve(g, partition, comm_cost, verbose);
 }
 
 
