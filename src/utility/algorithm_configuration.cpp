@@ -65,7 +65,6 @@ namespace SharedMap {
 
     u64 parse_parallel_strategy(const std::string &strategy) {
         std::vector<std::pair<std::string, u64>> strategies = {
-                {"serial",   SERIAL},
                 {"naive",    NAIVE},
                 {"layer",    LAYER},
                 {"queue",    QUEUE},

@@ -61,6 +61,29 @@ namespace SharedMap {
             print_statistics();
         }
 
+        /**
+         * Solves the problem.
+         */
+        void solve(Graph &g, int* partition, bool verbose=false) {
+            io_time = 0;
+
+            // solve problem
+            auto sp = std::chrono::steady_clock::now();
+
+            std::vector<u64> internal_partition = internal_solve(g);
+
+            for(size_t i = 0; i < g.get_n(); ++i){
+                partition[i] = (int) internal_partition[i];
+            }
+
+            auto ep = std::chrono::steady_clock::now();
+            solve_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
+
+            if(verbose) {
+                print_statistics();
+            }
+        }
+
     private:
         /**
          * Internal solve function.
@@ -75,8 +98,6 @@ namespace SharedMap {
             }
 
             switch (m_ac.parallel_strategy_id) {
-                case SERIAL:
-                    return solve_serial(g, m_ac, stat_collector);
                 case NAIVE:
                     return solve_naive(g, m_ac, stat_collector);
                 case LAYER:

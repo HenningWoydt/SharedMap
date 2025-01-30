@@ -20,10 +20,12 @@ make -j"$(get_num_cores)" install.mtkahypar
 cd ${ROOT}
 
 # build SharedMap
+rm -rf build
 mkdir -p build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release && cd ${ROOT}
 cmake --build build --parallel "$(get_num_cores)" --target SharedMap
+cmake --build build --parallel "$(get_num_cores)" --target SharedMapLib
 cd ${ROOT}
 
 mkdir -p bin

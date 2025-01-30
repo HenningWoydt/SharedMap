@@ -7,20 +7,9 @@
 #include "src/utility/JSON_utils.h"
 #include "src/utility/macros.h"
 #include "src/utility/utils.h"
+#include "include/libsharedmaptypes.h"
 
 namespace SharedMap {
-    /**
-     * Enum of partitioning configurations.
-     */
-    enum PartitioningAlgorithms {
-        KAFFPA_FAST,
-        KAFFPA_ECO,
-        KAFFPA_STRONG,
-        MTKAHYPAR_DEFAULT,
-        MTKAHYPAR_QUALITY,
-        MTKAHYPAR_HIGHEST_QUALITY
-    };
-
     /**
      * Parses the partitioning algorithm given in the command line to the
      * correct id.
@@ -49,17 +38,6 @@ namespace SharedMap {
      */
     std::string parse_config_to_parallel(const std::string &config,
                                          size_t n_layers);
-
-    /**
-     * Enum of parallel strategies.
-     */
-    enum ParallelStrategy {
-        SERIAL, // no parallelization for comparison
-        NAIVE, // subgraphs are processed with all threads one by one
-        LAYER, // threads are distributed to all subgraphs in a layer
-        QUEUE, // subgraphs are put in a queue and processed if threads are available
-        NB_LAYER // layer approach, but threads do not wait until one layer is completed
-    };
 
     /**
      * Parses the parallel strategy given in the command line to the
@@ -153,10 +131,10 @@ namespace SharedMap {
             // partitioning algorithm
             this->parallel_alg_string = parallel_alg_string;
             std::vector<std::string> temp_parallel = split(parallel_alg_string, ':');
-            for (auto &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto                &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
             this->serial_alg_string = serial_alg_string;
             std::vector<std::string> temp_serial = split(serial_alg_string, ':');
-            for (auto &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto                &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
 
             // number of threads
             this->n_threads = n_threads;
@@ -164,6 +142,66 @@ namespace SharedMap {
             // parallel strategy
             this->parallel_strategy_string = parallel_strategy_string;
             this->parallel_strategy_id     = parse_parallel_strategy(parallel_strategy_string);
+
+            // random initialization
+            this->seed = seed;
+
+            if (hierarchy.size() != distance.size()) {
+                std::cout << "Hierarchy (size " << hierarchy.size() << ") and Distance (size " << distance.size() << ") are not equal!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if (hierarchy.size() != serial_alg_id.size()) {
+                std::cout << "Hierarchy (size " << hierarchy.size() << ") and Serial Alg (size " << serial_alg_id.size() << ") are not equal!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if (hierarchy.size() != parallel_alg_id.size()) {
+                std::cout << "Hierarchy (size " << hierarchy.size() << ") and Parallel Alg (size " << parallel_alg_id.size() << ") are not equal!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        AlgorithmConfiguration(const std::vector<u64> &hierarchy_vec,
+                               const std::vector<u64> &distance_vec,
+                               const f64 imbalance,
+                               const shared_map_partitioning_type_t &parallel_alg,
+                               const shared_map_partitioning_type_t &serial_alg,
+                               const u64 n_threads,
+                               const shared_map_distribution_type_t &distribution,
+                               const u64 seed) {
+            // hierarchy information
+            this->hierarchy = hierarchy_vec;
+            this->k         = product(hierarchy);
+
+            // distance information
+            this->distance = distance_vec;
+
+            // info for correctly identifying subgraphs
+            index_vec = {1};
+            for (u64 i = 0; i < hierarchy.size() - 1; ++i) {
+                index_vec.push_back(index_vec[i] * hierarchy[i]);
+            }
+
+            k_rem_vec.resize(hierarchy.size());
+            u64      p = 1;
+            for (u64 i = 0; i < hierarchy.size(); ++i) {
+                k_rem_vec[i] = p * hierarchy[i];
+                p *= hierarchy[i];
+            }
+
+            // balancing information
+            this->imbalance = imbalance;
+
+            // partitioning algorithm
+            for (size_t i = 0; i < hierarchy.size(); ++i) {
+                parallel_alg_id.push_back(parallel_alg);
+                serial_alg_id.push_back(serial_alg);
+            }
+
+            // number of threads
+            this->n_threads = n_threads;
+
+            // parallel strategy
+            this->parallel_strategy_id = distribution;
 
             // random initialization
             this->seed = seed;

@@ -9,6 +9,7 @@ set(PROJECT_DESCRIPTION "SharedMap: Parallel Shared Memory Process Mapping")
 set(PROJECT_VERSION "1.0.0")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CMake Options
 option(SHAREDMAP_ENABLE_ASSERTIONS "Enables Assertions." OFF)
@@ -99,3 +100,6 @@ if (MTKAHYPAR_LIBRARY)
 else()
     message(FATAL_ERROR "Mt-KaHyPar library not found in expected locations (lib or lib64).")
 endif()
+
+# Add the library subdirectory
+add_subdirectory(lib)
