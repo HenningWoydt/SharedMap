@@ -92,12 +92,8 @@ namespace SharedMap {
                 const u64 u_id = partition[u];
                 const u64 v_id = partition[v];
 
-                std::cout << u << " " << v << " " << u_id << " " << v_id << " ";
-
                 if (u_id != v_id) {
                     const u64 u_v_distance = determine_distance(u_id, v_id, k, hierarchy, distance, u_loc, v_loc);
-
-                    std::cout << u_v_distance << " " << w*u_v_distance*2 << " ";
                     // comm cost
                     comm_cost += w * u_v_distance * 2;
                 }
