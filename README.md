@@ -72,6 +72,7 @@ Call `SharedMap` in the `build` folder:
 
 ### Configuration
 The available command line arguments and a short description.
+You can also use `./build/SharedMap --help` for a list of available parameters.
 ```
 [ -g | --graph     ] <inpath-graph>      : Filepath to a graph in Metis format.
 [ -m | --mapping   ] <outpath-partition> : Path to the file that will hold the resulting partition. Any existing file will be overwritten.
