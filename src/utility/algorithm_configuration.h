@@ -166,7 +166,7 @@ namespace SharedMap {
                                const shared_map_algorithm_type_t &parallel_alg,
                                const shared_map_algorithm_type_t &serial_alg,
                                const u64 n_threads,
-                               const shared_map_distribution_type_t &distribution,
+                               const shared_map_strategy_type_t &distribution,
                                const u64 seed) {
             // hierarchy information
             this->hierarchy = hierarchy_vec;
