@@ -74,7 +74,7 @@ Call `SharedMap` in the `build` folder:
 The available command line arguments and a short description.
 You can also use `./build/SharedMap --help` for a list of available parameters.
 ```
-[ -g | --graph     ] <inpath-graph>      : Filepath to a graph in Metis format.
+[ -g | --graph     ] <inpath-graph>      : Filepath to a graph in Metis graph format.
 [ -m | --mapping   ] <outpath-partition> : Path to the file that will hold the resulting partition. Any existing file will be overwritten.
 [ -h | --hierarchy ] <hierarchy>         : The hierarchy of the supercomputer in the format a:b:c: ... e.g., 4:8:6 .
 [ -d | --distance  ] <distance>          : The distance of the processors in the format a:b:c: ... e.g., 1:10:100 .
@@ -98,10 +98,14 @@ The resulting partition is stored in `results/mapping.txt`.
 
 C++ Interface
 -----------
+SharedMap offers a C++ interface via `include/libsharedmap.h`. Here is a small example:
+```
+
+```
 
 ## Bugs, Questions, Comments and Ideas
 
-If any bugs arise, questions occur, comments want to be shared, or ideas discussed, please do not hesitate to contact the current repository owner (henning.woydt@informatik.uni-heidelberg.de) or leave a GitHub Issue or Discussion. Thanks!
+If any bugs arise, questions occur, comments want to be shared, or ideas discussed, please do not hesitate to contact the current repository owner (henning.woydt@informatik.uni-heidelberg.de) or leave a GitHub [Issue](https://github.com/HenningWoydt/SharedMap/issues) or [Discussion](https://github.com/HenningWoydt/SharedMap/discussions). Thanks!
 
 
 Licensing
