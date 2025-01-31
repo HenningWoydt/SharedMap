@@ -105,5 +105,9 @@ If any bugs arise, questions occur, comments want to be shared, or ideas discuss
 
 Licensing
 ---------
+SharedMap is a free software provided under the MIT License. For more information see the [LICENSE file][LF]. This algorithm is available to everyone, welcoming all who wish to make use of it. If you use SharedMap in an academic setting please cite
+```
+TODO
+```
 
-
+[LF]: https://github.com/HenningWoydt/SharedMap/blob/master/LICENSE "License"
