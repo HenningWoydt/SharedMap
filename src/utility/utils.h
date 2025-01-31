@@ -72,7 +72,7 @@ namespace SharedMap {
      */
     template<typename T>
     T product(const std::vector<T> &vec) {
-        T p = (T) 1;
+        T         p = (T) 1;
         for (auto &x: vec) { p *= x; }
         return p;
     }

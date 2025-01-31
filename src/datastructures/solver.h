@@ -65,7 +65,7 @@ namespace SharedMap {
         /**
          * Solves the problem.
          */
-        void solve(Graph &g, int* partition, int &comm_cost, bool verbose=false) {
+        void solve(Graph &g, int *partition, int &comm_cost, bool verbose = false) {
             io_time = 0;
 
             // solve problem
@@ -73,7 +73,7 @@ namespace SharedMap {
 
             std::vector<u64> internal_partition = internal_solve(g);
 
-            for(size_t i = 0; i < g.get_n(); ++i){
+            for (size_t i = 0; i < g.get_n(); ++i) {
                 partition[i] = (int) internal_partition[i];
             }
 
@@ -82,7 +82,7 @@ namespace SharedMap {
             auto ep = std::chrono::steady_clock::now();
             solve_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
-            if(verbose) {
+            if (verbose) {
                 print_statistics();
             }
         }

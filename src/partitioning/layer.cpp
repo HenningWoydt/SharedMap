@@ -12,14 +12,14 @@ namespace SharedMap {
                            const AlgorithmConfiguration &config,
                            StatCollector &stat_collector) {
         // references for better code readability
-        const std::vector<u64> &hierarchy = config.hierarchy;
-        const size_t l = hierarchy.size();
-        const std::vector<u64> &index_vec = config.index_vec;
-        const std::vector<u64> &k_rem_vec = config.k_rem_vec;
-        const f64 global_imbalance = config.imbalance;
-        const u64 global_g_weight  = original_g.get_weight();
-        const u64 global_k         = config.k;
-        const u64 n_threads        = config.n_threads;
+        const std::vector<u64> &hierarchy       = config.hierarchy;
+        const size_t           l                = hierarchy.size();
+        const std::vector<u64> &index_vec       = config.index_vec;
+        const std::vector<u64> &k_rem_vec       = config.k_rem_vec;
+        const f64              global_imbalance = config.imbalance;
+        const u64              global_g_weight  = original_g.get_weight();
+        const u64              global_k         = config.k;
+        const u64              n_threads        = config.n_threads;
 
         std::vector<Item> temp_stack;
         std::vector<u64>  partition;
@@ -73,8 +73,8 @@ namespace SharedMap {
 
         // references for better code readability
         const std::vector<u64> &hierarchy = config.hierarchy;
-        const size_t l         = hierarchy.size();
-        const u64    n_threads = config.n_threads;
+        const size_t           l          = hierarchy.size();
+        const u64              n_threads  = config.n_threads;
 
         // initialize stack;
         std::vector<Item> layer = {{new std::vector<u64>(), const_cast<Graph *>(&original_g), &original_tt, false}};

@@ -16,7 +16,7 @@ int main(const int argc, const char *argv[]) {
     std::string parallel_strategy_string = "nb_layer"; // "naive", "layer", "queue", "nb_layer"
     std::string mapping_out              = "mapping.txt";
 
-    size_t n_layers = 1 + std::count_if(hierarchy_string.begin(), hierarchy_string.end(), [](const char c) { return c == ':'; });
+    size_t      n_layers            = 1 + std::count_if(hierarchy_string.begin(), hierarchy_string.end(), [](const char c) { return c == ':'; });
     std::string serial_alg_string   = parse_config_to_serial(config, n_layers);
     std::string parallel_alg_string = parse_config_to_parallel(config, n_layers);
 
