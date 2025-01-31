@@ -98,10 +98,76 @@ The resulting partition is stored in `results/mapping.txt`.
 
 C++ Interface
 -----------
-SharedMap offers a C++ interface via `include/libsharedmap.h`. Here is a small example:
-```
+SharedMap can be used as a C++ library. You can install it via
 
+    cmake --build . --parallel $(nproc) --target sharedmap # the library
+
+Via the interface `include/libsharedmap.h` hierarchical multisection can be used.
+Here is a small exmaple:
 ```
+#include <iostream>
+
+#include "SharedMap/include/libsharedmap.h"
+
+int main() {
+    /**
+     * The graph.
+     *      0 -- 1 -- 4 -- 7
+     *      | \  |    | \
+     *      |  \ |    |  \
+     *      2 -- 3 -- 5 -- 6
+     */
+
+    int n           = 8;                                                        // four vertices
+    int v_weights[] = {1, 1, 1, 1, 1, 1, 1, 1}; // each vertex has weight 1
+
+    // the adjacency represented in CSR format
+    int adj_ptrs[]    = {0, 3, 6, 8, 12, 16, 19, 21, 22};
+    int adj_weights[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    int adj[]         = {1, 2, 3, 0, 3, 4, 0, 3, 0, 1, 2, 5, 1, 5, 6, 7, 3, 4, 6, 4, 5, 4};
+
+    // the hierarchy is 2:2 and the distance is 1:10
+    int hierarchy[] = {2, 2};
+    int distance[]  = {1, 10};
+    int l           = 2;
+
+    // imbalance 3%, 1 thread, seed 0
+    float imbalance = 0.03;
+    int   n_threads = 1;
+    int   seed      = 0;
+
+    shared_map_strategy_type_t  strategy     = NB_LAYER;                    // distribution strategy Non-Blocking Layer
+    shared_map_algorithm_type_t parallel_alg = MTKAHYPAR_HIGHEST_QUALITY;   // parallel algorithm Mt-KaHyPar Highest Quality
+    shared_map_algorithm_type_t serial_alg   = KAFFPA_STRONG;               // serial algorithm KaFFPa Strong
+
+    // whether to print statistics
+    bool verbose_error      = true;
+    bool verbose_statistics = true;
+
+    // assert the input (optional)
+    bool assert_passed = shared_map_hierarchical_multisection_assert_input(n, v_weights, adj_ptrs, adj_weights, adj, hierarchy, distance, l, imbalance, n_threads, seed, strategy, parallel_alg, serial_alg, verbose_error);
+    if (!assert_passed) {
+        std::cout << "Error while asserting the input!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // output variables
+    int comm_cost;
+    int partition[n];
+
+
+    // do the actual hierarchical multisection
+    shared_map_hierarchical_multisection(n, v_weights, adj_ptrs, adj_weights, adj, hierarchy, distance, l, imbalance, n_threads, seed, strategy, parallel_alg, serial_alg, comm_cost, partition, verbose_statistics);
+
+    std::cout << "Communication Cost J(C, D, PI): " << comm_cost << std::endl;
+    std::cout << "Partition: ";
+    for (int i = 0; i < n; ++i) { std::cout << partition[i] << " "; }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+The repository [SharedMap_Example](https://github.com/HenningWoydt/SharedMap_Example.git) contains an example project using SharedMap as a library and linking against a binary using cmake.
 
 ## Bugs, Questions, Comments and Ideas
 
