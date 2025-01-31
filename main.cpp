@@ -42,8 +42,6 @@ int main(const int argc, const char *argv[]) {
 
         if (clp.is_set("--seed")) {
             seed = std::stoi(clp.get("--seed"));
-        } else {
-            seed = std::random_device{}();
         }
     }
 
