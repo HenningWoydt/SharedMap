@@ -65,7 +65,7 @@ int main(const int argc, const char *argv[]) {
         parallel_alg_string = parse_config_to_parallel(config, n_layers);
 
         n_threads                = std::stoi(clp.get("--threads"));
-        parallel_strategy_string = clp.get("--parallelStrategy");
+        parallel_strategy_string = clp.get("--strategy");
 
         if (clp.is_set("--seed")) {
             seed = std::stoi(clp.get("--seed"));
