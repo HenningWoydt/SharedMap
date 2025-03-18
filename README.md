@@ -84,7 +84,7 @@ You can also use `./build/SharedMap --help` for a list of available parameters.
 [ -s | --strategy  ] <strategy>          : Which thread distribution strategy to use. Allowed value are {naive, layer, queue, nb_layer}.
 
 Optional:
-[ --seed           ] <seed>              : Seed to diversiy partitioning results. If no seed is provided, a rradnom one will be generated at each call.
+[ --seed           ] <seed>              : Seed to diversiy partitioning results. If no seed is provided, a random one will be generated.
 ```
 ### Example
 The graph `graphs/big.graph` is partitioned on a supercomputer with a hierarchy of `4:8:6` with distances `1:10:100` and an allowed imbalance of `4%`.
