@@ -110,9 +110,9 @@ namespace SharedMap {
 
                     // read in header
                     std::vector<std::string> header = split(line, ' ');
-                    m_n            = std::stoi(header[0]);
+                    m_n            = std::stoll(header[0]);
                     m_m            = 0;
-                    expected_edges = std::stoi(header[1]);
+                    expected_edges = std::stoll(header[1]);
 
                     // allocate space
                     m_v_edges.resize(m_n, 0);
