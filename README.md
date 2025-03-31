@@ -14,17 +14,23 @@ Given
   - Edge weights $\omega : E \to \mathbb{R_+}$ that represent the amount of data to be transferred between task $i$ and $j$
   - The graph is also representable as a communication matrix $C \in \mathbb{R_+}^{n \times n}$
 - Hardware topology matrix $D \in \mathbb{R_+}^{k \times k}$ of $k$ cores
-  - An entry $D_{ij}$ represents the cost of sending one unit of data from core $i$ to core $j$.
+  - An entry $D_{ij}$ represents the cost of sending one unit of data from core $i$ to core $j$
 
 The objective of process mapping is to determine a mapping $\Pi : V \to [k]$ such that
 - $\forall i \leq k : \sum_{j \leq n : \Pi(j) = i} c(j) \leq (1 + \epsilon) \frac{c(V)}{k}$
-  - no core has too much work
+  - no core has too much work (the balancing constraint)
 
 
 - $J(C, D, \Pi) = \sum_{i, j \leq n} C_{ij} D_{\Pi(i)\Pi(j)}$
   - is minimized
+  - $C_{ij} D_{\Pi(i)\Pi(j)}$ is the cost of transferring the data from task $i$ to task $j$ if task $i$ is mapped to core $\Pi(i)$ and task $j$ is mapped to core $\Pi(j)$.
 
 ### Hierarchical Process Mapping
+In Hierarchical Process Mapping the hardware topology matrix $D$ is described via the hierarchy $H = a_1 : a_2 : \ldots : a_\ell$ and the distance $D = d_1 : d_2 : \ldots : d_\ell$.
+This hierarchy specifies that each processor contains $a_1$ PEs, each node contains $a_2$ processors, each rack contains $a_3$ nodes, and so on.
+The total number of PEs is $k = \prod_{i=1}^{\ell}a_i$.
+Additionally, the sequence $D = d_1 : d_2 : \ldots : d_\ell$ describes the communication cost between the different PEs.
+Two PEs on the same processor have distance $d_1$, two PEs on the same node but on different processor have distance $d_2$, two PEs in the same rack but on different nodes have distance $d_3$, and so forth.
 
 ### Results
 SharedMap offers State-Of-The-Art solution quality among available parallel mapping algorithms.
