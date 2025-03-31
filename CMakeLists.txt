@@ -17,7 +17,6 @@ option(SHAREDMAP_DOWNLOAD_TBB "Downloads TBB." ON)
 # Set Release and Debug flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -march=native -mtune=native -flto -funroll-loops -fprefetch-loop-arrays -fomit-frame-pointer -falign-functions=32 -falign-loops=16 -Wall -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic -fsanitize=undefined,address -fno-omit-frame-pointer -fstack-protector-strong -D_GLIBCXX_DEBUG")
-# set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic -Wshadow -Wformat=2 -Wconversion -Wnull-dereference -Wdouble-promotion -Woverloaded-virtual -Wnon-virtual-dtor -Wsign-conversion -fsanitize=undefined,address -fno-omit-frame-pointer -fstack-protector-strong -D_GLIBCXX_DEBUG")
 
 # Download TBB Library
 if (SHAREDMAP_DOWNLOAD_TBB)
