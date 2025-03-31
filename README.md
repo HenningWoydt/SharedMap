@@ -48,7 +48,7 @@ mkdir -p extern/mt_kahypar_local
 mkdir -p extern/mt-kahypar/build
 cd extern/mt-kahypar/build
 cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_TYPE=Release -DKAHYPAR_DOWNLOAD_TBB=ON -DKAHYPAR_DOWNLOAD_BOOST=ON -DKAHYPAR_ENABLE_THREAD_PINNING=OFF -DKAHYPAR_DISABLE_ASSERTIONS=ON -DCMAKE_INSTALL_PREFIX=$(pwd)/../../mt_kahypar_local
-make -j$(nproc) install.mtkahypar
+make -j install.mtkahypar
 cd ../../../
 ```
 then build SharedMap via
@@ -56,8 +56,8 @@ then build SharedMap via
 mkdir -p build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DSHAREDMAP_DOWNLOAD_TBB=ON
-cmake --build . --parallel $(nproc) --target SharedMap # the executable
-cmake --build . --parallel $(nproc) --target sharedmap # the library
+cmake --build . --parallel --target SharedMap # the executable
+cmake --build . --parallel --target sharedmap # the library
 ```
 
 The binary `SharedMap` and the library `libsharedmap.so` will be present in the `build` folder.
@@ -100,7 +100,7 @@ C++ Interface
 -----------
 SharedMap can be used as a C++ library. You can install it via
 
-    cmake --build . --parallel $(nproc) --target sharedmap # the library
+    cmake --build . --parallel --target sharedmap
 
 Via the interface `include/libsharedmap.h` hierarchical multisection can be used.
 Here is a small exmaple:
@@ -118,12 +118,12 @@ int main() {
      *      2 -- 3 -- 5 -- 6
      */
 
-    int n           = 8;                                                        // four vertices
+    int n           = 8;                                                        // eight vertices
     int v_weights[] = {1, 1, 1, 1, 1, 1, 1, 1}; // each vertex has weight 1
 
     // the adjacency represented in CSR format
     int adj_ptrs[]    = {0, 3, 6, 8, 12, 16, 19, 21, 22};
-    int adj_weights[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    int adj_weights[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // each edge has weight 1
     int adj[]         = {1, 2, 3, 0, 3, 4, 0, 3, 0, 1, 2, 5, 1, 5, 6, 7, 3, 4, 6, 4, 5, 4};
 
     // the hierarchy is 2:2 and the distance is 1:10
@@ -136,11 +136,11 @@ int main() {
     int   n_threads = 1;
     int   seed      = 0;
 
-    shared_map_strategy_type_t  strategy     = NB_LAYER;                    // distribution strategy Non-Blocking Layer
-    shared_map_algorithm_type_t parallel_alg = MTKAHYPAR_HIGHEST_QUALITY;   // parallel algorithm Mt-KaHyPar Highest Quality
-    shared_map_algorithm_type_t serial_alg   = KAFFPA_STRONG;               // serial algorithm KaFFPa Strong
+    shared_map_strategy_type_t  strategy     = NB_LAYER;                    // distribution strategy: Non-Blocking Layer
+    shared_map_algorithm_type_t parallel_alg = MTKAHYPAR_HIGHEST_QUALITY;   // parallel algorithm   : Mt-KaHyPar Highest Quality
+    shared_map_algorithm_type_t serial_alg   = KAFFPA_STRONG;               // serial algorithm     : KaFFPa Strong
 
-    // whether to print statistics
+    // whether to print erors and statistics
     bool verbose_error      = true;
     bool verbose_statistics = true;
 
@@ -167,7 +167,6 @@ int main() {
     return 0;
 }
 ```
-The repository [SharedMap_Example](https://github.com/HenningWoydt/SharedMap_Example.git) contains an example project using SharedMap as a library and linking against a binary using cmake.
 
 ## Bugs, Questions, Comments and Ideas
 
