@@ -37,7 +37,7 @@ SharedMap offers State-Of-The-Art solution quality among available parallel mapp
 It has better quality while also being slightly faster.
 See the left figure.
 
-<img src="./misc/parallel.png" alt="drawing" width="600"/> <img src="./misc/serial.png" alt="drawing" width="600"/>
+<img src="./misc/parallel.png" alt="drawing" width="400"/> <img src="./misc/serial.png" alt="drawing" width="400"/>
 
 Even in the serial case, it is stronger and faster than the previous best algorithm.
 See the right figure.
