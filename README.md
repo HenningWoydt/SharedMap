@@ -6,8 +6,27 @@ About SharedMap
 SharedMap is a parallel shared-memory algorithm for hierarchical process mapping.
 Process Mapping concerns itself with mapping tasks of a task graph, where weighted vertices represent tasks and weighted edges the amount of communicated data, to the cores of a supercomputer.
 In hierarchical process mapping the hierarchy of the supercomputer (often islands, racks, nodes and cores) is exploited for more efficient mapping algorithms.
-The figure shows a more formal definition.
 
+### General Process Mapping
+Given 
+- Undirected graph $G = (V, E)$ with
+  - Vertex weights $c : V \to \mathbb{R_+}$ that represent the workload of task $i$
+  - Edge weights $\omega : E \to \mathbb{R_+}$ that represent the amount of data to be transferred between task $i$ and $j$
+  - The graph is also representable as a communication matrix $C \in \mathbb{R_+}^{n \times n}$
+- Hardware topology matrix $D \in \mathbb{R_+}^{k \times k}$ of $k$ cores
+  - An entry $D_{ij}$ represents the cost of sending one unit of data from core $i$ to core $j$.
+
+The objective of process mapping is to determine a mapping $\Pi : V \to [k]$ such that
+- $\forall i \leq k : \sum_{j \leq n : \Pi(j) = i} c(j) \leq (1 + \epsilon) \frac{c(V)}{k}$
+  - no core has too much work
+
+
+- $J(C, D, \Pi) = \sum_{i, j \leq n} C_{ij} D_{\Pi(i)\Pi(j)}$
+  - is minimized
+
+### Hierarchical Process Mapping
+
+### Results
 SharedMap offers State-Of-The-Art solution quality among available parallel mapping algorithms.
 It has better quality while also being slightly faster.
 See the left figure.
