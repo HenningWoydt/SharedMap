@@ -36,7 +36,8 @@ Two PEs on the same processor have distance $d_1$, two PEs on the same node but 
 SharedMap offers State-Of-The-Art solution quality among available parallel mapping algorithms.
 It has better quality while also being slightly faster.
 See the left figure.
-![image info](./misc/parallel.png) ![image info](./misc/serial.png)
+
+<img src="./misc/parallel.png" alt="drawing" width="600"/> <img src="./misc/serial.png" alt="drawing" width="600"/>
 
 Even in the serial case, it is stronger and faster than the previous best algorithm.
 See the right figure.
