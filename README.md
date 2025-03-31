@@ -50,7 +50,7 @@ The requirements needed for both of these projects carry over to this project.
 
 - A Linux operating system (others have not yet been tested).
 - A modern compiler that supports C++17, such as `g++` (others have not yet been tested).
-- The [cmake](https://cmake.org/) build system (>=3.21).
+- The [cmake](https://cmake.org/) build system (>=3.16).
 - The [Portable Hardware Locality](https://www.open-mpi.org/projects/hwloc/) library.
 - The [Boost - Program Options](https://www.boost.org/doc/libs/1_58_0/doc/html/program_options.html) library will be automatically downloaded by Mt-KaHyPar (`-DKAHYPAR_DOWNLOAD_BOOST=ON`).
 - The [Intel Thread Building Blocks](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html) library will be automatically downloaded by Mt-KaHyPar (`-DKAHYPAR_DOWNLOAD_TBB=ON`) and SharedMap (`-DSHAREDMAP_DOWNLOAD_TBB=ON`).
