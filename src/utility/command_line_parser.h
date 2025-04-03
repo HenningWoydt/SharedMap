@@ -36,7 +36,7 @@ namespace SharedMap {
         std::string small_key;
         std::string description;
         std::string input;
-        bool        is_set = false;
+        bool is_set = false;
     };
 
     /**
@@ -45,17 +45,17 @@ namespace SharedMap {
     class CommandLineParser {
     private:
         std::vector<CommandLineOption> options = {
-                {"--help",      "",   "produces help message",                    ""},
-                {"--graph",     "-g", "Filepath to the graph",                    ""},
-                {"--mapping",   "-m", "Output filepath to the generated mapping", ""},
-                {"--hierarchy", "-h", "Hierarchy in the form a1:a2:...:al",       ""},
-                {"--distance",  "-d", "Distance in the form d1:d2:...:dl",        ""},
-                {"--imbalance", "-e", "Allowed imbalance (for example 0.03)",     ""},
-                {"--config",    "-c", "The configuration",                        ""},
-                {"--threads",   "-t", "Number of threads",                        ""},
-                {"--seed",      "",   "Seed for diversifying partitioning",       ""},
-                {"--strategy",  "-s", "Parallel strategy",                        ""},
-        };
+                {"--help", "", "produces help message", ""},
+                {"--graph", "-g", "Filepath to the graph", ""},
+                {"--mapping", "-m", "Output filepath to the generated mapping", ""},
+                {"--hierarchy", "-h", "Hierarchy in the form a1:a2:...:al", ""},
+                {"--distance", "-d", "Distance in the form d1:d2:...:dl", ""},
+                {"--imbalance", "-e", "Allowed imbalance (for example 0.03)", ""},
+                {"--config", "-c", "The configuration", ""},
+                {"--threads", "-t", "Number of threads", ""},
+                {"--strategy", "-s", "Parallel strategy", ""},
+                {"--seed", "", "Seed for diversifying partitioning", ""},
+            };
 
     public:
         /**
@@ -64,7 +64,7 @@ namespace SharedMap {
          * @param argc Number of arguments.
          * @param argv The arguments.
          */
-        CommandLineParser(const int argc, const char *argv[]) {
+        CommandLineParser(const int argc, const char* argv[]) {
             // read command lines into vector
             std::vector<std::string> args(argv, argv + argc);
 
@@ -75,7 +75,7 @@ namespace SharedMap {
                     exit(EXIT_SUCCESS);
                 }
 
-                for (auto &[large_key, small_key, description, input, is_set]: options) {
+                for (auto& [large_key, small_key, description, input, is_set] : options) {
                     if (large_key == args[i] || small_key == args[i]) {
                         input  = args[i + 1];
                         is_set = true;
@@ -92,8 +92,8 @@ namespace SharedMap {
          * @param var The option in interest.
          * @return The input.
          */
-        std::string get(const std::string &var) {
-            for (const auto &[large_key, small_key, description, input, is_set]: options) {
+        std::string get(const std::string& var) {
+            for (const auto& [large_key, small_key, description, input, is_set] : options) {
                 if (large_key == var || small_key == var) {
                     if (input.empty()) {
                         std::cout << "Command Line \"" << var << "\" not set!" << std::endl;
@@ -112,8 +112,8 @@ namespace SharedMap {
          * @param var The option in interest.
          * @return True if the option was entered, false else.
          */
-        bool is_set(const std::string &var) {
-            for (const auto &[large_key, small_key, description, input, is_set]: options) {
+        bool is_set(const std::string& var) {
+            for (const auto& [large_key, small_key, description, input, is_set] : options) {
                 if (large_key == var || small_key == var) {
                     return is_set;
                 }
@@ -126,7 +126,7 @@ namespace SharedMap {
          * Prints the help message.
          */
         void print_help_message() {
-            for (const auto &[large_key, small_key, description, input, is_set]: options) {
+            for (const auto& [large_key, small_key, description, input, is_set] : options) {
                 if (small_key.empty()) {
                     std::cout << "[ " << large_key << "] - " << description << std::endl;
                 } else {
