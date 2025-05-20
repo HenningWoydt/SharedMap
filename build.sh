@@ -4,7 +4,7 @@ MAX_THREADS=8  # Set the desired number of threads here
 
 if [ -d .git ]; then
   # SharedMap is built from a git repository
-  git submodule update --init --recursive
+  git submodule update --init --recursive --remote
 fi
 
 # install mt_kahypar
