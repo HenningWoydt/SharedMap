@@ -1,6 +1,6 @@
 [submodule "extern/KaHIP"]
 	path = extern/KaHIP
-	url = git@github.com:KaHIP/KaHIP.git
+	url = https://github.com/KaHIP/KaHIP.git
 [submodule "extern/mt-kahypar"]
 	path = extern/mt-kahypar
-	url = git@github.com:kahypar/mt-kahypar.git
+	url = https://github.com/kahypar/mt-kahypar.git
