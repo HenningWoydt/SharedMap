@@ -97,7 +97,6 @@ namespace SharedMap {
                     // comm cost
                     comm_cost += w * u_v_distance * 2;
                 }
-                std::cout << std::endl;
             }
         }
 
