@@ -39,7 +39,7 @@ See the left figure.
 
 Even in the serial case, it is stronger and faster than the previous best algorithm.
 See the right figure.
-For more information on the algorithm, we refer to our work...
+For more information on the algorithm, we refer to our work ([ACDA25][publication]).
 
 <img src="./misc/parallel.png" alt="drawing" width="400"/> <img src="./misc/serial.png" alt="drawing" width="400"/>
 
@@ -215,3 +215,4 @@ SharedMap is a free software provided under the MIT License. For more informatio
 ```
 
 [LF]: https://github.com/HenningWoydt/SharedMap/blob/master/LICENSE "License"
+[publication]: https://epubs.siam.org/doi/10.1137/1.9781611978759.2
