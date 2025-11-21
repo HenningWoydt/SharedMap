@@ -27,7 +27,8 @@
 #include "partition.h"
 
 #include <libmtkahypar.h>
-#include "interface/kaHIP_interface.h"
+#include <libmtkahypartypes.h>
+#include <kaHIP_interface.h>
 
 namespace SharedMap {
     void kaffpa_partition(const Graph &g,

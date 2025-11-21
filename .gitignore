@@ -1,16 +1,10 @@
 .idea
 
-cmake-build-debug/*
-cmake-build-release/*
-build/*
-bin/*
+cmake-build-debug
+cmake-build-release
+build
 
-data/
+data
 
-extern/KaHIP/*
-extern/ProcessMappingVerifier/*
-extern/mt-kahypar/*
+extern
 
-extern/mt_kahypar_local/*
-
-external_tools/googletest/*
