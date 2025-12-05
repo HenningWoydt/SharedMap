@@ -51,6 +51,10 @@ else ()
             "TBB library not found. Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
 endif ()
 
+
+# Threading / pthread
+find_package(Threads REQUIRED)
+
 # -------------------- KaHIP --------------------
 set(KaHIP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/extern/local/kahip")
 
@@ -111,6 +115,7 @@ target_link_libraries(SharedMap
         ${TBB_LIBRARIES}
         ${TBB_MALLOC_LIBRARIES}
         ${TBB_MALLOC_PROXY_LIBRARIES}
+        Threads::Threads
         "-Wl,--disable-new-dtags"   # without this TBB won't link properly in some setups
 )
 
@@ -133,6 +138,7 @@ target_link_libraries(sharedmap
         ${TBB_LIBRARIES}
         ${TBB_MALLOC_LIBRARIES}
         ${TBB_MALLOC_PROXY_LIBRARIES}
+        Threads::Threads
         "-Wl,--disable-new-dtags"
 )
 
