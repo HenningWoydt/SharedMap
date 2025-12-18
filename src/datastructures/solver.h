@@ -46,9 +46,9 @@ namespace SharedMap {
     class Solver {
     private:
         const AlgorithmConfiguration &m_ac;
-        StatCollector                stat_collector;
+        StatCollector stat_collector;
 
-        f64 io_time    = 0.0;
+        f64 io_time = 0.0;
         f64 solve_time = 0.0;
 
     public:
@@ -64,11 +64,12 @@ namespace SharedMap {
         /**
          * Solves the problem.
          */
-        void solve() {
+        void solve(bool verbose = false) {
             // read graph
-            auto  sp = std::chrono::steady_clock::now();
+            auto sp_total = std::chrono::steady_clock::now();
+            auto sp = std::chrono::steady_clock::now();
             Graph g(m_ac.graph_in);
-            auto  ep = std::chrono::steady_clock::now();
+            auto ep = std::chrono::steady_clock::now();
             io_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
             // solve problem
@@ -83,7 +84,38 @@ namespace SharedMap {
             ep = std::chrono::steady_clock::now();
             io_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
+            auto ep_total = std::chrono::steady_clock::now();;
             print_statistics();
+
+            if (verbose) {
+                u64 comm_cost = determine_qap(g, m_ac.hierarchy, m_ac.distance, partition);
+                u64 lmax = std::ceil((1.0 + m_ac.imbalance) * ((f64) g.get_weight() / (f64) m_ac.k));
+
+                std::cout << "Total time        : " << (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep_total - sp_total).count() / 1e9 << std::endl;
+                std::cout << "#Nodes            : " << g.get_n() << std::endl;
+                std::cout << "#Edges            : " << g.get_m() << std::endl;
+                std::cout << "k                 : " << m_ac.k << std::endl;
+                std::cout << "Lmax              : " << lmax << std::endl;
+                std::cout << "Final QAP         : " << comm_cost << std::endl;
+
+                std::vector<u64> weights(m_ac.k, 0);
+                for (u64 u = 0; u < g.get_n(); ++u) { weights[partition[u]] += g.get_vertex_weight(u); }
+
+                size_t n_empty_partitions = 0;
+                size_t n_overloaded_partitions = 0;
+                u64 sum_too_much = 0;
+                u64 max_w = 0;
+                for (u64 id = 0; id < m_ac.k; ++id) {
+                    n_empty_partitions += weights[id] == 0;
+                    n_overloaded_partitions += weights[id] > lmax;
+                    if (weights[id] > lmax) { sum_too_much += std::max((u64) 0, weights[id] - lmax); }
+                    max_w = std::max(max_w, weights[id]);
+                }
+                std::cout << "max block w       : " << max_w << std::endl;
+                std::cout << "#empty partitions : " << n_empty_partitions << std::endl;
+                std::cout << "#oload partitions : " << n_overloaded_partitions << std::endl;
+                std::cout << "Sum oload weights : " << sum_too_much << std::endl;
+            }
         }
 
         /**
@@ -108,6 +140,33 @@ namespace SharedMap {
 
             if (verbose) {
                 print_statistics();
+
+                u64 lmax = std::ceil((1.0 + m_ac.imbalance) * ((f64) g.get_weight() / (f64) m_ac.k));
+
+                std::cout << "Total time        : " << (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9 << std::endl;
+                std::cout << "#Nodes            : " << g.get_n() << std::endl;
+                std::cout << "#Edges            : " << g.get_m() << std::endl;
+                std::cout << "k                 : " << m_ac.k << std::endl;
+                std::cout << "Lmax              : " << lmax << std::endl;
+                std::cout << "Final QAP         : " << comm_cost << std::endl;
+
+                std::vector<u64> weights(m_ac.k, 0);
+                for (u64 u = 0; u < g.get_n(); ++u) { weights[internal_partition[u]] += g.get_vertex_weight(u); }
+
+                size_t n_empty_partitions = 0;
+                size_t n_overloaded_partitions = 0;
+                u64 sum_too_much = 0;
+                u64 max_w = 0;
+                for (u64 id = 0; id < m_ac.k; ++id) {
+                    n_empty_partitions += weights[id] == 0;
+                    n_overloaded_partitions += weights[id] > lmax;
+                    sum_too_much += std::max((u64) 0, weights[id] - lmax);
+                    max_w = std::max(max_w, weights[id]);
+                }
+                std::cout << "max block w       : " << max_w << std::endl;
+                std::cout << "#empty partitions : " << n_empty_partitions << std::endl;
+                std::cout << "#oload partitions : " << n_overloaded_partitions << std::endl;
+                std::cout << "Sum oload weights : " << sum_too_much << std::endl;
             }
         }
 
@@ -147,7 +206,7 @@ namespace SharedMap {
         void write_solution(const std::vector<u64> &partition) const {
             std::stringstream ss;
 
-            for (u64      i: partition) {
+            for (u64 i: partition) {
                 ss << i << "\n";
             }
             std::ofstream out(m_ac.mapping_out);
