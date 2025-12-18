@@ -29,6 +29,7 @@
 
 #include <string>
 #include <vector>
+
 #include "src/utility/definitions.h"
 
 namespace SharedMap {

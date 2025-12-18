@@ -115,7 +115,7 @@ namespace SharedMap {
      * @param stat_collector The statistic collector.
      * @return The partition.
      */
-    std::vector<u64> solve_queue(const Graph &original_g,
+    inline std::vector<u64> solve_queue(const Graph &original_g,
                                  const AlgorithmConfiguration &config,
                                  StatCollector &stat_collector) {
         std::vector<u64> solution(original_g.get_n());    // end partition

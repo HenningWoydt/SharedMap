@@ -36,7 +36,6 @@
 #include "src/datastructures/translation_table.h"
 #include "src/partitioning/partition.h"
 #include "src/profiling/stat_collector.h"
-#include "src/utility/algorithm_configuration.h"
 #include "src/utility/definitions.h"
 
 namespace SharedMap {
@@ -198,6 +197,7 @@ namespace SharedMap {
      * @param depth Depth of the partitioning.
      * @param serial_alg_id Vector of serial algorithm ids.
      * @param parallel_alg_id Vector of parallel algorithm ids.
+     * @param seed Seed for diversification.
      * @param stat_collector The statistic collector.
      */
     inline void partition_graph(const Graph &g,

@@ -31,14 +31,12 @@
 
 #include "src/utility/definitions.h"
 #include "src/utility/JSON_utils.h"
-#include "src/utility/utils.h"
 
 namespace SharedMap {
     /**
      * Class for collecting interesting statistics.
      */
     class StatCollector {
-    private:
         std::mutex lock; // for organized access
 
         std::chrono::high_resolution_clock::time_point log_sp = std::chrono::high_resolution_clock::now(); // start time for logging

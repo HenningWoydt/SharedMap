@@ -27,10 +27,7 @@
 #ifndef SHAREDMAP_QAP_H
 #define SHAREDMAP_QAP_H
 
-#include <numeric>
-
 #include "src/utility/definitions.h"
-
 #include "src/datastructures/graph.h"
 
 namespace SharedMap {

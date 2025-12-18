@@ -28,7 +28,6 @@
 #define SHAREDMAP_SOLVER_H
 
 #include "src/datastructures/graph.h"
-#include "src/datastructures/translation_table.h"
 #include "src/partitioning/layer.h"
 #include "src/partitioning/naive.h"
 #include "src/partitioning/nb_layer.h"
@@ -38,7 +37,6 @@
 #include "src/utility/algorithm_configuration.h"
 #include "src/utility/definitions.h"
 #include "src/utility/JSON_utils.h"
-#include "src/utility/utils.h"
 #include "src/utility/qap.h"
 
 namespace SharedMap {
@@ -91,7 +89,7 @@ namespace SharedMap {
         /**
          * Solves the problem.
          */
-        void solve(Graph &g, int *partition, int &comm_cost, bool verbose = false) {
+        void solve(const Graph &g, int *partition, int &comm_cost, bool verbose = false) {
             io_time = 0;
 
             // solve problem

@@ -40,7 +40,7 @@
 #include "src/utility/definitions.h"
 
 namespace SharedMap {
-    void layer_thread_work(u64 local_idx,
+    inline void layer_thread_work(u64 local_idx,
                            std::atomic<u64> &global_idx,
                            std::vector<Item> &layer,
                            u64 layer_size,

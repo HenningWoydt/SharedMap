@@ -27,7 +27,6 @@
 #ifndef SHAREDMAP_UTILS_H
 #define SHAREDMAP_UTILS_H
 
-#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <sstream>

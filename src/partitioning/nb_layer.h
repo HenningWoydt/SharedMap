@@ -33,7 +33,6 @@
 
 #include "src/datastructures/graph.h"
 #include "src/datastructures/item.h"
-#include "src/datastructures/item.h"
 #include "src/datastructures/translation_table.h"
 #include "src/partitioning/partition_util.h"
 #include "src/profiling/stat_collector.h"
@@ -146,7 +145,7 @@ namespace SharedMap {
      * @param stat_collector The statistic collector.
      * @return The partition.
      */
-    std::vector<u64> solve_nb_layer(const Graph &original_g,
+    inline std::vector<u64> solve_nb_layer(const Graph &original_g,
                                     const AlgorithmConfiguration &config,
                                     StatCollector &stat_collector) {
         std::vector<u64> solution(original_g.get_n());    // end partition

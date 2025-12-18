@@ -28,7 +28,6 @@
 #define SHAREDMAP_TRANSLATION_TABLE_H
 
 #include <numeric>
-#include <unordered_map>
 
 #include "src/utility/definitions.h"
 
