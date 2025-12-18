@@ -33,12 +33,12 @@
 using namespace SharedMap;
 
 int main(const int argc, const char *argv[]) {
-    std::string graph_in                 = "../data/training/af_shell10.graph";
+    std::string graph_in                 = "../../GraPaRepo/data/mapping/rgg23.graph";
     std::string hierarchy_string         = "4:8:6";
     std::string distance_string          = "1:10:100";
     f64         imbalance                = 0.03;
-    std::string config                   = "strong"; // "fast", "eco", "strong"
-    u64         n_threads                = 16;
+    std::string config                   = "fast"; // "fast", "eco", "strong"
+    u64         n_threads                = 4;
     u64         seed                     = std::random_device{}();
     std::string parallel_strategy_string = "nb_layer"; // "naive", "layer", "queue", "nb_layer"
     std::string mapping_out              = "mapping.txt";
@@ -50,7 +50,7 @@ int main(const int argc, const char *argv[]) {
     if (argc == 1) {
         CommandLineParser clp(argc, argv);
         clp.print_help_message();
-        exit(0);
+        // exit(0);
     } else {
         CommandLineParser clp(argc, argv);
         graph_in         = clp.get("--graph");

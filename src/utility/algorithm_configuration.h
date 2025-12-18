@@ -43,7 +43,25 @@ namespace SharedMap {
      * @param alg The Algorithm.
      * @return The algorithm id.
      */
-    u64 parse_partitioning_algorithm(const std::string &alg);
+    inline u64 parse_partitioning_algorithm(const std::string &alg) {
+        std::vector<std::pair<std::string, u64> > algs = {
+            {"kaffpa_fast", KAFFPA_FAST},
+            {"kaffpa_eco", KAFFPA_ECO},
+            {"kaffpa_strong", KAFFPA_STRONG},
+            {"mtkahypar_default", MTKAHYPAR_DEFAULT},
+            {"mtkahypar_quality", MTKAHYPAR_QUALITY},
+            {"mtkahypar_highest_quality", MTKAHYPAR_HIGHEST_QUALITY},
+        };
+
+        for (const auto &[fst, snd]: algs) {
+            if (fst == alg) {
+                return snd;
+            }
+        }
+
+        std::cerr << "Algorithm " << alg << " not recognized" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
     /**
      * Generates the serial alg string.
@@ -52,8 +70,26 @@ namespace SharedMap {
      * @param n_layers Number of layers.
      * @return The serial configuration.
      */
-    std::string parse_config_to_serial(const std::string &config,
-                                       size_t n_layers);
+    inline std::string parse_config_to_serial(const std::string &config,
+                                              size_t n_layers) {
+        std::string alg;
+        for (size_t i = 0; i < n_layers; ++i) {
+            std::string temp;
+            if (config == "strong") {
+                temp = "kaffpa_strong";
+            } else if (config == "eco") {
+                temp = "kaffpa_eco";
+            } else if (config == "fast") {
+                temp = "kaffpa_fast";
+            } else {
+                std::cout << "config " << config << " not recognized!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            alg += temp + ":";
+        }
+        alg.pop_back();
+        return alg;
+    }
 
     /**
      * Generates the parallel alg string.
@@ -62,8 +98,26 @@ namespace SharedMap {
      * @param n_layers Number of layers.
      * @return The parallel configuration.
      */
-    std::string parse_config_to_parallel(const std::string &config,
-                                         size_t n_layers);
+    inline std::string parse_config_to_parallel(const std::string &config,
+                                                size_t n_layers) {
+        std::string alg;
+        for (size_t i = 0; i < n_layers; ++i) {
+            std::string temp;
+            if (config == "strong") {
+                temp = "mtkahypar_highest_quality";
+            } else if (config == "eco") {
+                temp = "mtkahypar_quality";
+            } else if (config == "fast") {
+                temp = "mtkahypar_default";
+            } else {
+                std::cout << "config " << config << " not recognized!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            alg += temp + ":";
+        }
+        alg.pop_back();
+        return alg;
+    }
 
     /**
      * Parses the parallel strategy given in the command line to the
@@ -72,7 +126,23 @@ namespace SharedMap {
      * @param strategy The Strategy.
      * @return The strategy id.
      */
-    u64 parse_parallel_strategy(const std::string &strategy);
+    inline u64 parse_parallel_strategy(const std::string &strategy) {
+        std::vector<std::pair<std::string, u64> > strategies = {
+            {"naive", NAIVE},
+            {"layer", LAYER},
+            {"queue", QUEUE},
+            {"nb_layer", NB_LAYER}
+        };
+
+        for (const auto &[fst, snd]: strategies) {
+            if (fst == strategy) {
+                return snd;
+            }
+        }
+
+        std::cerr << "Strategy " << strategy << " not recognized" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
     /**
     * Class to store the configuration of the algorithm.
@@ -84,12 +154,12 @@ namespace SharedMap {
         std::string mapping_out;
 
         // hierarchy information
-        std::string      hierarchy_string;
+        std::string hierarchy_string;
         std::vector<u64> hierarchy;
-        u64              k;
+        u64 k;
 
         // distance information
-        std::string      distance_string;
+        std::string distance_string;
         std::vector<u64> distance;
 
         // info for correctly identifying subgraphs
@@ -100,9 +170,9 @@ namespace SharedMap {
         f64 imbalance;
 
         // partitioning algorithm
-        std::string      parallel_alg_string;
+        std::string parallel_alg_string;
         std::vector<u64> parallel_alg_id;
-        std::string      serial_alg_string;
+        std::string serial_alg_string;
         std::vector<u64> serial_alg_id;
 
         // number of threads
@@ -110,7 +180,7 @@ namespace SharedMap {
 
         // parallel strategy
         std::string parallel_strategy_string;
-        u64         parallel_strategy_id;
+        u64 parallel_strategy_id;
 
         // random initialization
         u64 seed;
@@ -126,17 +196,17 @@ namespace SharedMap {
                                const std::string &parallel_strategy_string,
                                const u64 seed) {
             // graph information
-            this->graph_in    = graph_in;
+            this->graph_in = graph_in;
             this->mapping_out = mapping_out;
 
             // hierarchy information
             this->hierarchy_string = hierarchy_string;
-            this->hierarchy        = convert<u64>(split(hierarchy_string, ':'));
-            this->k                = product(hierarchy);
+            this->hierarchy = convert<u64>(split(hierarchy_string, ':'));
+            this->k = product(hierarchy);
 
             // distance information
             this->distance_string = distance_string;
-            this->distance        = convert<u64>(split(distance_string, ':'));
+            this->distance = convert<u64>(split(distance_string, ':'));
 
             // info for correctly identifying subgraphs
             index_vec = {1};
@@ -145,7 +215,7 @@ namespace SharedMap {
             }
 
             k_rem_vec.resize(hierarchy.size());
-            u64      p = 1;
+            u64 p = 1;
             for (u64 i = 0; i < hierarchy.size(); ++i) {
                 k_rem_vec[i] = p * hierarchy[i];
                 p *= hierarchy[i];
@@ -157,17 +227,17 @@ namespace SharedMap {
             // partitioning algorithm
             this->parallel_alg_string = parallel_alg_string;
             std::vector<std::string> temp_parallel = split(parallel_alg_string, ':');
-            for (auto                &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto &s: temp_parallel) { parallel_alg_id.push_back(parse_partitioning_algorithm(s)); }
             this->serial_alg_string = serial_alg_string;
             std::vector<std::string> temp_serial = split(serial_alg_string, ':');
-            for (auto                &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
+            for (auto &s: temp_serial) { serial_alg_id.push_back(parse_partitioning_algorithm(s)); }
 
             // number of threads
             this->n_threads = n_threads;
 
             // parallel strategy
             this->parallel_strategy_string = parallel_strategy_string;
-            this->parallel_strategy_id     = parse_parallel_strategy(parallel_strategy_string);
+            this->parallel_strategy_id = parse_parallel_strategy(parallel_strategy_string);
 
             // random initialization
             this->seed = seed;
@@ -196,7 +266,7 @@ namespace SharedMap {
                                const u64 seed) {
             // hierarchy information
             this->hierarchy = hierarchy_vec;
-            this->k         = product(hierarchy);
+            this->k = product(hierarchy);
 
             // distance information
             this->distance = distance_vec;
@@ -208,7 +278,7 @@ namespace SharedMap {
             }
 
             k_rem_vec.resize(hierarchy.size());
-            u64      p = 1;
+            u64 p = 1;
             for (u64 i = 0; i < hierarchy.size(); ++i) {
                 k_rem_vec[i] = p * hierarchy[i];
                 p *= hierarchy[i];
