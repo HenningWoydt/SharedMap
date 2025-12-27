@@ -84,7 +84,7 @@ int main(const int argc, const char *argv[]) {
                               seed);
 
     Solver solver(ac);
-    solver.solve();
+    solver.solve(true);
 
     return 0;
 }

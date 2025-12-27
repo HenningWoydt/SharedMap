@@ -30,8 +30,8 @@
 #include <atomic>
 #include <thread>
 #include <vector>
+#include <memory>
 
-#include "src/datastructures/graph.h"
 #include "src/datastructures/item.h"
 #include "src/datastructures/translation_table.h"
 #include "src/partitioning/partition_util.h"
@@ -48,7 +48,7 @@ namespace SharedMap {
                               std::atomic<u64> &n_inactive_threads,
                               std::atomic<u64> &n_completed_graphs,
                               std::vector<u64> &solution,
-                              const Graph &original_g,
+                              const CSRGraph &original_g,
                               const AlgorithmConfiguration &config,
                               StatCollector &stat_collector) {
         // collect all items
@@ -64,23 +64,23 @@ namespace SharedMap {
             const std::vector<u64> &index_vec = config.index_vec;
             const std::vector<u64> &k_rem_vec = config.k_rem_vec;
             const f64 global_imbalance = config.imbalance;
-            const u64 global_g_weight = original_g.get_weight();
+            const u64 global_g_weight = original_g.g_weight;
             const u64 global_k = config.k;
 
             // load item to process
             Item item = layer->at(local_idx);
-            const Graph &g = (*item.g);
-            const TranslationTable &tt = (*item.tt);
+            const CSRGraph &g = (*item.g);
+            const TransTable &tt = (*item.tt);
             const std::vector<u64> &identifier = (*item.identifier);
 
             // get depth info
             const u64 depth = l - 1 - identifier.size();
             const u64 local_k = hierarchy[depth];
             const u64 local_k_rem = k_rem_vec[depth];
-            const f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.get_weight(), local_k_rem, depth + 1);
+            const f64 local_imbalance = determine_adaptive_imbalance(global_imbalance, global_g_weight, global_k, g.g_weight, local_k_rem, depth + 1);
 
             // partition the subgraph
-            std::vector<u64> partition(g.get_n());
+            std::vector<u64> partition(g.n);
             partition_graph(g, local_k, local_imbalance, partition, n_assigned_threads, depth, config.serial_alg_id, config.parallel_alg_id, config.seed, stat_collector);
 
             if (depth == 0) {
@@ -88,7 +88,7 @@ namespace SharedMap {
                 u64 offset = 0;
 
                 for (u64 i = 0; i < identifier.size(); ++i) { offset += identifier[i] * index_vec[index_vec.size() - 1 - i]; }
-                for (u64 u = 0; u < g.get_n(); ++u) { solution[tt.get_o(u)] = offset + partition[u]; }
+                for (u64 u = 0; u < g.n; ++u) { solution[tt.get_o(u)] = offset + partition[u]; }
 
                 n_completed_graphs += local_k;
             } else {
@@ -145,18 +145,18 @@ namespace SharedMap {
      * @param stat_collector The statistic collector.
      * @return The partition.
      */
-    inline std::vector<u64> solve_nb_layer(const Graph &original_g,
-                                    const AlgorithmConfiguration &config,
-                                    StatCollector &stat_collector) {
-        std::vector<u64> solution(original_g.get_n());    // end partition
-        TranslationTable original_tt(original_g.get_n()); // default translation table
+    inline std::vector<u64> solve_nb_layer(const CSRGraph &original_g,
+                                           const AlgorithmConfiguration &config,
+                                           StatCollector &stat_collector) {
+        std::vector<u64> solution(original_g.n); // end partition
+        TransTable original_tt(original_g.n); // default translation table
 
         // references for better code readability
         const u64 n_threads = config.n_threads;
 
         // initialize layer;
         std::shared_ptr<std::vector<Item> > layer = std::make_shared<std::vector<Item> >();
-        layer->push_back({new std::vector<uint64_t>(), const_cast<Graph *>(&original_g), &original_tt, false});
+        layer->push_back({new std::vector<uint64_t>(), const_cast<CSRGraph *>(&original_g), &original_tt, false});
         std::shared_ptr<std::atomic<u64> > layer_idx = std::make_shared<std::atomic<u64> >(1);
         std::atomic<u64> n_inactive_threads = 0;
         std::atomic<u64> n_completed_subgraphs = 0;

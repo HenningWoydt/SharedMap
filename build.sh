@@ -66,7 +66,7 @@ if (
     -DCMAKE_INSTALL_PREFIX="${ROOT}/extern/local/kahip" \
     -DNOMPI=ON \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-  && make install -j "$JOBS" > /dev/null 2>&1
+  && make install -j "$JOBS"
 ); then
   echo "KaHIP 3.19 build completed successfully."
 else

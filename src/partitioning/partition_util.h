@@ -31,7 +31,6 @@
 #include <cmath>
 #include <thread>
 
-#include "src/datastructures/graph.h"
 #include "src/datastructures/item.h"
 #include "src/datastructures/translation_table.h"
 #include "src/partitioning/partition.h"
@@ -39,13 +38,13 @@
 #include "src/utility/definitions.h"
 
 namespace SharedMap {
-    inline void create_sub_graphs_serial(const Graph &g,
-                                         const TranslationTable &g_tt,
+    inline void create_sub_graphs_serial(const CSRGraph &g,
+                                         const TransTable &g_tt,
                                          const u64 k,
                                          const std::vector<u64> &partition,
                                          const std::vector<u64> &identifier,
                                          std::vector<Item> &temp_stack) {
-        ASSERT(partition.size() == g.get_n());
+        ASSERT(partition.size() == g.n);
 
         temp_stack.resize(k);
 
@@ -53,42 +52,62 @@ namespace SharedMap {
             temp_stack[i].identifier = new std::vector<u64>(identifier);
             temp_stack[i].identifier->push_back(i);
             temp_stack[i].to_delete = true;
-            temp_stack[i].tt = new TranslationTable();
+            temp_stack[i].tt = new TransTable(g.n, g.n / k);
         }
 
-        std::vector<u64> g_sizes(k, 0);
+        std::vector<u64> n_s(k, 0);
+        std::vector<u64> m_s(k, 0);
+        std::vector<u64> w_s(k, 0);
 
-        for (u64 u = 0; u < g.get_n(); ++u) {
-            u64 p_id = partition[u];
-            temp_stack[p_id].tt->add(g_tt.get_o(u), g_sizes[p_id]);
-            g_sizes[p_id] += 1;
+        for (u64 u = 0; u < g.n; ++u) {
+            u64 u_w = g.weights[u];
+            u64 u_id = partition[u];
+
+            temp_stack[u_id].tt->add(g_tt.get_o(u), n_s[u_id]);
+
+            n_s[u_id] += 1;
+            w_s[u_id] += u_w;
+            for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                u64 v = g.edges_v[j];
+                u64 v_id = partition[v];
+                if (u_id == v_id) {
+                    m_s[u_id] += 1;
+                }
+            }
         }
 
         for (u64 i = 0; i < k; ++i) {
-            temp_stack[i].g = new Graph(g_sizes[i]);
+            temp_stack[i].g = new CSRGraph(n_s[i], m_s[i], w_s[i]);
             temp_stack[i].tt->finalize();
         }
 
-        for (u64 u = 0; u < g.get_n(); ++u) {
-            u64 p_id = partition[u];
+        std::vector<u64> idxs(k, 0);
+        for (u64 u = 0; u < g.n; ++u) {
+            u64 u_id = partition[u];
 
-            u64 sub_u = temp_stack[p_id].tt->get_n(g_tt.get_o(u));
+            u64 sub_u = temp_stack[u_id].tt->get_n(g_tt.get_o(u));
 
-            temp_stack[p_id].g->set_vertex_weight(sub_u, g.get_vertex_weight(u));
+            temp_stack[u_id].g->weights[sub_u] = g.weights[u];
 
-            for (const Edge &e: g[u]) {
-                if (partition[e.v] == p_id) {
-                    u64 sub_v = temp_stack[p_id].tt->get_n(g_tt.get_o(e.v));
-                    temp_stack[p_id].g->add_edge(sub_u, sub_v, e.w);
+            for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                u64 v = g.edges_v[j];
+                u64 w = g.edges_w[j];
+                if (partition[v] == u_id) {
+                    u64 idx = idxs[u_id];
+                    u64 sub_v = temp_stack[u_id].tt->get_n(g_tt.get_o(v));
+                    temp_stack[u_id].g->edges_v[idx] = sub_v;
+                    temp_stack[u_id].g->edges_w[idx] = w;
+                    idxs[u_id] += 1;
                 }
             }
+            temp_stack[u_id].g->neighborhoods[sub_u + 1] = idxs[u_id];
         }
     }
 
     inline void thread_create_sub_graphs_work(u64 local_idx,
                                               std::atomic<u64> &global_idx,
-                                              const Graph &g,
-                                              const TranslationTable &g_tt,
+                                              const CSRGraph &g,
+                                              const TransTable &g_tt,
                                               const u64 k,
                                               const std::vector<u64> &partition,
                                               const std::vector<u64> &identifier,
@@ -98,34 +117,50 @@ namespace SharedMap {
             temp_stack[local_idx].identifier = new std::vector<u64>(identifier);
             temp_stack[local_idx].identifier->push_back(local_idx);
             temp_stack[local_idx].to_delete = true;
-            temp_stack[local_idx].tt = new TranslationTable();
+            temp_stack[local_idx].tt = new TransTable(g.n, g.n / k);
 
             // initialize translation table and determine graph size
-            u64 g_size = 0;
-            for (u64 u = 0; u < g.get_n(); ++u) {
+            u64 n = 0;
+            u64 m = 0;
+            u64 weight = 0;
+            for (u64 u = 0; u < g.n; ++u) {
                 if (local_idx == partition[u]) {
-                    temp_stack[local_idx].tt->add(g_tt.get_o(u), g_size);
-                    g_size += 1;
+                    weight += g.weights[u];
+                    temp_stack[local_idx].tt->add(g_tt.get_o(u), n);
+                    for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                        u64 v = g.edges_v[j];
+                        if (partition[u] == partition[v]) {
+                            m += 1;
+                        }
+                    }
+                    n += 1;
                 }
             }
 
             // create graph, finalize translation table
-            temp_stack[local_idx].g = new Graph(g_size);
+            temp_stack[local_idx].g = new CSRGraph(n, m, weight);
             temp_stack[local_idx].tt->finalize();
 
             // create graph
-            for (u64 u = 0; u < g.get_n(); ++u) {
+            u64 idx = 0;
+            for (u64 u = 0; u < g.n; ++u) {
                 if (local_idx == partition[u]) {
                     u64 sub_u = temp_stack[local_idx].tt->get_n(g_tt.get_o(u));
 
-                    temp_stack[local_idx].g->set_vertex_weight(sub_u, g.get_vertex_weight(u));
+                    temp_stack[local_idx].g->weights[sub_u] = g.weights[u];
 
-                    for (const Edge &e: g[u]) {
-                        if (partition[e.v] == local_idx) {
-                            u64 sub_v = temp_stack[local_idx].tt->get_n(g_tt.get_o(e.v));
-                            temp_stack[local_idx].g->add_edge(sub_u, sub_v, e.w);
+                    for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                        u64 v = g.edges_v[j];
+                        u64 w = g.edges_w[j];
+
+                        if (partition[u] == partition[v]) {
+                            u64 sub_v = temp_stack[local_idx].tt->get_n(g_tt.get_o(v));
+                            temp_stack[local_idx].g->edges_v[idx] = sub_v;
+                            temp_stack[local_idx].g->edges_w[idx] = w;
+                            idx += 1;
                         }
                     }
+                    temp_stack[local_idx].g->neighborhoods[sub_u + 1] = idx;
                 }
             }
 
@@ -134,14 +169,14 @@ namespace SharedMap {
         }
     }
 
-    inline void create_sub_graphs_parallel(const Graph &g,
-                                           const TranslationTable &g_tt,
+    inline void create_sub_graphs_parallel(const CSRGraph &g,
+                                           const TransTable &g_tt,
                                            const u64 n_threads,
                                            const u64 k,
                                            const std::vector<u64> &partition,
                                            const std::vector<u64> &identifier,
                                            std::vector<Item> &temp_stack) {
-        ASSERT(partition.size() == g.get_n());
+        ASSERT(partition.size() == g.n);
 
         temp_stack.resize(k);
         std::atomic<u64> global_idx = std::min(n_threads, k);
@@ -200,7 +235,7 @@ namespace SharedMap {
      * @param seed Seed for diversification.
      * @param stat_collector The statistic collector.
      */
-    inline void partition_graph(const Graph &g,
+    inline void partition_graph(const CSRGraph &g,
                                 u64 k,
                                 f64 imbalance,
                                 std::vector<u64> &partition,
@@ -219,7 +254,7 @@ namespace SharedMap {
 
         if (k == 1) {
             // if only one partition
-            partition.resize(g.get_n());
+            partition.resize(g.n);
             std::fill(partition.begin(), partition.end(), 0);
         } else {
             switch (alg) {
@@ -250,7 +285,7 @@ namespace SharedMap {
         auto ep = std::chrono::high_resolution_clock::now();
 
         stat_collector.log_partition(depth,
-                                     g.get_n(),
+                                     g.n,
                                      alg,
                                      n_threads,
                                      imbalance,
@@ -272,16 +307,16 @@ namespace SharedMap {
      * @param n_threads The number of threads.
      * @param stat_collector The statistic collector.
      */
-    inline void create_sub_graphs(const Graph &g,
-                           const TranslationTable &g_tt,
-                           u64 k,
-                           const std::vector<u64> &partition,
-                           const std::vector<u64> &identifier,
-                           std::vector<Item> &temp_stack,
-                           u64 depth,
-                           u64 n_threads,
-                           StatCollector &stat_collector) {
-        ASSERT(partition.size() == g.get_n());
+    inline void create_sub_graphs(const CSRGraph &g,
+                                  const TransTable &g_tt,
+                                  u64 k,
+                                  const std::vector<u64> &partition,
+                                  const std::vector<u64> &identifier,
+                                  std::vector<Item> &temp_stack,
+                                  u64 depth,
+                                  u64 n_threads,
+                                  StatCollector &stat_collector) {
+        ASSERT(partition.size() == g.n);
 
         auto sp = std::chrono::high_resolution_clock::now();
         if (n_threads == 1) {
@@ -292,7 +327,7 @@ namespace SharedMap {
         auto ep = std::chrono::high_resolution_clock::now();
 
         stat_collector.log_subgraph_creation(depth,
-                                             g.get_n(),
+                                             g.n,
                                              n_threads,
                                              k,
                                              sp,

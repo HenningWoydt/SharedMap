@@ -33,7 +33,6 @@
 #include <libmtkahypartypes.h>
 #include <kaHIP_interface.h>
 
-#include "src/datastructures/graph.h"
 #include "src/utility/algorithm_configuration.h"
 #include "src/utility/definitions.h"
 
@@ -48,7 +47,7 @@ namespace SharedMap {
      * @param kaffpa_config Configuration for kaffpa.
      * @param seed The random seed.
      */
-    inline void kaffpa_partition(const Graph &g,
+    inline void kaffpa_partition(const CSRGraph &g,
                                  u64 k,
                                  f64 imbalance,
                                  std::vector<u64> &partition,
@@ -58,45 +57,36 @@ namespace SharedMap {
         ASSERT(k > 0);
 
         // enough space
-        partition.resize(g.get_n());
+        partition.resize(g.n);
 
         // number of vertices and edges
-        int n = (int) g.get_n();
-        int m = (int) g.get_m();
+        int n = (int) g.n;
+        int m = (int) g.m;
 
         // vertex weights
         int *v_weights = (int *) malloc(n * sizeof(int));
-        for (int i = 0; i < n; ++i) { v_weights[i] = (int) g.get_vertex_weight(i); }
+        for (int i = 0; i < n; ++i) { v_weights[i] = (int) g.weights[i]; }
 
         // pointer to adjacency lists
         int *adj_ptr = (int *) malloc((n + 1) * sizeof(int));
-        int *adj = (int *) malloc(2 * m * sizeof(int));
-        int *e_weights = (int *) malloc(2 * m * sizeof(int));
-
-        int *insert_idx = (int *) malloc((n + 1) * sizeof(int));
-
-        // set adj_ptr
         adj_ptr[0] = 0;
-        insert_idx[0] = 0;
-        for (int u = 0; u < n; ++u) {
-            adj_ptr[u + 1] = adj_ptr[u] + (int) g.get_vertex_n_edge(u);
-            insert_idx[u + 1] = insert_idx[u] + (int) g.get_vertex_n_edge(u);
-        }
+        int *adj = (int *) malloc(m * sizeof(int));
+        int *e_weights = (int *) malloc(m * sizeof(int));
 
         // adjacency and edge weights
+        u64 idx = 0;
         for (int u = 0; u < n; ++u) {
             // process each vertex
-            for (auto &e: g[u]) {
-                adj[insert_idx[u]] = (int) e.v;
-                e_weights[insert_idx[u]] = (int) e.w;
-                insert_idx[u]++;
+            for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                u64 v = g.edges_v[j];
+                u64 w = g.edges_w[j];
 
-                adj[insert_idx[e.v]] = u;
-                e_weights[insert_idx[e.v]] = (int) e.w;
-                insert_idx[e.v]++;
+                adj[idx] = (int) v;
+                e_weights[idx] = (int) w;
+                idx += 1;
             }
+            adj_ptr[u + 1] = idx;
         }
-        free(insert_idx);
 
         // number of partitions
         int n_partitions = (int) k;
@@ -153,7 +143,7 @@ namespace SharedMap {
      * @param n_threads Number of cores to use.
      * @param seed The random seed.
      */
-    inline void mt_kahypar_partition(const Graph &g,
+    inline void mt_kahypar_partition(const CSRGraph &g,
                                      u64 k,
                                      f64 imbalance,
                                      std::vector<u64> &partition,
@@ -164,7 +154,7 @@ namespace SharedMap {
         ASSERT(k > 0);
 
         // enough space
-        partition.resize(g.get_n());
+        partition.resize(g.n);
 
         // Initialize thread pool
         mt_kahypar_initialize_thread_pool(n_threads,
@@ -200,31 +190,36 @@ namespace SharedMap {
         mt_kahypar_set_seed(seed);
 
         // number of vertices and edges
-        auto n = (mt_kahypar_hypernode_id_t) g.get_n();
-        auto m = (mt_kahypar_hyperedge_id_t) g.get_m();
+        auto n = (mt_kahypar_hypernode_id_t) g.n;
+        auto m = (mt_kahypar_hyperedge_id_t) g.m;
 
         // vertex weights
         auto *v_weights = (mt_kahypar_hypernode_weight_t *) malloc(n * sizeof(mt_kahypar_hypernode_weight_t));
         for (u64 i = 0; i < n; ++i) {
-            v_weights[i] = (mt_kahypar_hypernode_weight_t) g.get_vertex_weight(i);
+            v_weights[i] = (mt_kahypar_hypernode_weight_t) g.weights[i];
         }
 
         // edges
         u64 idx = 0;
-        auto *edges = (mt_kahypar_hypernode_id_t *) malloc(2 * m * sizeof(mt_kahypar_hypernode_id_t));
-        auto *e_weights = (mt_kahypar_hyperedge_weight_t *) malloc(m * sizeof(mt_kahypar_hyperedge_weight_t));
+        auto *edges = (mt_kahypar_hypernode_id_t *) malloc(m * sizeof(mt_kahypar_hypernode_id_t));
+        auto *e_weights = (mt_kahypar_hyperedge_weight_t *) malloc(m / 2 * sizeof(mt_kahypar_hyperedge_weight_t));
         for (u64 u = 0; u < n; ++u) {
-            for (auto &e: g[u]) {
+            for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                u64 v = g.edges_v[j];
+                u64 w = g.edges_w[j];
+
+                if (u >= v) { continue; }
+
                 edges[2 * idx] = (mt_kahypar_hypernode_id_t) u;
-                edges[2 * idx + 1] = (mt_kahypar_hypernode_id_t) e.v;
-                e_weights[idx] = (mt_kahypar_hyperedge_weight_t) e.w;
+                edges[2 * idx + 1] = (mt_kahypar_hypernode_id_t) v;
+                e_weights[idx] = (mt_kahypar_hyperedge_weight_t) w;
                 idx += 1;
                 ASSERT(idx <= m);
             }
         }
 
         // Create graph
-        mt_kahypar_hypergraph_t graph = mt_kahypar_create_graph(preset, n, m, edges, e_weights, v_weights);
+        mt_kahypar_hypergraph_t graph = mt_kahypar_create_graph(preset, n, m / 2, edges, e_weights, v_weights);
 
         // Partition graph
         mt_kahypar_partitioned_hypergraph_t partitioned_hg = mt_kahypar_partition(graph, context);
@@ -242,9 +237,10 @@ namespace SharedMap {
         free(v_weights);
         free(edges);
         free(e_weights);
-        mt_kahypar_free_context(context);
-        mt_kahypar_free_hypergraph(graph);
+
         mt_kahypar_free_partitioned_hypergraph(partitioned_hg);
+        mt_kahypar_free_hypergraph(graph);
+        mt_kahypar_free_context(context);
     }
 }
 

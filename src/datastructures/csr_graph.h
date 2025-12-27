@@ -27,13 +27,7 @@
 #ifndef SHAREDMAP_CSR_GRAPH_H
 #define SHAREDMAP_CSR_GRAPH_H
 
-#include <omp.h>
-#include <cstring>
-#include <fcntl.h>
 #include <iostream>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 #include <vector>
 
 #include "../utility/definitions.h"
@@ -45,21 +39,20 @@ namespace SharedMap {
     */
     class CSRGraph {
     public:
-        u64 m_n = 0; // number of vertices
-        u64 m_m = 0; // number of edges
+        u64 n = 0; // number of vertices
+        u64 m = 0; // number of edges
 
-        std::vector<u64> m_neighborhoods; // edges per vertex
+        std::vector<u64> neighborhoods; // edges per vertex
 
-        std::vector<u64> m_weights; // vertex weight
-        u64 m_g_weight = 0;             // graph weight
+        std::vector<u64> weights; // vertex weight
+        u64 g_weight = 0; // graph weight
 
-        std::vector<u64> m_edges_v; // edges vertex
-        std::vector<u64> m_edges_w; // edges weight
+        std::vector<u64> edges_v; // edges vertex
+        std::vector<u64> edges_w; // edges weight
 
         CSRGraph() = default;
 
         explicit CSRGraph(const std::string &file_path) {
-
             if (!file_exists(file_path)) {
                 std::cerr << "File " << file_path << " does not exist!" << std::endl;
                 exit(EXIT_FAILURE);
@@ -80,9 +73,9 @@ namespace SharedMap {
             while (*p == ' ') { ++p; }
 
             // read number of vertices
-            m_n = 0;
+            n = 0;
             while (*p != ' ' && *p != '\n') {
-                m_n = m_n * 10 + (u64)(*p - '0');
+                n = n * 10 + (u64) (*p - '0');
                 ++p;
             }
 
@@ -90,12 +83,12 @@ namespace SharedMap {
             while (*p == ' ') { ++p; }
 
             // read number of edges
-            m_m = 0;
+            m = 0;
             while (*p != ' ' && *p != '\n') {
-                m_m = m_m * 10 + (u64)(*p - '0');
+                m = m * 10 + (u64) (*p - '0');
                 ++p;
             }
-            m_m *= 2;
+            m *= 2;
 
             // search end of line or fmt
             std::string fmt = "000";
@@ -120,12 +113,12 @@ namespace SharedMap {
                 while (*p == ' ') { ++p; }
             }
 
-            m_g_weight = 0;
-            m_weights.resize(m_n);
-            m_neighborhoods.resize(m_n + 1);
-            m_neighborhoods[0] = 0;
-            m_edges_v.resize(m_m);
-            m_edges_w.resize(m_m);
+            g_weight = 0;
+            weights.resize(n);
+            neighborhoods.resize(n + 1);
+            neighborhoods[0] = 0;
+            edges_v.resize(m);
+            edges_w.resize(m);
             has_v_weights = fmt[1] == '1';
             has_e_weights = fmt[2] == '1';
 
@@ -147,15 +140,15 @@ namespace SharedMap {
                 if (has_v_weights) {
                     vw = 0;
                     while (*p != ' ' && *p != '\n') {
-                        vw = vw * 10 + (u64)(*p - '0');
+                        vw = vw * 10 + (u64) (*p - '0');
                         ++p;
                     }
 
                     // skip whitespaces
                     while (*p == ' ') { ++p; }
                 }
-                m_weights[u] = vw;
-                m_g_weight += vw;
+                weights[u] = vw;
+                g_weight += vw;
 
                 // read in edges
                 while (*p != '\n' && p < end) {
@@ -163,7 +156,7 @@ namespace SharedMap {
                     u64 w = 1;
 
                     while (*p != ' ' && *p != '\n') {
-                        v = v * 10 + (u64)(*p - '0');
+                        v = v * 10 + (u64) (*p - '0');
                         ++p;
                     }
 
@@ -173,7 +166,7 @@ namespace SharedMap {
                     if (has_e_weights) {
                         w = 0;
                         while (*p != ' ' && *p != '\n') {
-                            w = w * 10 + (u64)(*p - '0');
+                            w = w * 10 + (u64) (*p - '0');
                             ++p;
                         }
 
@@ -181,23 +174,35 @@ namespace SharedMap {
                         while (*p == ' ') { ++p; }
                     }
 
-                    m_edges_v[curr_m] = v - 1;
-                    m_edges_w[curr_m] = w;
+                    edges_v[curr_m] = v - 1;
+                    edges_w[curr_m] = w;
                     ++curr_m;
                 }
-                m_neighborhoods[u + 1] = curr_m;
+                neighborhoods[u + 1] = curr_m;
                 ++u;
                 ++p;
             }
 
-            if (curr_m != m_m) {
-                std::cerr << "Number of expected edges " << m_m << " not equal to number edges " << curr_m << " found!\n";
+            if (curr_m != m) {
+                std::cerr << "Number of expected edges " << m << " not equal to number edges " << curr_m << " found!\n";
                 munmap_file(mm);
                 exit(EXIT_FAILURE);
             }
 
             // done with the file
             munmap_file(mm);
+        }
+
+        explicit CSRGraph(const u64 t_n, const u64 t_m, const u64 t_w) {
+            n = t_n;
+            m = t_m;
+            g_weight = t_w;
+
+            neighborhoods.resize(n + 1);
+            neighborhoods[0] = 0;
+            weights.resize(n);
+            edges_v.resize(m);
+            edges_w.resize(m);
         }
     };
 }

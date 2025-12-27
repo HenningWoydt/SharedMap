@@ -28,7 +28,6 @@
 #define SHAREDMAP_QAP_H
 
 #include "src/utility/definitions.h"
-#include "src/datastructures/graph.h"
 
 namespace SharedMap {
     inline void determine_location(const u64 p_id,
@@ -80,7 +79,7 @@ namespace SharedMap {
         abort();
     }
 
-    inline u64 determine_qap(const Graph &g,
+    inline u64 determine_qap(const CSRGraph &g,
                              const std::vector<u64> &hierarchy,
                              const std::vector<u64> &distance,
                              const std::vector<u64> &partition) {
@@ -90,15 +89,18 @@ namespace SharedMap {
 
         u64 comm_cost = 0;
 
-        for (u64 u = 0; u < g.get_n(); ++u) {
-            for (auto &[v, w]: g[u]) {
+        for (u64 u = 0; u < g.n; ++u) {
+            for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
+                const u64 v = g.edges_v[j];
+                const u64 w = g.edges_w[j];
+
                 const u64 u_id = partition[u];
                 const u64 v_id = partition[v];
 
                 if (u_id != v_id) {
                     const u64 u_v_distance = determine_distance(u_id, v_id, k, hierarchy, distance, u_loc, v_loc);
                     // comm cost
-                    comm_cost += w * u_v_distance * 2;
+                    comm_cost += w * u_v_distance;
                 }
             }
         }

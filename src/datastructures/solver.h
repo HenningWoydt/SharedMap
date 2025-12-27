@@ -27,7 +27,9 @@
 #ifndef SHAREDMAP_SOLVER_H
 #define SHAREDMAP_SOLVER_H
 
-#include "src/datastructures/graph.h"
+#include <unordered_map>
+
+#include "src/datastructures/csr_graph.h"
 #include "src/partitioning/layer.h"
 #include "src/partitioning/naive.h"
 #include "src/partitioning/nb_layer.h"
@@ -44,7 +46,6 @@ namespace SharedMap {
      * Solver
      */
     class Solver {
-    private:
         const AlgorithmConfiguration &m_ac;
         StatCollector stat_collector;
 
@@ -68,7 +69,7 @@ namespace SharedMap {
             // read graph
             auto sp_total = std::chrono::steady_clock::now();
             auto sp = std::chrono::steady_clock::now();
-            Graph g(m_ac.graph_in);
+            CSRGraph g(m_ac.graph_in);
             auto ep = std::chrono::steady_clock::now();
             io_time += (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9;
 
@@ -89,17 +90,17 @@ namespace SharedMap {
 
             if (verbose) {
                 u64 comm_cost = determine_qap(g, m_ac.hierarchy, m_ac.distance, partition);
-                u64 lmax = std::ceil((1.0 + m_ac.imbalance) * ((f64) g.get_weight() / (f64) m_ac.k));
+                u64 lmax = std::ceil((1.0 + m_ac.imbalance) * ((f64) g.g_weight / (f64) m_ac.k));
 
                 std::cout << "Total time        : " << (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep_total - sp_total).count() / 1e9 << std::endl;
-                std::cout << "#Nodes            : " << g.get_n() << std::endl;
-                std::cout << "#Edges            : " << g.get_m() << std::endl;
+                std::cout << "#Nodes            : " << g.n << std::endl;
+                std::cout << "#Edges            : " << g.m << std::endl;
                 std::cout << "k                 : " << m_ac.k << std::endl;
                 std::cout << "Lmax              : " << lmax << std::endl;
                 std::cout << "Final QAP         : " << comm_cost << std::endl;
 
                 std::vector<u64> weights(m_ac.k, 0);
-                for (u64 u = 0; u < g.get_n(); ++u) { weights[partition[u]] += g.get_vertex_weight(u); }
+                for (u64 u = 0; u < g.n; ++u) { weights[partition[u]] += g.weights[u]; }
 
                 size_t n_empty_partitions = 0;
                 size_t n_overloaded_partitions = 0;
@@ -121,7 +122,7 @@ namespace SharedMap {
         /**
          * Solves the problem.
          */
-        void solve(const Graph &g, int *partition, int &comm_cost, bool verbose = false) {
+        void solve(const CSRGraph &g, int *partition, int &comm_cost, bool verbose = false) {
             io_time = 0;
 
             // solve problem
@@ -129,9 +130,7 @@ namespace SharedMap {
 
             std::vector<u64> internal_partition = internal_solve(g);
 
-            for (size_t i = 0; i < g.get_n(); ++i) {
-                partition[i] = (int) internal_partition[i];
-            }
+            for (size_t i = 0; i < g.n; ++i) { partition[i] = (int) internal_partition[i]; }
 
             comm_cost = (int) determine_qap(g, m_ac.hierarchy, m_ac.distance, internal_partition);
 
@@ -141,17 +140,17 @@ namespace SharedMap {
             if (verbose) {
                 print_statistics();
 
-                u64 lmax = std::ceil((1.0 + m_ac.imbalance) * ((f64) g.get_weight() / (f64) m_ac.k));
+                u64 lmax = std::ceil((1.0 + m_ac.imbalance) * ((f64) g.g_weight / (f64) m_ac.k));
 
                 std::cout << "Total time        : " << (f64) std::chrono::duration_cast<std::chrono::nanoseconds>(ep - sp).count() / 1e9 << std::endl;
-                std::cout << "#Nodes            : " << g.get_n() << std::endl;
-                std::cout << "#Edges            : " << g.get_m() << std::endl;
+                std::cout << "#Nodes            : " << g.n << std::endl;
+                std::cout << "#Edges            : " << g.m << std::endl;
                 std::cout << "k                 : " << m_ac.k << std::endl;
                 std::cout << "Lmax              : " << lmax << std::endl;
                 std::cout << "Final QAP         : " << comm_cost << std::endl;
 
                 std::vector<u64> weights(m_ac.k, 0);
-                for (u64 u = 0; u < g.get_n(); ++u) { weights[internal_partition[u]] += g.get_vertex_weight(u); }
+                for (u64 u = 0; u < g.n; ++u) { weights[internal_partition[u]] += g.weights[u]; }
 
                 size_t n_empty_partitions = 0;
                 size_t n_overloaded_partitions = 0;
@@ -177,7 +176,7 @@ namespace SharedMap {
          * @param g The graph.
          * @return The partition.
          */
-        std::vector<u64> internal_solve(const Graph &g) {
+        std::vector<u64> internal_solve(const CSRGraph &g) {
             // if only one thread, then just solve serial
             if (m_ac.n_threads == 1) {
                 return solve_serial(g, m_ac, stat_collector);

@@ -27,8 +27,7 @@
 #ifndef SHAREDMAP_ITEM_H
 #define SHAREDMAP_ITEM_H
 
-#include "src/datastructures/graph.h"
-#include "src/datastructures/translation_table.h"
+#include "../utility/types.h"
 
 namespace SharedMap {
     /**
@@ -37,9 +36,9 @@ namespace SharedMap {
     class Item {
     public:
         std::vector<u64> *identifier = nullptr; // used to identify the current graph in the recursive partitioning
-        Graph            *g          = nullptr; // graph to partition
-        TranslationTable *tt         = nullptr; // the tt from original graph to this graph
-        bool             to_delete   = false;   // whether to free the memory
+        CSRGraph *g = nullptr; // graph to partition
+        TransTable *tt = nullptr; // the tt from original graph to this graph
+        bool to_delete = false; // whether to free the memory
 
         /**
          * Default constructor.
@@ -54,11 +53,11 @@ namespace SharedMap {
          * @param tt The Translation Table to the original graph.
          * @param to_delete Whether to delete the memory of the item after processing.
          */
-        Item(std::vector<u64> *identifier, Graph *g, TranslationTable *tt, bool to_delete) {
+        Item(std::vector<u64> *identifier, CSRGraph *g, TransTable *tt, bool to_delete) {
             this->identifier = identifier;
-            this->g          = g;
-            this->tt         = tt;
-            this->to_delete  = to_delete;
+            this->g = g;
+            this->tt = tt;
+            this->to_delete = to_delete;
         }
 
         /**
@@ -74,7 +73,7 @@ namespace SharedMap {
             if (to_delete) {
                 delete g;
                 delete tt;
-                g  = nullptr;
+                g = nullptr;
                 tt = nullptr;
             }
         }
@@ -86,7 +85,7 @@ namespace SharedMap {
          * @return True if there are fewer vertices than in the other graph.
          */
         bool operator<(const Item &item) const {
-            return g->get_n() < item.g->get_n();
+            return g->n < item.g->n;
         }
     };
 }

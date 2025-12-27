@@ -32,7 +32,7 @@
 
 namespace SharedMap {
 #ifndef ASSERT_ENABLED
-#define ASSERT_ENABLED false
+#define ASSERT_ENABLED true
 #endif
 
 #if ASSERT_ENABLED

@@ -103,7 +103,7 @@ namespace SharedMap {
      * @param ints The vector that will hold the solution.
      */
     inline void str_to_ints(const std::string &str,
-                     std::vector<u64> &ints) {
+                            std::vector<u64> &ints) {
         ints.resize(str.size());
 
         u64 idx = 0;
@@ -172,10 +172,10 @@ namespace SharedMap {
         }
         size_t size = static_cast<size_t>(st.st_size);
 
-        #ifdef __linux__
+#ifdef __linux__
         // 1) Tell the kernel we’ll read sequentially (before mmap)
         (void) posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-        #endif
+#endif
 
         void *addr = ::mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
         if (addr == MAP_FAILED) {
@@ -183,10 +183,10 @@ namespace SharedMap {
             std::exit(EXIT_FAILURE);
         }
 
-        #ifdef __linux__
+#ifdef __linux__
         // 2) Hint that we’ll need these pages, sequentially (right after mmap)
         (void) madvise(addr, size, MADV_SEQUENTIAL | MADV_WILLNEED);
-        #endif
+#endif
 
         mm.data = static_cast<char *>(addr);
         mm.size = size;
@@ -198,6 +198,28 @@ namespace SharedMap {
         if (mm.data && mm.size) ::munmap(mm.data, mm.size);
         if (mm.fd >= 0) ::close(mm.fd);
     }
+
+
+    struct UndirectedEdge {
+        u64 u;
+        u64 v;
+        u64 w;
+
+        bool operator==(const UndirectedEdge &o) const {
+            return u == o.u && v == o.v && w == o.w;
+        }
+    };
+
+    struct UndirectedEdgeHash {
+        std::size_t operator()(const UndirectedEdge &e) const noexcept {
+            std::size_t h1 = std::hash<u64>{}(e.u);
+            std::size_t h2 = std::hash<u64>{}(e.v);
+            std::size_t h3 = std::hash<u64>{}(e.w);
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
+        }
+    };
+
+
 }
 
 #endif //SHAREDMAP_UTILS_H
