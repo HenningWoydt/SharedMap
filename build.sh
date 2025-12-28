@@ -17,7 +17,7 @@ echo "Building with $JOBS parallel jobs (override with MAX_THREADS)."
 ROOT=${PWD}
 GCC=$(which gcc || true)
 
-echo "Root          : ${ROOT}"
+echo "Root            : ${ROOT}"
 echo "Using C compiler: ${GCC:-<system default>}"
 
 rm -rf extern
@@ -41,17 +41,17 @@ else
 fi
 cd "${ROOT}"
 
-# --- Clone Mt-KaHyPar 1.4 (with submodules) ---
-echo "Cloning Mt-KaHyPar 1.4..."
+# --- Clone Mt-KaHyPar 1.5.3 (with submodules) ---
+echo "Cloning Mt-KaHyPar 1.5.3..."
 if (
   cd extern \
   && rm -rf MtKaHyPar \
-  && git clone --branch v1.4 --depth 1 --recurse-submodules \
+  && git clone --branch v1.5.3 --depth 1 --recurse-submodules \
        https://github.com/kahypar/mt-kahypar.git MtKaHyPar
 ); then
-  echo "Mt-KaHyPar v1.4 cloned successfully (including submodules)."
+  echo "Mt-KaHyPar v1.5.3 cloned successfully (including submodules)."
 else
-  echo "Failed to clone Mt-KaHyPar v1.4!" >&2
+  echo "Failed to clone Mt-KaHyPar v1.5.3!" >&2
   exit 1
 fi
 cd "${ROOT}"
@@ -75,20 +75,24 @@ else
 fi
 cd "${ROOT}"
 
-# --- build Mt-KaHyPar 1.4 ---
-echo "Building Mt-KaHyPar 1.4..."
+# --- build Mt-KaHyPar 1.5.3 (C library install) ---
+echo "Building Mt-KaHyPar 1.5.3..."
 rm -rf extern/MtKaHyPar/build && mkdir -p extern/MtKaHyPar/build
 cd extern/MtKaHyPar/build
+
 cmake .. \
-  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DKAHYPAR_DOWNLOAD_TBB=ON \
   -DKAHYPAR_DOWNLOAD_BOOST=ON \
   -DKAHYPAR_ENABLE_THREAD_PINNING=OFF \
   -DKAHYPAR_DISABLE_ASSERTIONS=ON \
   -DCMAKE_INSTALL_PREFIX="${ROOT}/extern/local/mt-kahypar"
-make -j"$JOBS" install.mtkahypar
+
+# This is the important part for the *library*
+cmake --build . --parallel "$JOBS" --target install-mtkahypar
 cd "${ROOT}"
+
 
 # --- build SharedMap ---
 echo "Building SharedMap..."

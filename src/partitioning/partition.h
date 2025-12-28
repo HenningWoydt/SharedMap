@@ -28,9 +28,10 @@
 #define SHAREDMAP_PARTITION_H
 
 #include <vector>
+#include <iostream>
 
-#include <libmtkahypar.h>
-#include <libmtkahypartypes.h>
+#include <mtkahypar.h>
+#include <mtkahypartypes.h>
 #include <kaHIP_interface.h>
 
 #include "src/utility/algorithm_configuration.h"
@@ -153,93 +154,119 @@ namespace SharedMap {
         ASSERT(imbalance >= 0.0);
         ASSERT(k > 0);
 
-        // enough space
         partition.resize(g.n);
 
-        // Initialize thread pool
-        mt_kahypar_initialize_thread_pool(n_threads,
-                                          false); // activate interleaved NUMA allocation policy
+        mt_kahypar_error_t error{};
+        error.status = SUCCESS;
+        error.msg = nullptr;
+        error.msg_len = 0;
 
-        // Setup partitioning context
-        mt_kahypar_context_t *context = mt_kahypar_context_new();
+        // Init library (thread pool, etc.)
+        mt_kahypar_initialize((size_t) n_threads,
+                              false /* interleaved NUMA allocation policy */);
+
+        // Preset -> context
         mt_kahypar_preset_type_t preset;
         switch (mt_kahypar_config) {
-            case MTKAHYPAR_DEFAULT:
-                preset = DEFAULT;
+            case MTKAHYPAR_DEFAULT: preset = DEFAULT;
                 break;
-            case MTKAHYPAR_QUALITY:
-                preset = QUALITY;
+            case MTKAHYPAR_QUALITY: preset = QUALITY;
                 break;
-            case MTKAHYPAR_HIGHEST_QUALITY:
-                preset = HIGHEST_QUALITY;
+            case MTKAHYPAR_HIGHEST_QUALITY: preset = HIGHEST_QUALITY;
                 break;
             default:
-                std::cerr << "Mt-KaHyPar Config " << mt_kahypar_config << " not known!" << std::endl;
-                abort();
+                std::cerr << "Mt-KaHyPar Config " << mt_kahypar_config << " not known!\n";
+                std::abort();
         }
-        mt_kahypar_load_preset(context, preset);
-        // In the following, we partition a hypergraph into two blocks
-        // with an allowed imbalance of 3% and optimize the connective metric (KM1)
+
+        mt_kahypar_context_t *context = mt_kahypar_context_from_preset(preset);
+        if (!context) {
+            std::cerr << "mt_kahypar_context_from_preset returned null\n";
+            std::abort();
+        }
+
         mt_kahypar_set_partitioning_parameters(context,
-                                               (int) k /* number of blocks */,
-                                               imbalance /* imbalance parameter */,
-                                               CUT /* objective function */);
+                                               (mt_kahypar_partition_id_t) k,
+                                               (double) imbalance,
+                                               CUT /* objective for graphs */);
 
-        // set context
-        mt_kahypar_set_context_parameter(context, VERBOSE, "0");
-        mt_kahypar_set_seed(seed);
+        mt_kahypar_set_seed((uint64_t) seed);
 
-        // number of vertices and edges
-        auto n = (mt_kahypar_hypernode_id_t) g.n;
-        auto m = (mt_kahypar_hyperedge_id_t) g.m;
+        // Optional: silence logging
+        mt_kahypar_set_context_parameter(context, VERBOSE, "0", &error);
+        if (error.status != SUCCESS) {
+            std::cerr << "mt_kahypar_set_context_parameter failed: " << error.msg << "\n";
+            std::abort();
+        }
 
-        // vertex weights
-        auto *v_weights = (mt_kahypar_hypernode_weight_t *) malloc(n * sizeof(mt_kahypar_hypernode_weight_t));
-        for (u64 i = 0; i < n; ++i) {
+        const auto n = (mt_kahypar_hypernode_id_t) g.n;
+
+        // Vertex weights
+        std::vector<mt_kahypar_hypernode_weight_t> v_weights((size_t) n);
+        for (u64 i = 0; i < (u64) n; ++i) {
             v_weights[i] = (mt_kahypar_hypernode_weight_t) g.weights[i];
         }
 
-        // edges
-        u64 idx = 0;
-        auto *edges = (mt_kahypar_hypernode_id_t *) malloc(m * sizeof(mt_kahypar_hypernode_id_t));
-        auto *e_weights = (mt_kahypar_hyperedge_weight_t *) malloc(m / 2 * sizeof(mt_kahypar_hyperedge_weight_t));
-        for (u64 u = 0; u < n; ++u) {
+        // Build undirected edge list: each undirected edge becomes a 2-pin "hyperedge"
+        // We don't know ahead of time how many u<v edges there are, so reserve generously.
+        // Worst-case (if input stores each undirected edge once already): idx can be up to g.m.
+        std::vector<mt_kahypar_hypernode_id_t> edges;
+        std::vector<mt_kahypar_hyperedge_weight_t> e_weights;
+        edges.reserve((size_t) 2 * (size_t) g.m);
+        e_weights.reserve((size_t) g.m);
+
+        for (u64 u = 0; u < (u64) n; ++u) {
             for (u64 j = g.neighborhoods[u]; j < g.neighborhoods[u + 1]; ++j) {
-                u64 v = g.edges_v[j];
-                u64 w = g.edges_w[j];
+                const u64 v = g.edges_v[j];
+                const u64 w = g.edges_w[j];
+                if (u >= v) continue;
 
-                if (u >= v) { continue; }
-
-                edges[2 * idx] = (mt_kahypar_hypernode_id_t) u;
-                edges[2 * idx + 1] = (mt_kahypar_hypernode_id_t) v;
-                e_weights[idx] = (mt_kahypar_hyperedge_weight_t) w;
-                idx += 1;
-                ASSERT(idx <= m);
+                edges.push_back((mt_kahypar_hypernode_id_t) u);
+                edges.push_back((mt_kahypar_hypernode_id_t) v);
+                e_weights.push_back((mt_kahypar_hyperedge_weight_t) w);
             }
         }
 
-        // Create graph
-        mt_kahypar_hypergraph_t graph = mt_kahypar_create_graph(preset, n, m / 2, edges, e_weights, v_weights);
+        const auto num_edges = (mt_kahypar_hyperedge_id_t) e_weights.size();
+        if (num_edges == 0) {
+            // Degenerate graph: all isolated / no u<v edges
+            std::fill(partition.begin(), partition.end(), 0);
+            mt_kahypar_free_context(context);
+            return;
+        }
 
-        // Partition graph
-        mt_kahypar_partitioned_hypergraph_t partitioned_hg = mt_kahypar_partition(graph, context);
+        mt_kahypar_hypergraph_t hg = mt_kahypar_create_graph(context,
+                                                             n,
+                                                             num_edges,
+                                                             edges.data(),
+                                                             e_weights.data(),
+                                                             v_weights.data(),
+                                                             &error);
 
-        // Extract Partition
-        auto mt_kahypar_partition = std::make_unique<mt_kahypar_partition_id_t[]>(mt_kahypar_num_hypernodes(graph));
-        mt_kahypar_get_partition(partitioned_hg, mt_kahypar_partition.get());
 
-        // move partition
-        for (u64 i = 0; i < n; ++i) {
-            partition[i] = mt_kahypar_partition[i];
+        if (error.status != SUCCESS) {
+            std::cerr << "mt_kahypar_create_graph failed: " << error.msg << "\n";
+            std::abort();
+        }
+
+        mt_kahypar_partitioned_hypergraph_t phg =
+                mt_kahypar_partition(hg, context, &error);
+
+        if (error.status != SUCCESS) {
+            std::cerr << "mt_kahypar_partition failed: " << error.msg << "\n";
+            std::abort();
+        }
+
+        auto part = std::make_unique<mt_kahypar_partition_id_t[]>(mt_kahypar_num_hypernodes(hg));
+        mt_kahypar_get_partition(phg, part.get());
+
+        for (u64 i = 0; i < (u64) n; ++i) {
+            partition[i] = (u64) part[i];
             ASSERT(partition[i] < k);
         }
 
-        free(v_weights);
-        free(edges);
-        free(e_weights);
-
-        mt_kahypar_free_partitioned_hypergraph(partitioned_hg);
-        mt_kahypar_free_hypergraph(graph);
+        mt_kahypar_free_partitioned_hypergraph(phg);
+        mt_kahypar_free_hypergraph(hg);
         mt_kahypar_free_context(context);
     }
 }

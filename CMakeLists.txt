@@ -13,43 +13,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# CMake Options
-option(SHAREDMAP_DOWNLOAD_TBB "Downloads TBB." ON)
-
 # Set Release and Debug flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -DNDEBUG -march=native -mtune=native -flto -funroll-loops -fprefetch-loop-arrays -fomit-frame-pointer -falign-functions=32 -falign-loops=16 -Wall -Wextra -pedantic")
-set(CMAKE_CXX_FLAGS_DEBUG   "-g3 -O0 -Wall -Wextra -pedantic -fsanitize=undefined,address -fno-omit-frame-pointer -fstack-protector-strong -D_GLIBCXX_DEBUG")
-
-# -------------------- TBB --------------------
-if (SHAREDMAP_DOWNLOAD_TBB)
-    include(FetchContent)
-    FetchContent_Populate(
-            tbb
-            URL https://github.com/oneapi-src/oneTBB/releases/download/v2021.12.0/oneapi-tbb-2021.12.0-lin.tgz
-            SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/external_tools/tbb
-    )
-    # Hint for FindTBB
-    set(TBB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/external_tools/tbb CACHE PATH "Path to downloaded TBB" FORCE)
-endif ()
-
-# Find TBB via CMake's FindTBB module
-find_package(TBB REQUIRED)
-
-if (TBB_FOUND)
-    if (TBB_INTERFACE_VERSION GREATER_EQUAL 12050)
-        message(STATUS "TBB Version: ${TBB_VERSION_MAJOR}.${TBB_VERSION_MINOR} (Interface Version=${TBB_INTERFACE_VERSION})")
-        message(STATUS "Found TBB library: inc=${TBB_INCLUDE_DIRS}, lib=${TBB_LIBRARIES}")
-        message(STATUS "Found TBB Malloc library: inc=${TBB_MALLOC_INCLUDE_DIRS}, lib=${TBB_MALLOC_LIBRARIES}")
-        message(STATUS "Found TBB Malloc Proxy library: inc=${TBB_MALLOC_PROXY_INCLUDE_DIRS}, lib=${TBB_MALLOC_PROXY_LIBRARIES}")
-    else ()
-        message(FATAL_ERROR
-                "Your current TBB version ${TBB_INTERFACE_VERSION} is too old. The minimum required version is 12050 (OneTBB 2021.5).
-Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
-    endif ()
-else ()
-    message(FATAL_ERROR
-            "TBB library not found. Add -DSHAREDMAP_DOWNLOAD_TBB=ON to the cmake build command (may require to clear the cmake cache).")
-endif ()
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -Wall -Wextra -pedantic -fsanitize=undefined,address -fno-omit-frame-pointer -fstack-protector-strong -D_GLIBCXX_DEBUG")
 
 
 # Threading / pthread
@@ -72,25 +38,27 @@ find_path(KAHIP_INCLUDE_DIR
 
 if (NOT KAHIP_LIBRARY OR NOT KAHIP_INCLUDE_DIR)
     message(FATAL_ERROR "KaHIP not found under ${KaHIP_ROOT}. Did you run the build script to install KaHIP?")
-endif()
+endif ()
 
 message(STATUS "Found KaHIP library: ${KAHIP_LIBRARY}")
 message(STATUS "Found KaHIP include dir: ${KAHIP_INCLUDE_DIR}")
 
 # -------------------- Mt-KaHyPar --------------------
-find_library(MTKAHYPAR_LIBRARY
-        NAMES mtkahypar
-        PATHS
-        ${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib
-        ${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib64
-        NO_DEFAULT_PATH
-)
+list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar")
+find_package(MtKaHyPar CONFIG REQUIRED)
 
-if (MTKAHYPAR_LIBRARY)
-    message(STATUS "Found Mt-KaHyPar: ${MTKAHYPAR_LIBRARY}")
-else()
-    message(FATAL_ERROR "Mt-KaHyPar library not found in expected locations (lib or lib64) under extern/local/mt-kahypar.")
-endif()
+message(STATUS "Found Mt-KaHyPar via CMake package: MtKaHyPar::mtkahypar")
+
+# -------------------- Mt-KaHyPar downloaded deps (Boost/TBB) --------------------
+set(MTK_BOOST_LIBDIR "${PROJECT_SOURCE_DIR}/extern/MtKaHyPar/build/_deps/boost-build/libs/program_options")
+set(MTK_TBB_LIBDIR "${PROJECT_SOURCE_DIR}/extern/MtKaHyPar/build/gnu_13.3_cxx11_64_release")
+
+if (NOT EXISTS "${MTK_BOOST_LIBDIR}/libboost_program_options.so.1.86.0")
+    message(FATAL_ERROR "Expected Boost.Program_options not found at: ${MTK_BOOST_LIBDIR}")
+endif ()
+if (NOT EXISTS "${MTK_TBB_LIBDIR}/libtbb.so.12.14")
+    message(FATAL_ERROR "Expected TBB not found at: ${MTK_TBB_LIBDIR}")
+endif ()
 
 # -------------------- Includes & Sources --------------------
 include_directories(${PROJECT_SOURCE_DIR})
@@ -108,15 +76,23 @@ add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
 # Use the variables from FindTBB instead of non-existent imported targets
 target_include_directories(SharedMap PRIVATE ${TBB_INCLUDE_DIRS})
 
-target_link_libraries(SharedMap
-        PRIVATE
+target_link_libraries(SharedMap PRIVATE
         ${KAHIP_LIBRARY}
-        ${MTKAHYPAR_LIBRARY}
-        ${TBB_LIBRARIES}
-        ${TBB_MALLOC_LIBRARIES}
-        ${TBB_MALLOC_PROXY_LIBRARIES}
+        MtKaHyPar::mtkahypar
+        boost_program_options
+        tbb
+        tbbmalloc
         Threads::Threads
-        "-Wl,--disable-new-dtags"   # without this TBB won't link properly in some setups
+        "-Wl,--disable-new-dtags"
+)
+
+target_link_directories(SharedMap PRIVATE
+        "${MTK_BOOST_LIBDIR}"
+        "${MTK_TBB_LIBDIR}"
+)
+
+set_target_properties(SharedMap PROPERTIES
+        BUILD_RPATH "${KaHIP_ROOT}/lib;${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib;${MTK_BOOST_LIBDIR};${MTK_TBB_LIBDIR}"
 )
 
 # -------------------- Shared Library --------------------
@@ -131,15 +107,24 @@ target_include_directories(sharedmap
         ${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/include
 )
 
-target_link_libraries(sharedmap
-        PUBLIC
+target_link_libraries(sharedmap PUBLIC
         ${KAHIP_LIBRARY}
-        ${MTKAHYPAR_LIBRARY}
-        ${TBB_LIBRARIES}
-        ${TBB_MALLOC_LIBRARIES}
-        ${TBB_MALLOC_PROXY_LIBRARIES}
+        MtKaHyPar::mtkahypar
+        boost_program_options
+        tbb
+        tbbmalloc
         Threads::Threads
         "-Wl,--disable-new-dtags"
 )
+
+target_link_directories(sharedmap PRIVATE
+        "${MTK_BOOST_LIBDIR}"
+        "${MTK_TBB_LIBDIR}"
+)
+
+set_target_properties(sharedmap PROPERTIES
+        BUILD_RPATH "${KaHIP_ROOT}/lib;${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib;${MTK_BOOST_LIBDIR};${MTK_TBB_LIBDIR}"
+)
+
 
 install(TARGETS sharedmap DESTINATION lib)
