@@ -41,20 +41,24 @@ else
 fi
 cd "${ROOT}"
 
-# --- Clone Mt-KaHyPar 1.5.3 (with submodules) ---
-echo "Cloning Mt-KaHyPar 1.5.3..."
+# --- Download Mt-KaHyPar 1.5.3 ---
+echo "Downloading Mt-KaHyPar 1.5.3..."
 if (
   cd extern \
+  && rm -f v1.5.3.tar.gz \
   && rm -rf MtKaHyPar \
-  && git clone --branch v1.5.3 --depth 1 --recurse-submodules \
-       https://github.com/kahypar/mt-kahypar.git MtKaHyPar
+  && wget -q https://github.com/kahypar/mt-kahypar/archive/refs/tags/v1.5.3.tar.gz \
+  && tar -xzf v1.5.3.tar.gz \
+  && mv mt-kahypar-1.5.3 MtKaHyPar \
+  && rm -f v1.5.3.tar.gz
 ); then
-  echo "Mt-KaHyPar v1.5.3 cloned successfully (including submodules)."
+  echo "Mt-KaHyPar 1.5.3 downloaded and extracted successfully."
 else
-  echo "Failed to clone Mt-KaHyPar v1.5.3!" >&2
+  echo "Failed to download Mt-KaHyPar 1.5.3!" >&2
   exit 1
 fi
 cd "${ROOT}"
+
 
 # --- build KaHIP ---
 echo "Building KaHIP 3.19..."
@@ -93,12 +97,50 @@ cmake .. \
 cmake --build . --parallel "$JOBS" --target install-mtkahypar
 cd "${ROOT}"
 
+# --- bundle Mt-KaHyPar downloaded runtime deps into the install prefix ---
+echo "Bundling Mt-KaHyPar downloaded Boost/TBB into prefix..."
+
+MTK_BUILD="${ROOT}/extern/MtKaHyPar/build"
+MTK_PREFIX="${ROOT}/extern/local/mt-kahypar"
+MTK_LIBDIR="${MTK_PREFIX}/lib"
+
+mkdir -p "${MTK_LIBDIR}"
+
+# Try to locate the downloaded libs in the build tree
+# Boost is usually in _deps/*-build or _deps/*-src depending on how they build it
+BOOST_PO=$(find "${MTK_BUILD}" -type f -name "libboost_program_options.so*" | head -n 1)
+TBB_SO=$(find "${MTK_BUILD}" -type f -name "libtbb.so*" | head -n 1)
+TBBMALLOC_SO=$(find "${MTK_BUILD}" -type f -name "libtbbmalloc.so*" | head -n 1)
+
+if [ -z "${BOOST_PO}" ] || [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
+  echo "ERROR: Could not locate downloaded Boost/TBB shared libs in ${MTK_BUILD}" >&2
+  echo "  BOOST_PO=${BOOST_PO}" >&2
+  echo "  TBB_SO=${TBB_SO}" >&2
+  echo "  TBBMALLOC_SO=${TBBMALLOC_SO}" >&2
+  exit 1
+fi
+
+# Copy the libs + their symlinks (cp -a preserves symlinks)
+cp -a "$(dirname "${BOOST_PO}")"/libboost_program_options.so* "${MTK_LIBDIR}/"
+cp -a "$(dirname "${TBB_SO}")"/libtbb.so* "${MTK_LIBDIR}/"
+cp -a "$(dirname "${TBBMALLOC_SO}")"/libtbbmalloc.so* "${MTK_LIBDIR}/"
+
+# Optional but nice: make mt-kahypar and friends load deps from their own directory at runtime
+if command -v patchelf >/dev/null 2>&1; then
+  echo "Setting RPATH on libmtkahypar to \$ORIGIN"
+  patchelf --set-rpath '$ORIGIN' "${MTK_LIBDIR}/libmtkahypar.so.1.5.3" 2>/dev/null || true
+fi
+
+echo "Bundled libs:"
+ls -1 "${MTK_LIBDIR}" | grep -E 'mtkahypar|boost_program_options|tbb'
+
+
 
 # --- build SharedMap ---
 echo "Building SharedMap..."
 rm -rf build && mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DSHAREDMAP_DOWNLOAD_TBB=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --parallel "$JOBS" --target SharedMap
 cmake --build . --parallel "$JOBS" --target sharedmap
 cd "${ROOT}"

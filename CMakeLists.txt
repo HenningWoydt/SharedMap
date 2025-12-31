@@ -46,19 +46,9 @@ message(STATUS "Found KaHIP include dir: ${KAHIP_INCLUDE_DIR}")
 # -------------------- Mt-KaHyPar --------------------
 list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar")
 find_package(MtKaHyPar CONFIG REQUIRED)
+set(MTK_LIBDIR "${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib")
 
 message(STATUS "Found Mt-KaHyPar via CMake package: MtKaHyPar::mtkahypar")
-
-# -------------------- Mt-KaHyPar downloaded deps (Boost/TBB) --------------------
-set(MTK_BOOST_LIBDIR "${PROJECT_SOURCE_DIR}/extern/MtKaHyPar/build/_deps/boost-build/libs/program_options")
-set(MTK_TBB_LIBDIR "${PROJECT_SOURCE_DIR}/extern/MtKaHyPar/build/gnu_13.3_cxx11_64_release")
-
-if (NOT EXISTS "${MTK_BOOST_LIBDIR}/libboost_program_options.so.1.86.0")
-    message(FATAL_ERROR "Expected Boost.Program_options not found at: ${MTK_BOOST_LIBDIR}")
-endif ()
-if (NOT EXISTS "${MTK_TBB_LIBDIR}/libtbb.so.12.14")
-    message(FATAL_ERROR "Expected TBB not found at: ${MTK_TBB_LIBDIR}")
-endif ()
 
 # -------------------- Includes & Sources --------------------
 include_directories(${PROJECT_SOURCE_DIR})
@@ -71,60 +61,28 @@ file(GLOB_RECURSE SHAREDMAP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file(GLOB_RECURSE SHAREDMAP_HEADERS CONFIGURE_DEPENDS "src/*.h")
 
 # -------------------- Executable --------------------
+# SharedMap executable
 add_executable(SharedMap main.cpp ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
-
-# Use the variables from FindTBB instead of non-existent imported targets
-target_include_directories(SharedMap PRIVATE ${TBB_INCLUDE_DIRS})
-
 target_link_libraries(SharedMap PRIVATE
         ${KAHIP_LIBRARY}
         MtKaHyPar::mtkahypar
-        boost_program_options
-        tbb
-        tbbmalloc
         Threads::Threads
+)
+target_link_options(SharedMap PRIVATE
         "-Wl,--disable-new-dtags"
+        "-Wl,-rpath-link,${MTK_LIBDIR}"
 )
 
-target_link_directories(SharedMap PRIVATE
-        "${MTK_BOOST_LIBDIR}"
-        "${MTK_TBB_LIBDIR}"
-)
-
-set_target_properties(SharedMap PROPERTIES
-        BUILD_RPATH "${KaHIP_ROOT}/lib;${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib;${MTK_BOOST_LIBDIR};${MTK_TBB_LIBDIR}"
-)
-
-# -------------------- Shared Library --------------------
+# Shared library
 add_library(libsharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
 add_library(sharedmap SHARED lib/libsharedmap.cpp $<TARGET_OBJECTS:libsharedmap>)
-
-target_include_directories(sharedmap
-        PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/interface
-        ${TBB_INCLUDE_DIRS}
-        ${KAHIP_INCLUDE_DIR}
-        ${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/include
-)
 
 target_link_libraries(sharedmap PUBLIC
         ${KAHIP_LIBRARY}
         MtKaHyPar::mtkahypar
-        boost_program_options
-        tbb
-        tbbmalloc
         Threads::Threads
+)
+target_link_options(sharedmap PRIVATE
         "-Wl,--disable-new-dtags"
+        "-Wl,-rpath-link,${MTK_LIBDIR}"
 )
-
-target_link_directories(sharedmap PRIVATE
-        "${MTK_BOOST_LIBDIR}"
-        "${MTK_TBB_LIBDIR}"
-)
-
-set_target_properties(sharedmap PROPERTIES
-        BUILD_RPATH "${KaHIP_ROOT}/lib;${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib;${MTK_BOOST_LIBDIR};${MTK_TBB_LIBDIR}"
-)
-
-
-install(TARGETS sharedmap DESTINATION lib)
