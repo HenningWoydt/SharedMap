@@ -91,6 +91,7 @@ cmake .. \
   -DKAHYPAR_DOWNLOAD_BOOST=ON \
   -DKAHYPAR_ENABLE_THREAD_PINNING=OFF \
   -DKAHYPAR_DISABLE_ASSERTIONS=ON \
+  -DKAHYPAR_STATIC_LINK_DEPENDENCIES=ON \
   -DCMAKE_INSTALL_PREFIX="${ROOT}/extern/local/mt-kahypar"
 
 # This is the important part for the *library*
@@ -112,22 +113,16 @@ fi
 mkdir -p "${MTK_LIBDIR}"
 
 # Locate downloaded shared libs in the build tree
-BOOST_PO=$(find "${MTK_BUILD}" -type f -name "libboost_program_options.so*" | head -n 1)
 TBB_SO=$(find "${MTK_BUILD}" -type f -name "libtbb.so*" | head -n 1)
 TBBMALLOC_SO=$(find "${MTK_BUILD}" -type f -name "libtbbmalloc.so*" | head -n 1)
 
-if [ -z "${BOOST_PO}" ] || [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
+if [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
   echo "ERROR: Could not locate required downloaded libs in ${MTK_BUILD}" >&2
-  echo "  BOOST_PO=${BOOST_PO}" >&2
   echo "  TBB_SO=${TBB_SO}" >&2
   echo "  TBBMALLOC_SO=${TBBMALLOC_SO}" >&2
   echo "Hint: inspect what was built with: find ${MTK_BUILD} -name 'libboost_*.so*' -o -name 'libtbb*.so*'" >&2
   exit 1
 fi
-
-# Copy ALL boost shared libs from the directory that contains program_options
-BOOST_DIR="$(dirname "${BOOST_PO}")"
-cp -a "${BOOST_DIR}"/libboost_*.so* "${MTK_LIBDIR}/"
 
 # Copy TBB + tbbmalloc (with symlinks)
 cp -a "$(dirname "${TBB_SO}")"/libtbb.so* "${MTK_LIBDIR}/"
