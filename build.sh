@@ -112,24 +112,24 @@ fi
 mkdir -p "${MTK_LIBDIR}"
 
 # Locate downloaded shared libs in the build tree
-# (find first instance, then copy all symlink variants from that directory)
 BOOST_PO=$(find "${MTK_BUILD}" -type f -name "libboost_program_options.so*" | head -n 1)
-BOOST_CONTAINER=$(find "${MTK_BUILD}" -type f -name "libboost_container.so*" | head -n 1)
 TBB_SO=$(find "${MTK_BUILD}" -type f -name "libtbb.so*" | head -n 1)
 TBBMALLOC_SO=$(find "${MTK_BUILD}" -type f -name "libtbbmalloc.so*" | head -n 1)
 
-if [ -z "${BOOST_PO}" ] || [ -z "${BOOST_CONTAINER}" ] || [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
-  echo "ERROR: Could not locate all required downloaded libs in ${MTK_BUILD}" >&2
+if [ -z "${BOOST_PO}" ] || [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
+  echo "ERROR: Could not locate required downloaded libs in ${MTK_BUILD}" >&2
   echo "  BOOST_PO=${BOOST_PO}" >&2
-  echo "  BOOST_CONTAINER=${BOOST_CONTAINER}" >&2
   echo "  TBB_SO=${TBB_SO}" >&2
   echo "  TBBMALLOC_SO=${TBBMALLOC_SO}" >&2
+  echo "Hint: inspect what was built with: find ${MTK_BUILD} -name 'libboost_*.so*' -o -name 'libtbb*.so*'" >&2
   exit 1
 fi
 
-# Copy libs + symlinks
+# Copy ALL boost shared libs from the directory that contains program_options
 BOOST_DIR="$(dirname "${BOOST_PO}")"
 cp -a "${BOOST_DIR}"/libboost_*.so* "${MTK_LIBDIR}/"
+
+# Copy TBB + tbbmalloc (with symlinks)
 cp -a "$(dirname "${TBB_SO}")"/libtbb.so* "${MTK_LIBDIR}/"
 cp -a "$(dirname "${TBBMALLOC_SO}")"/libtbbmalloc.so* "${MTK_LIBDIR}/"
 
@@ -142,7 +142,7 @@ if command -v patchelf >/dev/null 2>&1; then
 fi
 
 echo "Bundled libs in ${MTK_LIBDIR}:"
-ls -1 "${MTK_LIBDIR}" | egrep 'mtkahypar|boost_(program_options|container)|tbb'
+ls -1 "${MTK_LIBDIR}" | egrep 'mtkahypar|libboost_|libtbb'
 
 
 # --- build SharedMap ---
