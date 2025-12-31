@@ -102,38 +102,47 @@ echo "Bundling Mt-KaHyPar downloaded Boost/TBB into prefix..."
 
 MTK_BUILD="${ROOT}/extern/MtKaHyPar/build"
 MTK_PREFIX="${ROOT}/extern/local/mt-kahypar"
-MTK_LIBDIR="${MTK_PREFIX}/lib"
 
+# Mt-KaHyPar may install into lib64 on some systems (common on HPC)
+if [ -d "${MTK_PREFIX}/lib64" ]; then
+  MTK_LIBDIR="${MTK_PREFIX}/lib64"
+else
+  MTK_LIBDIR="${MTK_PREFIX}/lib"
+fi
 mkdir -p "${MTK_LIBDIR}"
 
-# Try to locate the downloaded libs in the build tree
-# Boost is usually in _deps/*-build or _deps/*-src depending on how they build it
+# Locate downloaded shared libs in the build tree
+# (find first instance, then copy all symlink variants from that directory)
 BOOST_PO=$(find "${MTK_BUILD}" -type f -name "libboost_program_options.so*" | head -n 1)
+BOOST_CONTAINER=$(find "${MTK_BUILD}" -type f -name "libboost_container.so*" | head -n 1)
 TBB_SO=$(find "${MTK_BUILD}" -type f -name "libtbb.so*" | head -n 1)
 TBBMALLOC_SO=$(find "${MTK_BUILD}" -type f -name "libtbbmalloc.so*" | head -n 1)
 
-if [ -z "${BOOST_PO}" ] || [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
-  echo "ERROR: Could not locate downloaded Boost/TBB shared libs in ${MTK_BUILD}" >&2
+if [ -z "${BOOST_PO}" ] || [ -z "${BOOST_CONTAINER}" ] || [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
+  echo "ERROR: Could not locate all required downloaded libs in ${MTK_BUILD}" >&2
   echo "  BOOST_PO=${BOOST_PO}" >&2
+  echo "  BOOST_CONTAINER=${BOOST_CONTAINER}" >&2
   echo "  TBB_SO=${TBB_SO}" >&2
   echo "  TBBMALLOC_SO=${TBBMALLOC_SO}" >&2
   exit 1
 fi
 
-# Copy the libs + their symlinks (cp -a preserves symlinks)
-cp -a "$(dirname "${BOOST_PO}")"/libboost_program_options.so* "${MTK_LIBDIR}/"
+# Copy libs + symlinks
+BOOST_DIR="$(dirname "${BOOST_PO}")"
+cp -a "${BOOST_DIR}"/libboost_*.so* "${MTK_LIBDIR}/"
 cp -a "$(dirname "${TBB_SO}")"/libtbb.so* "${MTK_LIBDIR}/"
 cp -a "$(dirname "${TBBMALLOC_SO}")"/libtbbmalloc.so* "${MTK_LIBDIR}/"
 
-# Optional but nice: make mt-kahypar and friends load deps from their own directory at runtime
+# Optional: ensure mt-kahypar itself searches next to itself at runtime
 if command -v patchelf >/dev/null 2>&1; then
-  echo "Setting RPATH on libmtkahypar to \$ORIGIN"
-  patchelf --set-rpath '$ORIGIN' "${MTK_LIBDIR}/libmtkahypar.so.1.5.3" 2>/dev/null || true
+  if [ -f "${MTK_LIBDIR}/libmtkahypar.so.1.5.3" ]; then
+    echo "Setting RPATH on libmtkahypar to \$ORIGIN"
+    patchelf --set-rpath '$ORIGIN' "${MTK_LIBDIR}/libmtkahypar.so.1.5.3" || true
+  fi
 fi
 
-echo "Bundled libs:"
-ls -1 "${MTK_LIBDIR}" | grep -E 'mtkahypar|boost_program_options|tbb'
-
+echo "Bundled libs in ${MTK_LIBDIR}:"
+ls -1 "${MTK_LIBDIR}" | egrep 'mtkahypar|boost_(program_options|container)|tbb'
 
 
 # --- build SharedMap ---

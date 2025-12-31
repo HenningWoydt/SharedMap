@@ -46,7 +46,13 @@ message(STATUS "Found KaHIP include dir: ${KAHIP_INCLUDE_DIR}")
 # -------------------- Mt-KaHyPar --------------------
 list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar")
 find_package(MtKaHyPar CONFIG REQUIRED)
-set(MTK_LIBDIR "${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar/lib")
+# --- Mt-KaHyPar libdir (lib vs lib64) ---
+set(MTK_PREFIX "${PROJECT_SOURCE_DIR}/extern/local/mt-kahypar")
+if (EXISTS "${MTK_PREFIX}/lib64")
+    set(MTK_LIBDIR "${MTK_PREFIX}/lib64")
+else()
+    set(MTK_LIBDIR "${MTK_PREFIX}/lib")
+endif()
 
 message(STATUS "Found Mt-KaHyPar via CMake package: MtKaHyPar::mtkahypar")
 
@@ -68,10 +74,6 @@ target_link_libraries(SharedMap PRIVATE
         MtKaHyPar::mtkahypar
         Threads::Threads
 )
-target_link_options(SharedMap PRIVATE
-        "-Wl,--disable-new-dtags"
-        "-Wl,-rpath-link,${MTK_LIBDIR}"
-)
 
 # Shared library
 add_library(libsharedmap OBJECT ${SHAREDMAP_SOURCES} ${SHAREDMAP_HEADERS})
@@ -82,7 +84,14 @@ target_link_libraries(sharedmap PUBLIC
         MtKaHyPar::mtkahypar
         Threads::Threads
 )
-target_link_options(sharedmap PRIVATE
-        "-Wl,--disable-new-dtags"
-        "-Wl,-rpath-link,${MTK_LIBDIR}"
-)
+
+# Runtime + link-time resolution for indirect deps of libmtkahypar.so
+foreach(tgt SharedMap sharedmap)
+    target_link_options(${tgt} PRIVATE
+            "-Wl,--disable-new-dtags"
+            "-Wl,-rpath-link,${MTK_LIBDIR}"
+    )
+    set_target_properties(${tgt} PROPERTIES
+            BUILD_RPATH "${KaHIP_ROOT}/lib;${MTK_LIBDIR}"
+    )
+endforeach()
