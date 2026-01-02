@@ -50,7 +50,7 @@ int main(const int argc, const char *argv[]) {
     if (argc == 1) {
         CommandLineParser clp(argc, argv);
         clp.print_help_message();
-        // exit(0);
+        exit(0);
     } else {
         CommandLineParser clp(argc, argv);
         graph_in         = clp.get("--graph");
