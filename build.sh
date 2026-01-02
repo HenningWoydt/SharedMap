@@ -15,10 +15,14 @@ JOBS="${MAX_THREADS:-$(calc_jobs)}"
 echo "Building with $JOBS parallel jobs (override with MAX_THREADS)."
 
 ROOT=${PWD}
-GCC=$(which gcc || true)
+# Pick compilers from environment if set, otherwise fall back to cc/c++
+: "${CC:=cc}"
+: "${CXX:=c++}"
+
+echo "C compiler (CC):  $CC"
+echo "C++ compiler(CXX): $CXX"
 
 echo "Root            : ${ROOT}"
-echo "Using C compiler: ${GCC:-<system default>}"
 
 rm -rf extern
 mkdir -p extern/local
@@ -66,11 +70,14 @@ if (
   cd "${ROOT}/extern/KaHIP" \
   && mkdir -p build && cd build \
   && cmake .. \
+    -DCMAKE_C_COMPILER="$CC" \
+    -DCMAKE_CXX_COMPILER="$CXX" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${ROOT}/extern/local/kahip" \
     -DNOMPI=ON \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-  && make install -j "$JOBS"
+  && cmake --build . --parallel "$JOBS" \
+  && cmake --install .
 ); then
   echo "KaHIP 3.19 build completed successfully."
 else
@@ -85,6 +92,8 @@ rm -rf extern/MtKaHyPar/build && mkdir -p extern/MtKaHyPar/build
 cd extern/MtKaHyPar/build
 
 cmake .. \
+  -DCMAKE_C_COMPILER="$CC" \
+  -DCMAKE_CXX_COMPILER="$CXX" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DKAHYPAR_DOWNLOAD_TBB=ON \
@@ -92,8 +101,6 @@ cmake .. \
   -DKAHYPAR_ENABLE_THREAD_PINNING=OFF \
   -DKAHYPAR_DISABLE_ASSERTIONS=ON \
   -DCMAKE_INSTALL_PREFIX="${ROOT}/extern/local/mt-kahypar"
-
-# This is the important part for the *library*
 cmake --build . --parallel "$JOBS" --target install-mtkahypar
 cd "${ROOT}"
 
@@ -157,7 +164,7 @@ ls -1 "${MTK_LIBDIR}" | egrep 'mtkahypar|libboost_|libtbb'
 echo "Building SharedMap..."
 rm -rf build && mkdir -p build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX"
 cmake --build . --parallel "$JOBS" --target SharedMap
 cmake --build . --parallel "$JOBS" --target sharedmap
 cd "${ROOT}"
