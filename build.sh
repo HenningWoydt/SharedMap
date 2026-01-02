@@ -115,17 +115,31 @@ mkdir -p "${MTK_LIBDIR}"
 TBB_SO=$(find "${MTK_BUILD}" -type f -name "libtbb.so*" | head -n 1)
 TBBMALLOC_SO=$(find "${MTK_BUILD}" -type f -name "libtbbmalloc.so*" | head -n 1)
 
-if [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ]; then
+# --- Boost libs (downloaded by KAHYPAR_DOWNLOAD_BOOST=ON) ---
+BOOST_PO_SO=$(find "${MTK_BUILD}" -type f -name "libboost_program_options.so*" | head -n 1)
+BOOST_SYS_SO=$(find "${MTK_BUILD}" -type f -name "libboost_system.so*" | head -n 1)
+BOOST_FS_SO=$(find "${MTK_BUILD}" -type f -name "libboost_filesystem.so*" | head -n 1)
+BOOST_THR_SO=$(find "${MTK_BUILD}" -type f -name "libboost_thread.so*" | head -n 1)
+
+if [ -z "${TBB_SO}" ] || [ -z "${TBBMALLOC_SO}" ] || [ -z "${BOOST_PO_SO}" ]; then
   echo "ERROR: Could not locate required downloaded libs in ${MTK_BUILD}" >&2
   echo "  TBB_SO=${TBB_SO}" >&2
   echo "  TBBMALLOC_SO=${TBBMALLOC_SO}" >&2
-  echo "Hint: inspect what was built with: find ${MTK_BUILD} -name 'libboost_*.so*' -o -name 'libtbb*.so*'" >&2
+  echo "  BOOST_PO_SO=${BOOST_PO_SO}" >&2
+  echo "Hint: find ${MTK_BUILD} -name 'libboost_*.so*' -o -name 'libtbb*.so*'" >&2
   exit 1
 fi
 
 # Copy TBB + tbbmalloc (with symlinks)
 cp -a "$(dirname "${TBB_SO}")"/libtbb.so* "${MTK_LIBDIR}/"
 cp -a "$(dirname "${TBBMALLOC_SO}")"/libtbbmalloc.so* "${MTK_LIBDIR}/"
+
+# Copy Boost program_options (+ common deps if present)
+cp -a "$(dirname "${BOOST_PO_SO}")"/libboost_program_options.so* "${MTK_LIBDIR}/"
+[ -n "${BOOST_SYS_SO}" ] && cp -a "$(dirname "${BOOST_SYS_SO}")"/libboost_system.so* "${MTK_LIBDIR}/"
+[ -n "${BOOST_FS_SO}" ]  && cp -a "$(dirname "${BOOST_FS_SO}")"/libboost_filesystem.so* "${MTK_LIBDIR}/"
+[ -n "${BOOST_THR_SO}" ] && cp -a "$(dirname "${BOOST_THR_SO}")"/libboost_thread.so* "${MTK_LIBDIR}/"
+
 
 # Optional: ensure mt-kahypar itself searches next to itself at runtime
 if command -v patchelf >/dev/null 2>&1; then
