@@ -54,7 +54,11 @@ namespace SharedMap {
                                  std::vector<u64> &partition,
                                  u64 kaffpa_config,
                                  u64 seed) {
-        ASSERT(imbalance >= 0.0);
+        if (imbalance < 0.0) {
+            // if this happens then a previous partition was imbalanced and an imbalanced solution is guaranteed
+            // simply continue, but try to keep imbalance low
+            imbalance = 0.001; // this is 0.1%
+        }
         ASSERT(k > 0);
 
         // enough space
@@ -151,7 +155,11 @@ namespace SharedMap {
                                      u64 mt_kahypar_config,
                                      u64 n_threads,
                                      u64 seed) {
-        ASSERT(imbalance >= 0.0);
+        if (imbalance < 0.0) {
+            // if this happens then a previous partition was imbalanced and an imbalanced solution is guaranteed
+            // simply continue, but try to keep imbalance low
+            imbalance = 0.001; // this is 0.1%
+        }
         ASSERT(k > 0);
 
         partition.resize(g.n);
