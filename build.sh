@@ -91,7 +91,6 @@ cmake .. \
   -DKAHYPAR_DOWNLOAD_BOOST=ON \
   -DKAHYPAR_ENABLE_THREAD_PINNING=OFF \
   -DKAHYPAR_DISABLE_ASSERTIONS=ON \
-  -DKAHYPAR_STATIC_LINK_DEPENDENCIES=ON \
   -DCMAKE_INSTALL_PREFIX="${ROOT}/extern/local/mt-kahypar"
 
 # This is the important part for the *library*
