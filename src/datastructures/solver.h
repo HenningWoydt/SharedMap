@@ -161,7 +161,9 @@ namespace SharedMap {
                 for (u64 id = 0; id < m_ac.k; ++id) {
                     n_empty_partitions += weights[id] == 0;
                     n_overloaded_partitions += weights[id] > lmax;
-                    sum_too_much += std::max((u64) 0, weights[id] - lmax);
+                    if (weights[id] > lmax) {
+                        sum_too_much += (weights[id] - lmax);
+                    }
                     max_w = std::max(max_w, weights[id]);
                 }
                 std::cout << "max block w       : " << max_w << std::endl;
