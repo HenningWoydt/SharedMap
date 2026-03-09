@@ -91,6 +91,36 @@ The include files for the library are present in the `include` folder.
 
 Usage
 -----------
+
+### Python Interface
+
+Install via pip:
+```bash
+pip install sharedmap
+```
+
+Use in Python:
+```python
+import sharedmap as sm
+
+# Define graph in CSR format
+v_weights = [1, 1, 1, 1, 1, 1, 1, 1]
+adj_ptrs = [0, 3, 6, 8, 12, 16, 19, 21, 22]
+adj_weights = [1] * 22
+adj = [1, 2, 3, 0, 3, 4, 0, 3, 0, 1, 2, 5, 1, 5, 6, 7, 3, 4, 6, 4, 5, 4]
+
+# Partition
+comm_cost, partition = sm.partition_graph(
+    v_weights, adj_ptrs, adj_weights, adj,
+    hierarchy=[2, 2], distance=[1, 10],
+    imbalance=0.03, n_threads=1
+)
+```
+
+See [python/README.md](python/README.md) for detailed Python documentation.
+
+### Command Line Interface
+
 Call `SharedMap` in the `build` folder:
 
     ./build/SharedMap -g <inpath-graph> -m <outpath-parition> -h <hierarchy> -d <distance> -e <imbalance (e.g. 0.03)> -c {fast|eco|strong} -t <# threads> -s {naive|layer|queue|nb_layer} --seed <seed>

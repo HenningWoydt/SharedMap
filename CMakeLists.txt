@@ -95,3 +95,26 @@ foreach(tgt SharedMap sharedmap)
             BUILD_RPATH "${KaHIP_ROOT}/lib;${MTK_LIBDIR}"
     )
 endforeach()
+
+# -------------------- Python Bindings --------------------
+if(SKBUILD)
+    find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+    find_package(pybind11 CONFIG REQUIRED)
+    
+    pybind11_add_module(_sharedmap python/sharedmap_bindings.cpp $<TARGET_OBJECTS:libsharedmap>)
+    target_link_libraries(_sharedmap PRIVATE
+            ${KAHIP_LIBRARY}
+            MtKaHyPar::mtkahypar
+            Threads::Threads
+    )
+    target_link_options(_sharedmap PRIVATE
+            "-Wl,--disable-new-dtags"
+            "-Wl,-rpath-link,${MTK_LIBDIR}"
+    )
+    set_target_properties(_sharedmap PROPERTIES
+            BUILD_RPATH "${KaHIP_ROOT}/lib;${MTK_LIBDIR}"
+            INSTALL_RPATH "$ORIGIN"
+    )
+    
+    install(TARGETS _sharedmap LIBRARY DESTINATION sharedmap)
+endif()

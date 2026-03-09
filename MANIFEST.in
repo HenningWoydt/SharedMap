@@ -1,0 +1,13 @@
+include README.md
+include LICENSE
+include pyproject.toml
+include CMakeLists.txt
+include build.sh
+recursive-include include *.h
+recursive-include lib *.cpp
+recursive-include src *.h *.cpp
+recursive-include python *.py *.cpp
+recursive-include extern/KaHIP *
+recursive-include extern/MtKaHyPar *
+recursive-include cmake *
+global-exclude *.pyc __pycache__ .git* build cmake-build-*
