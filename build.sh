@@ -39,7 +39,7 @@ if (
   cd extern \
   && rm -f v3.19.tar.gz \
   && rm -rf KaHIP \
-  && wget -q https://github.com/KaHIP/KaHIP/archive/refs/tags/v3.19.tar.gz \
+  && curl -sL https://github.com/KaHIP/KaHIP/archive/refs/tags/v3.19.tar.gz -o v3.19.tar.gz \
   && tar -xzf v3.19.tar.gz \
   && mv KaHIP-3.19 KaHIP \
   && rm -f v3.19.tar.gz
@@ -57,7 +57,7 @@ if (
   cd extern \
   && rm -f v1.5.3.tar.gz \
   && rm -rf MtKaHyPar \
-  && wget -q https://github.com/kahypar/mt-kahypar/archive/refs/tags/v1.5.3.tar.gz \
+  && curl -sL https://github.com/kahypar/mt-kahypar/archive/refs/tags/v1.5.3.tar.gz -o v1.5.3.tar.gz \
   && tar -xzf v1.5.3.tar.gz \
   && mv mt-kahypar-1.5.3 MtKaHyPar \
   && rm -f v1.5.3.tar.gz
