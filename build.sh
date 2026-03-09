@@ -24,6 +24,12 @@ echo "C++ compiler(CXX): $CXX"
 
 echo "Root            : ${ROOT}"
 
+# Check if dependencies are already built (from cache)
+if [ -d "${ROOT}/extern/local/kahip" ] && [ -d "${ROOT}/extern/local/mt-kahypar" ]; then
+  echo "Found cached dependencies in extern/local, skipping download and build."
+else
+  echo "Building dependencies from scratch..."
+
 rm -rf extern
 mkdir -p extern/local
 
@@ -162,6 +168,7 @@ fi
 echo "Bundled libs in ${MTK_LIBDIR}:"
 ls -1 "${MTK_LIBDIR}" | egrep 'mtkahypar|libboost_|libtbb' || true
 
+fi  # End of dependency build check
 
 # --- build SharedMap ---
 echo "Building SharedMap..."
