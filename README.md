@@ -8,6 +8,7 @@ SharedMap v1.1
 [![GitHub Stars](https://img.shields.io/github/stars/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/stargazers)
 [![GitHub Issues](https://img.shields.io/github/issues/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/commits)
+[![arXiv](https://img.shields.io/badge/arXiv-2504.01726-b31b1b.svg)](https://arxiv.org/abs/2504.01726)
 [![SIAM](https://img.shields.io/badge/SIAM-ACDA'25-blue)](https://epubs.siam.org/doi/10.1137/1.9781611978759.2)
 [![Heidelberg University](https://img.shields.io/badge/Heidelberg-University-c1002a)](https://www.uni-heidelberg.de)
 =====
