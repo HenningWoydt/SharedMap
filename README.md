@@ -94,9 +94,9 @@ Usage
 
 ### Python Interface
 
-Install via pip:
+Build and install locally:
 ```bash
-pip install sharedmap
+pip install .
 ```
 
 Use in Python:
