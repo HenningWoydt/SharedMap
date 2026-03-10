@@ -46,10 +46,11 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p ~/Library/Caches/cibuildwheel
-          test -f ~/Library/Caches/cibuildwheel/virtualenv-20.27.1.pyz || \
+          if [ ! -f ~/Library/Caches/cibuildwheel/virtualenv-20.27.1.pyz ]; then
             curl -fL --retry 8 --retry-delay 5 --retry-all-errors \
               "https://github.com/pypa/get-virtualenv/blob/20.27.1/public/virtualenv.pyz?raw=true" \
               -o ~/Library/Caches/cibuildwheel/virtualenv-20.27.1.pyz
+          fi
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22
@@ -60,7 +61,7 @@ jobs:
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_BUILD: ./build.sh
           CIBW_BUILD_VERBOSITY: 1
-          CIBW_DEPENDENCY_VERSIONS: "packages: virtualenv==20.27.1"
+          CIBW_DEPENDENCY_VERSIONS: latest
 
       - uses: actions/upload-artifact@v4
         with:
