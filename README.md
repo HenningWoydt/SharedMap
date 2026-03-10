@@ -254,15 +254,14 @@ Licensing
 ---------
 SharedMap is a free software provided under the MIT License. For more information see the [LICENSE file][LF]. This algorithm is available to everyone, welcoming all who wish to make use of it. If you use SharedMap in an academic setting please cite
 ```
-@inbook{doi:10.1137/1.9781611978759.2,
-  author = {Christian Schulz and Henning Woydt},
-  title = {Shared-Memory Hierarchical Process Mapping},
-  booktitle = {2025 Proceedings of the Conference on Applied and Computational Discrete Algorithms (ACDA)},
-  chapter = {},
-  pages = {18-31},
-  doi = {10.1137/1.9781611978759.2},
-  URL = {https://epubs.siam.org/doi/abs/10.1137/1.9781611978759.2},
-  eprint = {https://epubs.siam.org/doi/pdf/10.1137/1.9781611978759.2}
+@inproceedings{SchulzW25,
+  author    = {Schulz, Christian and Woydt, Henning},
+  title     = {{Shared-Memory Hierarchical Process Mapping}},
+  booktitle = {Proceedings of the 3rd Conference on Applied and Computational Discrete Algorithms (ACDA 2025)},
+  pages     = {18--31},
+  publisher = {SIAM},
+  year      = {2025},
+  doi       = {10.1137/1.9781611978759.2}
 }
 ```
 
