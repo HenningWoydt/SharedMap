@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 250" width="900" height="250">
+  <defs>
+    <!-- Glow filters for mapping groups -->
+    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feFlood flood-color="#e74c3c" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feFlood flood-color="#3498db" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-yellow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feFlood flood-color="#f1c40f" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Subtle background glows -->
+    <radialGradient id="bg-glow1" cx="15%" cy="35%">
+      <stop offset="0%" stop-color="#e74c3c" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#e74c3c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bg-glow2" cx="25%" cy="35%">
+      <stop offset="0%" stop-color="#3498db" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#3498db" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bg-glow3" cx="30%" cy="75%">
+      <stop offset="0%" stop-color="#f1c40f" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#f1c40f" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Arrow marker -->
+    <marker id="arrow-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#888" stroke-width="1" stroke-opacity="0.5"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="250" rx="16" ry="16" fill="#1a1d23"/>
+
+  <!-- Subtle background glows -->
+  <ellipse cx="120" cy="80" rx="140" ry="100" fill="url(#bg-glow1)"/>
+  <ellipse cx="220" cy="80" rx="120" ry="90" fill="url(#bg-glow2)"/>
+  <ellipse cx="270" cy="190" rx="150" ry="80" fill="url(#bg-glow3)"/>
+
+  <!-- ==================== TASK GRAPH (upper left) ==================== -->
+  <!-- Communication edges between tasks -->
+  <!-- Red group internal edges -->
+  <line x1="70" y1="50" x2="120" y2="35" stroke="#e74c3c" stroke-width="1.5" stroke-opacity="0.5"/>
+  <line x1="70" y1="50" x2="95" y2="85" stroke="#e74c3c" stroke-width="1.5" stroke-opacity="0.5"/>
+  <line x1="120" y1="35" x2="95" y2="85" stroke="#e74c3c" stroke-width="1.5" stroke-opacity="0.5"/>
+
+  <!-- Blue group internal edges -->
+  <line x1="175" y1="40" x2="225" y2="50" stroke="#3498db" stroke-width="1.5" stroke-opacity="0.5"/>
+  <line x1="175" y1="40" x2="200" y2="80" stroke="#3498db" stroke-width="1.5" stroke-opacity="0.5"/>
+  <line x1="225" y1="50" x2="200" y2="80" stroke="#3498db" stroke-width="1.5" stroke-opacity="0.5"/>
+
+  <!-- Yellow group internal edges -->
+  <line x1="130" y1="95" x2="165" y2="75" stroke="#f1c40f" stroke-width="1.5" stroke-opacity="0.5"/>
+  <line x1="130" y1="95" x2="155" y2="110" stroke="#f1c40f" stroke-width="1.5" stroke-opacity="0.5"/>
+  <line x1="165" y1="75" x2="155" y2="110" stroke="#f1c40f" stroke-width="1.5" stroke-opacity="0.5"/>
+
+  <!-- Inter-group edges (dashed, dim) -->
+  <line x1="120" y1="35" x2="175" y2="40" stroke="#888" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4,4"/>
+  <line x1="95" y1="85" x2="130" y2="95" stroke="#888" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4,4"/>
+  <line x1="200" y1="80" x2="165" y2="75" stroke="#888" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4,4"/>
+
+  <!-- Task graph nodes -->
+  <!-- Red group (Block 1) -->
+  <circle cx="70" cy="50" r="9" fill="#e74c3c" filter="url(#glow-red)"/>
+  <circle cx="120" cy="35" r="9" fill="#e74c3c" filter="url(#glow-red)"/>
+  <circle cx="95" cy="85" r="9" fill="#e74c3c" filter="url(#glow-red)"/>
+
+  <!-- Blue group (Block 2) -->
+  <circle cx="175" cy="40" r="9" fill="#3498db" filter="url(#glow-blue)"/>
+  <circle cx="225" cy="50" r="9" fill="#3498db" filter="url(#glow-blue)"/>
+  <circle cx="200" cy="80" r="9" fill="#3498db" filter="url(#glow-blue)"/>
+
+  <!-- Yellow group (Block 3) -->
+  <circle cx="130" cy="95" r="9" fill="#f1c40f" filter="url(#glow-yellow)"/>
+  <circle cx="165" cy="75" r="9" fill="#f1c40f" filter="url(#glow-yellow)"/>
+  <circle cx="155" cy="110" r="9" fill="#f1c40f" filter="url(#glow-yellow)"/>
+
+  <!-- Label for task graph -->
+  <text x="148" y="22" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10" fill="#6a7080" text-anchor="middle" letter-spacing="1.5">TASKS</text>
+
+  <!-- ==================== MAPPING ARROWS (center, connecting task graph to hierarchy) ==================== -->
+  <!-- Curved arrows from task groups down to processor hierarchy -->
+  <!-- Red tasks -> left processor block -->
+  <path d="M85,92 C85,130 75,140 75,158" stroke="#e74c3c" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+  <path d="M70,58 C55,130 60,140 60,158" stroke="#e74c3c" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+  <path d="M120,44 C110,130 90,140 90,158" stroke="#e74c3c" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+
+  <!-- Blue tasks -> right processor block -->
+  <path d="M175,49 C185,130 215,140 215,158" stroke="#3498db" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+  <path d="M225,59 C230,130 230,140 230,158" stroke="#3498db" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+  <path d="M200,89 C210,130 245,140 245,158" stroke="#3498db" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+
+  <!-- Yellow tasks -> middle processor block -->
+  <path d="M130,104 C130,125 135,145 140,158" stroke="#f1c40f" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+  <path d="M165,84 C165,120 155,145 155,158" stroke="#f1c40f" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+  <path d="M155,119 C155,130 170,145 170,158" stroke="#f1c40f" stroke-width="1.2" stroke-opacity="0.4" fill="none" stroke-dasharray="3,3"/>
+
+  <!-- ==================== PROCESSOR HIERARCHY (bottom) ==================== -->
+  <!-- Level 0: System/Rack (single wide rectangle at top) -->
+  <rect x="40" y="155" width="230" height="16" rx="3" ry="3" fill="none" stroke="#6a7080" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="155" y="166" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="8" fill="#6a7080" text-anchor="middle">RACK</text>
+
+  <!-- Level 1: Nodes (3 blocks inside the rack) -->
+  <!-- Node 1 (red) -->
+  <rect x="48" y="177" width="60" height="14" rx="2" ry="2" fill="#e74c3c" fill-opacity="0.15" stroke="#e74c3c" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="78" y="187" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="7" fill="#e74c3c" fill-opacity="0.7" text-anchor="middle">Node 0</text>
+
+  <!-- Node 2 (yellow) -->
+  <rect x="118" y="177" width="60" height="14" rx="2" ry="2" fill="#f1c40f" fill-opacity="0.15" stroke="#f1c40f" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="148" y="187" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="7" fill="#f1c40f" fill-opacity="0.7" text-anchor="middle">Node 1</text>
+
+  <!-- Node 3 (blue) -->
+  <rect x="188" y="177" width="72" height="14" rx="2" ry="2" fill="#3498db" fill-opacity="0.15" stroke="#3498db" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="224" y="187" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="7" fill="#3498db" fill-opacity="0.7" text-anchor="middle">Node 2</text>
+
+  <!-- Hierarchy connectors (rack to nodes) -->
+  <line x1="78" y1="171" x2="78" y2="177" stroke="#6a7080" stroke-width="0.8" stroke-opacity="0.4"/>
+  <line x1="148" y1="171" x2="148" y2="177" stroke="#6a7080" stroke-width="0.8" stroke-opacity="0.4"/>
+  <line x1="224" y1="171" x2="224" y2="177" stroke="#6a7080" stroke-width="0.8" stroke-opacity="0.4"/>
+
+  <!-- Level 2: Cores (small squares inside each node) -->
+  <!-- Node 0 cores (red) -->
+  <rect x="52" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#e74c3c" fill-opacity="0.6" filter="url(#glow-red)"/>
+  <rect x="68" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#e74c3c" fill-opacity="0.6" filter="url(#glow-red)"/>
+  <rect x="84" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#e74c3c" fill-opacity="0.6" filter="url(#glow-red)"/>
+
+  <!-- Node 1 cores (yellow) -->
+  <rect x="122" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#f1c40f" fill-opacity="0.6" filter="url(#glow-yellow)"/>
+  <rect x="138" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#f1c40f" fill-opacity="0.6" filter="url(#glow-yellow)"/>
+  <rect x="154" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#f1c40f" fill-opacity="0.6" filter="url(#glow-yellow)"/>
+
+  <!-- Node 2 cores (blue) -->
+  <rect x="194" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#3498db" fill-opacity="0.6" filter="url(#glow-blue)"/>
+  <rect x="210" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#3498db" fill-opacity="0.6" filter="url(#glow-blue)"/>
+  <rect x="226" y="197" width="12" height="10" rx="1.5" ry="1.5" fill="#3498db" fill-opacity="0.6" filter="url(#glow-blue)"/>
+
+  <!-- Node-to-core connectors -->
+  <line x1="78" y1="191" x2="58" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="78" y1="191" x2="74" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="78" y1="191" x2="90" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+
+  <line x1="148" y1="191" x2="128" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="148" y1="191" x2="144" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="148" y1="191" x2="160" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+
+  <line x1="224" y1="191" x2="200" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="224" y1="191" x2="216" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="224" y1="191" x2="232" y2="197" stroke="#6a7080" stroke-width="0.6" stroke-opacity="0.3"/>
+
+  <!-- Label for hierarchy -->
+  <text x="155" y="228" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="10" fill="#6a7080" text-anchor="middle" letter-spacing="1.5">PROCESSORS</text>
+
+  <!-- ==================== DIVIDER ==================== -->
+  <line x1="380" y1="40" x2="380" y2="210" stroke="#2a2e36" stroke-width="1"/>
+
+  <!-- ==================== TEXT ==================== -->
+  <!-- Title -->
+  <text x="440" y="110" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="64" font-weight="700" fill="#ffffff" letter-spacing="1">SharedMap</text>
+
+  <!-- Subtitle -->
+  <text x="444" y="145" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#a0a8b4" letter-spacing="0.5">Process Mapping</text>
+
+  <!-- ==================== LEGEND ==================== -->
+  <!-- Block 1 -->
+  <circle cx="448" cy="190" r="6" fill="#e74c3c"/>
+  <text x="462" y="194" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#8890a0">Block 1</text>
+
+  <!-- Block 2 -->
+  <circle cx="548" cy="190" r="6" fill="#3498db"/>
+  <text x="562" y="194" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#8890a0">Block 2</text>
+
+  <!-- Block 3 -->
+  <circle cx="648" cy="190" r="6" fill="#f1c40f"/>
+  <text x="662" y="194" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#8890a0">Block 3</text>
+
+  <!-- Mapping legend -->
+  <line x1="442" y1="215" x2="468" y2="215" stroke="#888" stroke-width="1.5" stroke-opacity="0.5" stroke-dasharray="3,3"/>
+  <text x="478" y="219" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#8890a0">Task-to-processor mapping</text>
+</svg>

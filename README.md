@@ -1,5 +1,20 @@
-<h1 align="center">SharedMap - Shared-Memory Hierarchical Multisection for Process Mapping</h1>
+SharedMap v1.1
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![C++](https://img.shields.io/badge/C++-17-blue.svg)](https://isocpp.org/)
+[![CMake](https://img.shields.io/badge/CMake-3.16+-064F8C.svg)](https://cmake.org/)
+[![GitHub Release](https://img.shields.io/github/v/release/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/releases/latest)
+[![Homebrew](https://img.shields.io/badge/Homebrew-available-orange)](https://github.com/KaHIP/homebrew-kahip)
+[![Linux](https://img.shields.io/badge/Linux-supported-success.svg)](https://github.com/KaHIP/SharedMap)
+[![GitHub Stars](https://img.shields.io/github/stars/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/KaHIP/SharedMap)](https://github.com/KaHIP/SharedMap/commits)
+[![SIAM](https://img.shields.io/badge/SIAM-ACDA'25-blue)](https://epubs.siam.org/doi/10.1137/1.9781611978759.2)
+[![Heidelberg University](https://img.shields.io/badge/Heidelberg-University-c1002a)](https://www.uni-heidelberg.de)
+=====
 
+<p align="center">
+  <img src="./logo/sharedmap-logo.svg" alt="SharedMap Logo" width="900"/>
+</p>
 
 About SharedMap
 -----------
@@ -62,6 +77,12 @@ sudo apt-get install libtbb-dev libhwloc-dev libboost-program-options-dev
 
 Installation
 -----------
+### Install via Homebrew (Linux)
+
+```bash
+brew install KaHIP/kahip/sharedmap
+```
+
 ### Automatic
 The script `build.sh` will automatically install the binary and the library.
 It will first install the Mt-KaHyPar library and afterward build the project.
@@ -225,7 +246,7 @@ int main() {
 
 ## Bugs, Questions, Comments and Ideas
 
-If any bugs arise, questions occur, comments want to be shared, or ideas discussed, please do not hesitate to contact the current repository owner (henning.woydt@informatik.uni-heidelberg.de) or leave a GitHub [Issue](https://github.com/HenningWoydt/SharedMap/issues) or [Discussion](https://github.com/HenningWoydt/SharedMap/discussions). Thanks!
+If any bugs arise, questions occur, comments want to be shared, or ideas discussed, please do not hesitate to contact the current repository owner (henning.woydt@informatik.uni-heidelberg.de) or leave a GitHub [Issue](https://github.com/KaHIP/SharedMap/issues) or [Discussion](https://github.com/KaHIP/SharedMap/discussions). Thanks!
 
 
 Licensing
@@ -244,5 +265,5 @@ SharedMap is a free software provided under the MIT License. For more informatio
 }
 ```
 
-[LF]: https://github.com/HenningWoydt/SharedMap/blob/master/LICENSE "License"
+[LF]: https://github.com/KaHIP/SharedMap/blob/main/LICENSE "License"
 [publication]: https://epubs.siam.org/doi/10.1137/1.9781611978759.2
